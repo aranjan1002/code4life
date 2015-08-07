@@ -1,0 +1,52 @@
+regress/ecl
+tpatcalc.ecl
+eclcc: tpatcalc.ecl(90,8): Error C4104:  Unimplemented: Cannot yet access $<n> inside a child query
+1 error(s), 0 warning(s)
+
+fromjson.ecl.cpp
+aranjan@aranjan-GX776AA-ABA-a6342p:~/HPCC/HPCC-Platform/testing/regress/ecl$ ecl run fromjson.ecl -fsaveCppTempFiles=true -fminimalOperationsInline=true -t=thor
+W20150629-110142
+   state: failed
+eclcc: fromjson.ecl(63,1): Error C4818:  INTERNAL: Expected a parent/container context.  Likely to be caused by executing something invalid inside a NOTHOR.
+1 error(s), 0 warning(s)
+
+
+fromxml.ecl.cpp
+aranjan@aranjan-GX776AA-ABA-a6342p:~/HPCC/HPCC-Platform/testing/regress/ecl$ ecl run fromxml.ecl -fsaveCppTempFiles=true -fminimalOperationsInline=true -t=thor
+W20150629-110311
+   state: failed
+eclcc: fromxml.ecl(61,1): Error C4818:  INTERNAL: Expected a parent/container context.  Likely to be caused by executing something invalid inside a NOTHOR.
+1 error(s), 0 warning(s)
+
+jsonout.ecl.cpp
+aranjan@aranjan-GX776AA-ABA-a6342p:~/HPCC/HPCC-Platform/testing/regress/ecl$ ecl run jsonout.ecl -fsaveCppTempFiles=true -fminimalOperationsInline=true -t=thor
+W20150629-110340
+   state: failed
+eclcc: jsonout.ecl(63,1): Error C4818:  INTERNAL: Expected a parent/container context.  Likely to be caused by executing something invalid inside a NOTHOR.
+1 error(s), 0 warning(s)
+
+nesting.ecl.cpp
+aranjan@aranjan-GX776AA-ABA-a6342p:~/HPCC/HPCC-Platform/testing/regress/ecl$ ecl run nesting.ecl -fsaveCppTempFiles=true -fminimalOperationsInline=true -t=thor
+W20150629-110412
+   state: failed
+eclcc: nesting.ecl(53,1): Error C4818:  INTERNAL: Expected a parent/container context.  Likely to be caused by executing something invalid inside a NOTHOR.
+1 error(s), 0 warning(s)
+
+nestrecs.ecl
+aranjan@aranjan-GX776AA-ABA-a6342p:~/HPCC/HPCC-Platform/testing/regress/ecl$ ecl run nesrecs.ecl -fsaveCppTempFiles=true -fminimalOperationsInline=true -t=thor
+Can't determine content type of argument nesrecs.ecl
+aranjan@aranjan-GX776AA-ABA-a6342p:~/HPCC/HPCC-Platform/testing/regress/ecl$ ecl run tojson.ecl -fsaveCppTempFiles=true -fminimalOperationsInline=true -t=thor
+W20150629-110507
+   state: failed
+
+tojson.ecl
+eclcc: tojson.ecl(59,1): Error C4818:  INTERNAL: Expected a parent/container context.  Likely to be caused by executing something invalid inside a NOTHOR.
+1 error(s), 0 warning(s)
+
+toxml.ecl
+aranjan@aranjan-GX776AA-ABA-a6342p:~/HPCC/HPCC-Platform/testing/regress/ecl$ ecl run toxml.ecl -fsaveCppTempFiles=true -fminimalOperationsInline=true -t=thor
+W20150629-110519
+   state: failed
+eclcc: toxml.ecl(87,1): Error C4818:  INTERNAL: Expected a parent/container context.  Likely to be caused by executing something invalid inside a NOTHOR.
+1 error(s), 0 warning(s)
+
