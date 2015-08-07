@@ -1,4 +1,6 @@
-Overall Experience and Recommendations
+Overall Experiences and Recommendations
+----------------------------------------
+----------------------------------------
 
 I came into this project because I had some experiences with database. But as it turned out the skills which I actually utilized here was c++ and debugging skills. It is easy to understand the overall goal of the project: improve running time of certain queries by improving the optimization process. But there was were many details about the project which I came to realize very later on in the project but were necessary to make progress. Now that I have some confidence about the knowledge of the project, I can outline some steps which could have been much more productive and may act as a reference for future interns or employees. I will like to point out that these are from my perspective and some other person may have behaved differently based upon his expertise and experience. 
 
