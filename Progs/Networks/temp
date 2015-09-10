@@ -1,0 +1,219 @@
+package networks.project;
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+class UDPServer {
+    public static void main (String[] args)
+	throws IOException {
+	int portNumber = setSerFileAndGetPortNumberFromFile();
+	readFromSerFile();
+	System.out.println("Starting server on port: " + portNumber);
+	try {
+	    serverSocket = new DatagramSocket(portNumber);
+	    int cmd;
+	    // String sendData;
+	    while (true) {
+		rcvPkt = new DatagramPacket(rcvData, rcvData.length);
+		serverSocket.receive(rcvPkt);
+		rec = new Record(rcvPkt.getData());
+		cmd = rec.getCmd();
+		System.out.println("CMD" + cmd);
+		if (cmd == CmdCode.INSERT) {
+		    insert();
+		}
+		else if (cmd == CmdCode.DELETE) {
+		    delete();
+		}
+		else if (cmd == CmdCode.FIND) {
+		    find();
+		}
+		else if (cmd == CmdCode.KILL) {
+		    killAndSerializeRecords();
+		    break;
+		}
+		else if (cmd == CmdCode.TEST) {
+		    test();
+		}
+		else if (cmd == CmdCode.LINK) {
+		    link();
+		}
+		else {
+		    sendData =  new String("Command not recognized");
+		    sendResponse();
+		}
+		System.out.println(sendData);
+		// sendResponse();
+		rcvData = new byte[1024];
+	    }
+	} catch (NetworkProjectException e) {
+	    sendData = e.getMessage();
+	    e.printStackTrace();
+	} catch (SocketException e) {
+	    sendData = e.getMessage();
+	    e.printStackTrace();
+	}
+    }
+    
+    private static void killAndSerializeRecords() 
+	throws IOException {
+	sendData = new String("Success: Ready to die");
+	FileOutputStream fos = new FileOutputStream(serFile);
+	ObjectOutputStream oos = new ObjectOutputStream(fos);
+	oos.writeObject(recList);
+	oos.close();
+	System.out.println("Records persisted");
+	sendResponse();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void readFromSerFile() 
+	throws IOException {
+	File file = new File(serFile);
+	if (file.exists()) {
+	    FileInputStream fis = new FileInputStream(file);
+	    ObjectInputStream ois = new ObjectInputStream(fis);
+	    try {
+		recList = (HashMap<String, Record>) ois.readObject();
+	    } catch (ClassNotFoundException e) {
+		e.printStackTrace();
+		throw new IOException("Unable to read from persistant file");
+	    }
+	    ois.close();
+	    System.out.println("Records read from file");
+	}
+    }
+    
+    private static void insert() 
+	throws NetworkProjectException, UnknownHostException, IOException {
+	// Record rec = new Record(rcvData);
+	System.out.println(new String(rec.getBytes()));
+	String name = rec.getName();
+	if (recList.containsKey(name)) {
+	    sendData = new String("Error: name already used");
+	}
+	else {
+	    recList.put(name, rec);
+	    sendData = new String("Success");
+	}
+	sendResponse();
+    }
+
+    private static void link() {
+	String srvname = rec.getName();
+	if (!recList.containsKey(srvname)) {
+	    sendData = new String("Error: server name does not exist");
+	}
+	else {
+	    Record keyRec = recList.get(name);
+	}
+	sendData = test(srvname);
+    }
+
+    private static void receiveResponse(int timeout) 
+	throws NetworkProjectException, IOException {
+	clientSocket.setSoTimeout(timeout);
+	try {
+            receiveResponse();
+            clientSocket.setSoTimeout(0);
+        } catch (SocketTimeoutException e) {
+            clientSocket.setSoTimeout(0);
+            throw new NetworkProjectException(e.getMessage());
+        }
+    }
+
+    private static void 
+
+    private static void delete() 
+	throws NetworkProjectException, UnknownHostException, IOException {
+	// Record rec = new Record(rcvData);
+	String name = rec.getName();
+	if (!recList.containsKey(name)) {
+	    sendData = new String("Error: name does not exist");
+	}
+	else {
+	    Record keyRec = recList.get(name);
+	    if (keyRec.matches(rec)) {
+		recList.remove(name);
+		sendData = new String("Success");
+	    }
+	    else {
+		sendData = 
+		    new String("Error: ip or port" + 
+			       " does not match with the record");
+	    }
+	}
+	sendResponse();
+    }
+    
+    private static void find() 
+	throws IOException {
+	// Record rec = new Record(rcvData);
+	Iterator it = recList.entrySet().iterator();
+	String wcName = rec.getName();
+	String wcIp = rec.getWildCardIp();
+	while(it.hasNext()) {
+	    Map.Entry pairs = (Map.Entry) it.next();
+	    Record val = (Record) pairs.getValue();
+	    if (val.matches(wcName, wcIp)) {
+		sendData = val.toString();
+		sendResponse();
+	    }
+	}
+	sendData = "Success";
+	sendResponse();
+    }
+    
+    private static int setSerFileAndGetPortNumberFromFile() 
+	throws IOException {
+	InputStreamReader ir = 
+	    new InputStreamReader(
+				  new FileInputStream(CONFIGFILE)
+				  );
+	BufferedReader br = new BufferedReader(ir);
+	String port = br.readLine();
+	serFile = br.readLine();
+	br.close();
+	return Integer.parseInt(port);
+    }
+
+    private static void test() 
+	throws IOException {
+	sendData = "Success: Test acknowledged";
+	sendResponse();
+    }
+
+    /*private static byte extractCmd() {
+	System.out.println("data length: " + rcvData.length);
+	String data = new String(rcvData).trim();
+	System.out.println("Data: " + data);
+	int l = data.length();
+	byte cmd = rcvData[l];
+	System.out.println("cmd: " + cmd);
+	rcvData[l] = 0;
+	return cmd;
+    }
+    */
+
+    private static void sendResponse() 
+	throws IOException {
+	sendPkt = new DatagramPacket(sendData.getBytes(),
+				     sendData.length(),
+				     rcvPkt.getAddress(),
+				     rcvPkt.getPort());
+	serverSocket.send(sendPkt);
+    }
+
+    static DatagramSocket serverSocket;
+    static Map<String, Record> recList = new HashMap<String, Record>();
+    static Record rec = null;
+    static byte[] rcvData = new byte[1024];
+    static DatagramPacket rcvPkt;
+    static DatagramPacket sendPkt;
+    static String sendData;
+   
+    private static String serFile; // file to store persistant records
+    
+    private final static String CONFIGFILE = "server.conf";
+}

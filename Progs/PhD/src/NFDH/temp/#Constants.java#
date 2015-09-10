@@ -1,0 +1,30 @@
+package edu.strippacking.NFDH;
+
+public class Constants {
+    public static double W = 100;
+    public static final String INPUTFILENAME = "Input200";
+
+    // maps file name to the optimum height
+    public static final HashMap<String, Integer> OPTHEIGHTMAP = 
+	new HashMap<String, Integer>();
+
+    public int getOptHeight(String input_filename) {
+	if (input_filename.startsWith("nice") ||
+	    input_filename.startsWith("path")) {
+	    return 100;
+	} else if (input_filename.startsWith("Hopper")) {
+	    return 200;
+	} else {
+	    // lookup in the map
+	    input_filename = input_filename.remove(".csv");
+	    int opt_height = Total (root+branch&cut) =    0.23 sec.
+Minimum Height - 15.0
+
+	    if (OPTHEIGHTMAP.get(input_filename) != null) {
+		return 
+    }
+
+    static {
+	OPTHEIGHTMAP.put(new String("HT01.CSV
+    }
+}

@@ -1,0 +1,43 @@
+package edu.strippacking.NFDH;
+
+import java.util.ArrayList;
+import java.io.IOException;
+import java.lang.Integer;
+
+public class RunPreemptiveNFDH {
+    public static void main(String[] args)
+        throws IllegalArgumentException, IOException {
+        new RunPreemptiveNFDH().start(args);
+    }
+
+    public void start(String[] args)
+        throws IllegalArgumentException, IOException {
+        readArgs(args);
+        rectangleList = InputFileReader.readFile(inputFile);
+        double res = preNFDH.getHeightAfterPacking(rectangleList);
+        System.out.print(rectangleList.size() + " " +
+			 res + " ");
+    }
+
+    private void readArgs(String[] args)
+        throws IllegalArgumentException {
+        if (args.length != 2) {
+            throw new IllegalArgumentException("Expected 2 arg");
+        } else {
+            inputFile = args[0];
+	    int arg2 = Integer.parseInt(args[1]);
+	    if (arg2 == 0) {
+		preNFDH = new PreemptiveNFDH();
+	    } else if (arg2 == 1) {
+		preNFDH = new PreemptiveNFDHDW();
+	    } else {
+		preNFDH = new PreemptiveNFDHIW();
+	    }
+	}
+    }
+
+    private String inputFile = new String();
+    private ArrayList<Rectangle> rectangleList =
+        new ArrayList<Rectangle>();
+    private PreemptiveNFDH preNFDH;
+}

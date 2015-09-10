@@ -1,0 +1,51 @@
+0;136;0csets
+I "indices" /1*2/;
+alias(I,J);
+
+
+scalar maxW "maximum width" /3/;
+scalar M "large number" /1000000/
+parameter h(I) "height of ith rectangle"
+/1=2, 2=4/;
+parameter w(I) "width of ith rectangle"
+/1=1, 2=3/;
+
+free variable height "overall height";
+positive variables
+x(I) "bottom left x position of ith rectangle",
+y(I) "bottom left y position of ith rectangle";
+binary variable delta1(I,J), delta2(I,J), delta3(I,J), delta4(I,J);
+
+equations
+widthbound(I) "no rectangle's right boundary goes past the max width"
+rectbelow(I,J) "other rectangle is below current rectangle",
+rectabove(I,J) "other rectangle is above current rectangle",
+rectleft(I,J) "other rectangle is left of current rectangle",
+rectright(I,J) "other rectangle is right of current rectangle",
+doesnotintersect(I,J) "whether rectangle intersects or not",
+objdef "overall height";
+
+widthbound(I)..
+x(I) + w(I) =l= maxW;
+
+rectbelow(I,J)$(ord(I)<ord(J))..
+y(I) =g= (y(J) + h(J) - M*(1-delta1(I,J)));
+
+rectleft(I,J)$(ord(I)<ord(J))..
+x(I) =g= (x(J) + w(J) - M*(1-delta2(I,J)));
+
+rectabove(I,J)$(ord(I)<ord(J))..
+(y(I) + h(I)) =l= (y(J) - M*(1-delta3(I,J)));
+
+rectright(I,J)$(ord(I)<ord(J))..
+(x(I) + w(I)) =l= (x(J) - M*(1-delta4(I,J)));
+
+doesnotintersect(I,J)$(ord(I)<ord(J))..
+delta1(I,J) + delta2(I,J) + delta3(I,J) + delta4(I,J) =g= 1;
+
+objdef..
+height =e= smax(I, y(I) + h(I));
+
+model strip /all/;
+option limrow=10;
+solve strip using minlp minimizing height;

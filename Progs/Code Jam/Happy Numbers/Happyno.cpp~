@@ -1,0 +1,49 @@
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+int convert (int base, int num)
+{
+ int sum1=1, sum2=0;
+ while (num>0)
+	{
+	 sum1 = (sum1*10) + (num % base);
+	 num /= base;
+	}
+ while (sum1>9)
+	{
+	 sum2 = (sum2*10)+(sum1 % 10);
+	 sum1 /= 10;
+	}
+ return(sum2);
+}
+
+int toten (int base, int num)
+{ 
+ int sum = 0, cnt = 0;
+ while (num)
+	{
+	 sum += num%10 * pow(base, cnt++);
+	 num /= 10;
+	}
+ return (sum);
+}
+
+int square (int base, int num)
+{
+ int sum=0;
+ num = convert(base, num);
+ while(num)
+	{
+	 sum = convert(base, (toten(base, sum) + (num%10) * (num%10)));
+	 num /= 10;
+	}
+ return (sum);
+}
+
+int main()
+{
+ int temp = 14, num, base;
+ cin >> temp >> base;
+ cout << convert(base, temp) << " " << toten(base, convert(base, temp)) << endl;
+}

@@ -1,0 +1,10 @@
+#include "Node.h"
+#pragma once
+
+int main()
+{Node *x = new Node(), *y = new Node();
+ x->setVal(5);
+ x->setNext(y);
+ x->getNext()->setVal(7);
+ cout << x->getVal << " " << y->getVal();
+}

@@ -1,0 +1,73 @@
+#ifndef STATISTICS_H
+#define STATISTICS_H
+
+#include "ParseTree.h"
+#include <map>
+#include <string.h>
+#include <fstream>
+#include <iostream>
+#include <vector>
+
+#include "RelInfo.h"
+
+using namespace std;
+
+class Statistics {
+public:
+	Statistics();
+	Statistics(Statistics &copyMe);	 // Performs deep copy
+	~Statistics();
+
+
+	void AddRel(char *relName, int numTuples);
+	void AddAtt(char *relName, char *attName, int numDistincts);
+	void CopyRel(char *oldName, char *newName);
+	
+	void Read(char *fromWhere);
+	void Write(char *fromWhere);
+
+	bool exists(string relName);
+
+	void  Apply(struct AndList *parseTree, 
+		    char *relNames[], 
+		    int numToJoin);
+	double Estimate(struct AndList *parseTree, 
+			char **relNames, 
+			int numToJoin);
+
+ private:
+	void ReadFileStream(ifstream& inputStream);
+	void ReadRel(ifstream& inputStream);
+	void setJoinRelsCnt(char **relNames, int numToJoin);
+	double ComputeAnd(AndList *andList);
+	double ComputeOr(OrList *orList);
+	double GetTuplesCount(ComparisonOp *compOp);
+	double GetNumDistincts(Operand* op);
+	double GetNumDistincts(char* attName);
+	double GetNumDistincts(char* relName, char* attName);
+	string GetRelName(char* attName);
+	bool IsJoin(ComparisonOp* compOp);
+	double Join(ComparisonOp* compOp);
+	int GetSetId(string relName);
+	void SetSetId(string relName, int setId);
+	double GetNumTuples(const char* relName);
+	void SetNumTuples(int setId, double numTuples);
+	void Print(ostream&);
+	void PrintOperand(Operand *op);
+	void PrintCompOp(ComparisonOp* compOp);
+	RelInfo* FindInRelToRelInfo(string relName);
+	void SetSetId(int oldSetId, int newSetId);
+	bool IsDependent(OrList *orList);
+	string GetAtt(ComparisonOp *compOp);
+
+	std :: map<string, RelInfo*> relToRelInfo;
+	double n; // num of tuples according to current cnf
+	char *relNames[];
+	int numToJoin;
+	vector<int> relSetsLength;
+	vector<RelInfo*> relInfoVector;
+	int lastRelId;
+	bool apply;
+};
+
+#endif

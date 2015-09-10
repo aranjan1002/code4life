@@ -1,0 +1,195 @@
+package networks.project;
+
+import java.lang.*;
+import java.net.*;
+import java.util.regex.Pattern;
+import java.io.Serializable;
+
+class Record implements Serializable {
+    private static final long serialVersionUID = 7526472295622773417L;
+    InetAddress ipAddr = null;
+    transient String wcIp = "";
+    int portNo = -1;
+    String name = "";
+    transient int cmd;
+
+    public transient boolean isConnected = false;
+    public transient int conectionNum;
+
+    Record(String name, InetAddress ipAddr, int portNo) {
+	this.ipAddr = ipAddr;
+	this.portNo = portNo;
+	this.name = name;
+    }
+
+    Record(String name, InetAddress ipAddr, int portNo, String wc, int c)  {
+	this.ipAddr = ipAddr;
+        this.portNo = portNo;
+        this.name = name;
+	this.wcIp = wc;
+	this.cmd = c;
+    }
+
+    Record(String name, InetAddress ipAddr, int portNo, int c) {
+	this(name, ipAddr, portNo);
+	cmd = c;
+    }
+
+    Record(String n, String wildCardIp, int c) {
+	name = n;
+	wcIp = wildCardIp;
+	cmd = c;
+    }
+
+    Record(int c) {
+	cmd = c;
+    }
+
+    Record(String n, int c) {
+	this(c);
+	name = n;
+    }
+
+    Record(int p, int c) {
+	portNo = p;
+	cmd = c;
+    }
+
+    Record(byte[] b) 
+	throws NetworkProjectException, UnknownHostException {
+	String str = new String(b).trim();
+	// System.out.println(str);
+	String[] strSplit = str.split(",");
+	int l = strSplit.length;
+	if (l != 6) {
+	    System.out.println(strSplit.length);
+	    System.out.println(strSplit[0] + strSplit[1]);
+	    throw new NetworkProjectException ("Error while splitting: "
+					       + str);
+	}
+	if (!strSplit[0].equals("")) {
+	    name = strSplit[0];
+	}
+	if (!strSplit[1].equals("")) {
+	    ipAddr = InetAddress.getByName(strSplit[1]);
+	}
+	if (!strSplit[2].equals("")) {
+	    try {
+		portNo = Integer.parseInt(strSplit[2]);
+	    }
+	    catch (Exception e) {
+		throw new NetworkProjectException ("Error while "
+						   + "parsing port no");
+	    }
+	}
+	wcIp = strSplit[3];
+	if (!strSplit[4].equals("")) {
+	    int conn = Integer.parseInt(strSplit[4]);
+	    if (conn == 0) {
+		isConnected = false;
+	    } 
+	    else {
+		isConnected = true;
+	    }
+	}
+	if (!strSplit[5].equals("")) {
+	    cmd = Integer.parseInt(strSplit[5]);
+	}
+    } 
+    
+    void setWcIp(String str) {
+	wcIp = str;
+    }
+
+    public byte[] getBytes() {
+	StringBuffer str = new StringBuffer();
+	if (name != "") {
+	    str.append(name);
+	}
+	str.append(",");
+	if (ipAddr != null) {
+	    str.append(ipAddr.getHostAddress());
+	}
+	str.append(",");
+	if (portNo != -1) {
+	    str.append(Integer.toString(portNo));
+	}
+	str.append(",");
+	str.append(wcIp);
+	str.append(",");
+	if (isConnected == false) {
+	    str.append("0");
+	}
+	else {
+	    str.append("1");
+	}
+	str.append(",");
+	str.append(cmd);
+	return str.toString().getBytes();
+    }
+
+    public String getWildCardIp() {
+	return wcIp;
+    }
+    
+    public void setName(String n) {
+	name = n;
+    }
+
+    public String toString() {
+	StringBuilder sb = new StringBuilder();
+	sb.append("name: " + name + " ");
+	if (ipAddr != null) {
+	    sb.append("ip: " + ipAddr.getHostAddress() + " ");
+	}
+	if (portNo != -1) {
+	    sb.append("port: " + portNo);
+	}
+	return sb.toString();
+    }
+
+    public String getName() {
+	return name;
+    }
+
+    boolean matches(Record rec) {
+	// boolean isNameEq = rec.getName().equals(name);
+	InetAddress ip = rec.getIpAddr();
+	if (ip == null) {
+	    return true;
+	}
+	else {
+	    return (ip.equals(ipAddr) && portNo == rec.getPort());
+	}
+    }
+
+    boolean matches(String wcName, String wcIpAddr) {
+	String ipStr = ipAddr.getHostAddress();
+	wcName = wcName.replaceAll("\\*", ".*");
+	wcIpAddr = wcIpAddr.replaceAll("\\*", ".");
+	boolean isNameEq = Pattern.matches(wcName, name);
+	if (!wcIpAddr.equals("")) {
+	return (Pattern.matches(wcIpAddr, ipStr) &&
+		isNameEq);
+	}
+	else {
+	    return isNameEq;
+	}
+    }
+
+    InetAddress getIpAddr() {
+	return ipAddr;
+    }
+
+    int getPort() {
+	return portNo;
+    }
+
+    int getCmd() {
+	return cmd;
+    }
+
+    void setCmd(int c) {
+	cmd = c;
+    }
+}

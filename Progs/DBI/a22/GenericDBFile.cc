@@ -1,0 +1,97 @@
+#include "GenericDBFile.h"
+#include <cstdlib>
+
+GenericDBFile :: GenericDBFile() {
+  readPageNo = 0;
+  readPage = NULL;
+  fileName = new char[100];
+}
+
+int GenericDBFile :: Open (char* fPath) {
+  for (int i = 0; fPath[i]; i++) {
+    fileName[i] = fPath[i];
+  }
+  fileName[strlen(fPath)] = 0;
+  //strcpy(fileName, fPath);
+  myFile = new File;
+  myFile->Open(1, fPath);
+  readPageNo = 0;
+  readPage = new Page;
+  int currLen = myFile->GetLength();
+  if (currLen > 0) {
+    myFile->GetPage(readPage, 0);
+  }
+  readPage->MoveFirst();
+  return 1;
+}
+
+int GenericDBFile :: Create(char* fPath) {
+  for (int i = 0; fPath[i]; i++) {
+    fileName[i] = fPath[i];
+  }
+  fileName[strlen(fPath)] = 0;
+  myFile = new File();
+  myFile->Open(0, fPath);
+  readPageNo = 0;
+  readPage = new Page;
+  return 1;
+}
+
+void GenericDBFile :: setFileName(char* fPath) {
+  fileName = new char[(int) strlen(fPath)];
+  strcpy(fileName, fPath);
+}
+
+void GenericDBFile :: MoveFirst() {
+  if (readPageNo == 0) {
+    readPage->MoveFirst();
+  }
+  else if (myFile->GetLength() > 0) {
+    ReplaceReadPage(0);
+  }
+}
+
+void GenericDBFile :: ReplaceReadPage(int pageNo) {
+  delete readPage;
+  readPage = new Page;
+  myFile->GetPage(readPage, pageNo);
+  readPage->MoveFirst();
+  readPageNo = pageNo;
+}
+
+int GenericDBFile :: GetNext (Record &fetchme) {
+  return readPage->GetNext(fetchme);
+  /*if (!didRcvRec) {
+    // cout << "reading pageno " << (readPageNo + 1) << endl;
+    if (readPageNo < writePageNo) {
+      ReplaceReadPage(++readPageNo);
+      receivedRecord = readPage->GetNext(fetchme);
+    }
+  }
+  return receivedRecord;*/
+}
+
+int GenericDBFile :: GetPageCnt() {
+  if (myFile == NULL) {
+    cerr << "file not yet initialized" << endl;
+    exit(1);
+  }
+  return myFile->GetLength();
+}
+
+int GenericDBFile :: Close () {
+  /* cout << "Addding page with " << (writePage->GetLeftCount() +
+                                   writePage->GetRightCount())
+                                   << " records" << endl; */
+  readPageNo = 0;
+  // delete readPage;
+  myFile->Close();
+  // delete myFile;
+  return 1;
+}
+
+GenericDBFile :: ~GenericDBFile() {
+  // delete myFile;
+  delete readPage;
+  delete[] fileName;
+}

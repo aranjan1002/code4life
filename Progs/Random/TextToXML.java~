@@ -1,0 +1,24 @@
+import java.io.*;
+
+class TextToXML {
+    public static void main(String[] args) 
+    throws Exception {
+	StringBuilder sb = new StringBuilder();
+	InputStream is;
+	BufferedInputStream bs;
+	TextToXML t = new TextToXML();
+	for(int i=0; i<args.length; i++) {
+	    is = new FileInputStream(new File(args[i]));
+	    bs = new BufferedInputStream(is);
+	    sb.append(t.getXML(bs, args[i]));
+	}
+    }
+
+    public StringBuilder getXML(BufferedInputStream bs, String fileName) {
+	do {
+	    String[] str = bs.readLine();
+	    
+    }
+}
+
+    

@@ -1,0 +1,19 @@
+public class Solution {
+    public static void main(String[] args) {
+	System.out.println(new Solution().multiplyWithDigit("111", "2"));
+    }
+
+    String multiplyWithDigit(String num1, String digit) {
+        String result = new String();
+        int dig = digit.charAt(0) - 48;
+        int carry = 0, prod, dig2;
+        for (int i = num1.length() - 1; i >= 0; i--) {
+            dig2 = num1.charAt(i) - 48;
+            prod = dig2 * dig1;
+            result += Integer.toString(prod % 10 + carry);
+            carry = prod / 10;
+        }
+        
+        return result;
+    }
+}

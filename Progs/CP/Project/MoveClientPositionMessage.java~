@@ -1,0 +1,31 @@
+package edu.cp.project;
+
+import java.util.regex.Pattern;
+
+class MoveClientPositionMessage {
+    MoveClientPositionMessage(String msg) {
+        if (Pattern.matches(ClientMessageReader.CHNG_POS, msg) == false) {
+            throw new RuntimeException("Not change pos msg from client");
+        }
+        else {
+            String[] msgSplit = msg.split(" ");
+            clientName = msgSplit[0];
+	    if (msgSplit[1].equals("U")) {
+		movementDirection = ClientMessageReader.MOVE_DIR.UP;
+	    } else if (msgSplit[1].equals("D")) {
+                movementDirection = ClientMessageReader.MOVE_DIR.DOWN;
+            } else if (msgSplit[1].equals("L")) {
+                movementDirection = ClientMessageReader.MOVE_DIR.LEFT;
+            } else {
+		movementDirection = ClientMessageReader.MOVE_DIR.RIGHT;
+            }
+        }
+    }
+
+    ClientMessageReader.MOVE_DIR getMovementDirection() {
+	return movementDirection;
+    }
+
+    String clientName = null;
+    ClientMessageReader.MOVE_DIR movementDirection = null;
+}

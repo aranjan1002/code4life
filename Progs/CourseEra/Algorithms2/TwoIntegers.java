@@ -1,0 +1,6 @@
+package pa;
+
+public class TwoIntegers {
+    public int int1;
+    public int int2;
+}

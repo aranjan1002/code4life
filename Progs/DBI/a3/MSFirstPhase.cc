@@ -1,0 +1,89 @@
+#include "MSFirstPhase.h"
+#include <cstdlib>
+#include <algorithm>
+
+MSFirstPhase :: MSFirstPhase(Pipe &in, RecComp &comp, int runLen, File& file) :
+  in(in), comp(comp), runLen(runLen), file(file) {
+}
+
+void MSFirstPhase :: createRunsAndGetOffsets(vector<int>& runOffsets) {
+  Record rec;
+  vector <Record*> recVec;
+  
+  int pageNo = 1;
+  Page page;
+
+  while (in.Remove(&rec)) {
+    // cout << "Removed record from in pipe" << endl;
+    Record *copyRec = new (std::nothrow) Record;
+    copyRec->Copy(&rec);
+    if (page.Append(&rec) != 1) {
+      // if one run has been written to vector,
+      // sort the run in memory and write to file
+      // cout << pageNo << " " << runLen << " ";
+      if (pageNo % runLen == 0) {
+        runOffsets.push_back(sortInsertInFileClearAndGetOffset(recVec,
+                                                               file));
+      }
+      page.EmptyItOut();
+      pageNo++;
+      if (page.Append(&rec) != 1) {
+        cerr << "Unable to insert in an empty page";
+        exit(1);
+      }
+    }
+    recVec.push_back(copyRec);
+  }
+  // insert last page in the file
+  if (recVec.size() > 0) {
+    runOffsets.push_back(sortInsertInFileClearAndGetOffset(recVec,
+                                                           file));
+  } else {
+    cerr << "It should never reach here!..check" << endl;
+    exit(1);
+  }
+}
+
+// sort the vector, inserts the sorted records in the file
+// and gets the offset of the file
+int MSFirstPhase :: sortInsertInFileClearAndGetOffset(vector<Record*>& recVec,
+						      File &file) {
+  stable_sort(recVec.begin(), recVec.end(), comp);
+  int off = insertInFileAndGetOffset(recVec, file);
+  recVec.clear();
+  return off;
+}
+
+int MSFirstPhase :: insertInFileAndGetOffset(vector<Record*> &recVec, 
+					     File &file) {
+  Page *page = new Page();
+  int offset = file.GetLength();
+  if (offset != 0) {
+    offset--;
+  }
+  
+  for (int i = 0; i < recVec.size(); i++) {
+    if (page->Append(recVec[i]) != 1) {
+      // cout << "Page " << offset << " inserted to file" << endl;
+      file.AddPage(page, offset++);
+      page->EmptyItOut();
+      if (page->Append(recVec[i]) != 1) {
+	cerr << "Unable to insert record in new page";
+	exit(1);
+      }
+    }
+  }
+
+  // In case the page is not empty, which would be the last page
+  // of the run, insert it in the file
+  if (page->IsEmpty() == false) {
+    file.AddPage(page, offset++);
+    // cout << "Last Page " << offset - 1 << " inserted to file" << endl;
+  } else {
+    cerr << "No record in the last page";
+    exit(1);
+  }
+
+  // cout << "File offset so far " << file.GetLength() << endl;
+  return offset - 1;
+}

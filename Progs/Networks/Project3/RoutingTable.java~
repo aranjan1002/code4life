@@ -1,0 +1,207 @@
+package networks.project;
+
+import java.util.*;
+
+class RoutingTable {
+    Map<String, RouteInfo> destinationToRouteInfo = 
+	new HashMap<String, RouteInfo>();
+    
+    RoutingTable() {}
+    
+    RoutingTable(String readMe) {
+	// System.out.println("In string constructor");
+	if (readMe != null && readMe != "") {
+	    // System.out.println(readMe + "to merge" + readMe.length());
+	    String[] splits = readMe.split("\\|");
+	    // System.out.println(splits.length + "hello");
+	    for (int i = 0; i < splits.length; i++) {
+		String[] keyValue = splits[i].split("-");
+		if (keyValue.length > 1) {
+		    destinationToRouteInfo
+			.put(keyValue[0], new RouteInfo(keyValue[1]));
+		    //System.out.println(keyValue[0] + "inserted in table");
+		}
+	    }
+	}
+    }
+
+    synchronized void insertNeighbor(String neighborName) {
+	RouteInfo routingInfo = 
+	    new RouteInfo(neighborName, 1);
+	destinationToRouteInfo.put(neighborName, routingInfo);
+    }
+
+    synchronized void removeNeighbor(String neighborName) {
+	if (destinationToRouteInfo.containsKey(neighborName)) {
+	    Iterator it = destinationToRouteInfo
+		.entrySet()
+		.iterator();
+	    // destinationToRouteInfo.remove(neighborName);
+	    while (it.hasNext()) {
+		Map.Entry pair = (Map.Entry) it.next();
+		String key = (String) pair.getKey();
+		RouteInfo value = (RouteInfo) pair.getValue();
+		if (value.nextServer.equals(neighborName) 
+		    || key.equals(neighborName)) {
+		    it.remove();
+		}
+	    }
+	}
+	System.out.println("After removing neighbor: " + neighborName +
+			   " rt = " + toString());
+    }
+
+    RoutingTable(RoutingTable routingTable) {
+	Iterator it = routingTable
+	    .destinationToRouteInfo
+            .entrySet()
+            .iterator();
+	destinationToRouteInfo.clear();
+	while (it.hasNext()) {
+	    Map.Entry pair = (Map.Entry) it.next();
+	    String key = (String) pair.getKey();
+	    RouteInfo value = (RouteInfo) pair.getValue();
+	    destinationToRouteInfo.put(new String(key), 
+				       new RouteInfo(value));
+	}
+    }
+
+    String getNeighbors() {
+	String result = new String();
+	ArrayList<String> list = UDPServer.getLiveServersList();
+        for (String name : list) {
+            Record r = UDPServer.getFromList(name);
+            result += r.getName() + "-" + 
+		r.getIpAddr() + "-" + 
+		r.getPort() + "|";
+        }
+
+	/*synchronized(this) {
+	    while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry) it.next();
+            String key = (String) pair.getKey();
+            RouteInfo value = (RouteInfo) pair.getValue();
+            if (value.numOfHops == 1) {
+		Record neighborRecord
+		    = UDPServer.getFromList(key);
+		if (neighborRecord == null) {
+		    System.out.println("Invalid servername : " + key);
+		}
+		result.append(key + "," + neighborRecord.getIpAddr()
+			      + "," + neighborRecord.getPort() + "|");
+	    }
+        }
+	}*/
+	return result;
+    }
+
+    synchronized boolean mergeAndGetHasStateChanged(RoutingTable mergeMe,
+						    String serverName) {
+	System.out.println(mergeMe.destinationToRouteInfo.toString() + 
+			   " to merge with " +
+			   destinationToRouteInfo.toString());
+	Iterator it = mergeMe
+	    .destinationToRouteInfo
+	    .entrySet()
+	    .iterator();
+	boolean hasStateChanged = makeConsistent(mergeMe, serverName);
+	while (it.hasNext()) {
+	    Map.Entry pair = (Map.Entry) it.next();
+	    String key = (String) pair.getKey();
+	    
+	    if (key.equals(UDPServer.myName)) {
+		continue;
+	    }
+	    RouteInfo value = (RouteInfo) pair.getValue();
+	    int numOfHopsToMerge = value.numOfHops + 1;
+	    RouteInfo newValue = new RouteInfo(serverName, 
+					       numOfHopsToMerge);
+	    if (destinationToRouteInfo.containsKey(key) == true) {
+		int numOfHops = destinationToRouteInfo.get(key).numOfHops;
+		if (numOfHopsToMerge < Limits.MAX_HOPS &&
+		    numOfHopsToMerge < numOfHops) {
+		    if (value.nextServer == UDPServer.myName) {
+			continue;
+		    }
+		    destinationToRouteInfo.put(key, newValue);
+		    hasStateChanged = true;
+		}
+	    }
+	    else {
+		destinationToRouteInfo.put(new String(key),
+					   newValue);
+		hasStateChanged = true;
+	    }
+	}
+	
+	return hasStateChanged;
+    }
+
+    public synchronized boolean makeConsistent(RoutingTable checkMe,
+					       String serverName) {
+	boolean hasStateChanged = false;
+	Iterator it = destinationToRouteInfo.entrySet().iterator();
+	while (it.hasNext()) {
+	    Map.Entry pairs = (Map.Entry) it.next();
+	    String destination = (String) pairs.getKey();
+	    RouteInfo routeInfo = (RouteInfo) pairs.getValue();
+	    if (checkMe.destinationToRouteInfo.containsKey(destination) 
+		== false) {
+		hasStateChanged = true;
+	    }
+	    if (destination.equals(serverName) == false &&
+		routeInfo.nextServer.equals(serverName) &&
+		checkMe.destinationToRouteInfo.containsKey(destination) 
+		== false) {
+		System.out.println(serverName + " does not contain " +
+				   destination + " any more " + 
+				   "hence removing it from table");
+		it.remove();
+		hasStateChanged = true;
+	    }
+	}
+	return hasStateChanged;
+    }	
+
+    public synchronized String toString() {
+	Iterator it = destinationToRouteInfo.entrySet().iterator();
+	StringBuilder result = new StringBuilder();
+	while (it.hasNext()) {
+	    Map.Entry pairs = (Map.Entry) it.next();
+	    result.append((String) pairs.getKey())
+		.append("-")
+		.append((RouteInfo) pairs.getValue())
+		.append("|");
+	}
+	return result.toString();
+    }
+
+    class RouteInfo {
+	String nextServer;
+	int numOfHops;
+	
+	RouteInfo(RouteInfo routeInfo) {
+	    this.nextServer = new String(routeInfo.nextServer);
+	    this.numOfHops = routeInfo.numOfHops;
+	}
+
+	RouteInfo(String nextServer, int numOfHops) {
+	    this.nextServer = nextServer;
+	    this.numOfHops = numOfHops;
+	}
+
+	RouteInfo(String readMe) {
+	    String[] splits = readMe.split(":");
+	    nextServer = splits[0];
+	    numOfHops = Integer.parseInt(splits[1]);
+	}
+
+	public String toString() {
+	    StringBuilder result = new StringBuilder();
+	    result.append(nextServer)
+		.append(":")
+		.append(numOfHops);
+	    return result.toString();
+	}
+    }
+}

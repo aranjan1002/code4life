@@ -1,0 +1,3 @@
+please use the following syntax for executing
+
+./MIPSsim -I sample.txt -D disassembly.txt -S simulation.txt

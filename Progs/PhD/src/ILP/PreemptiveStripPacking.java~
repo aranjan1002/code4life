@@ -1,0 +1,71 @@
+import ilog.concert.*;
+import ilog.cplex.*;
+
+import java.io.*;
+import java.lang.*;
+
+public class PreemptiveStripPacking {
+    public static final int NUM_RECT = 10;
+    public static final int MAX_WIDTH = 10;
+    public static final String INPUT_FILENAME = "Input";
+
+    public static void main(String[] args) {
+	new PreemptiveStripPacking().start();
+    }
+
+    void start() {
+	IloCplex cplex = new IloCplex();
+	readInput(INPUT_FILENAME);
+	
+	IloIntVar[][] beta = new IloIntVar[MAX_WIDTH][NUM_RECT];
+	for (int i = 0; i < NUM_RECT; i++) {
+	    beta[i] = cplex.boolVarArray(MAX_WIDTH);
+	}
+
+	// constraint: total number of slots alloted to a 
+	// rectangle equals its width
+	IloRange[] rng = new IloRange[NUM_RECT];
+	IloIntVar maxHeight = cplex.intVar(0, Integer.MAX_VALUE);
+	
+	for (int i = 0; i < NUM_RECT; i++) {
+	    rng[i] = cplex.addEq(cplex.sum(beta[i]), width[i]);
+	}
+
+	// constraint: overall height
+	IloRange[] hRange = new IloRange[1];
+	for (int i = 0; i < MAX_WIDTH; i++) {
+	    int slotHeight = 0;
+	    for (int j = 0; j < NUM_RECT; j++) {
+		slotHeight += beta[i][j] * height[j];
+	    }
+	    hRange[0] = cplex.addLe(maxHeight, slotHeight);
+	}
+
+	// objective function
+	cplex.addMinimize(maxHeight);
+    }
+
+    //static void populateByRow(IloMPModeler model,
+    public void readInput(String inputFile) 
+	throws IOException {
+	 InputStreamReader is =
+	     new InputStreamReader(
+				   new FileInputStream(inputFile));
+	 BufferedReader br = new BufferedReader(is);
+	 String line;
+	 line = br.readLine(); // ignore the first line
+	 int cnt = 0;
+	 while ((line = br.readLine()) != null) {
+	     //System.out.println(line);
+	     if (line.startsWith(",")) {
+		 continue;
+	     }
+	     String[] split = line.split(",");
+	     height[cnt] = Integer.parseInt(split[1]);
+	     width[cnt++] = Integer.parseInt(split[2]);
+	 }
+    }
+
+    int[] height = new int[NUM_RECT];
+    int[] width = new int[NUM_RECT];
+}

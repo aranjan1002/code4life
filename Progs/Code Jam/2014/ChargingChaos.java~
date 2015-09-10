@@ -1,0 +1,164 @@
+import java.lang.*;
+import java.util.*;
+import java.io.*;
+
+class ChargingChaos {
+    public static void main(String[] args) 
+    throws Exception {
+	String[] outlets = {"110", "001", "111"};
+	String[] outlets2 = new ChargingChaos().getChangedOutlets("101", outlets);
+	//System.out.println(new ChargingChaos().isValid(outlets, outlets2));
+	//print(outlets2);
+	//System.out.println(new ChargingChaos().getPermutationList(3));
+	new ChargingChaos().start(args[0]);
+    }
+
+    public static void print(String[] str_arr) {
+	for (int i = 0; i <= str_arr.length - 1; i++) {
+	    System.out.println(str_arr[i]);
+	}
+    }
+
+    public void start(String fileName)
+        throws Exception {
+        InputStreamReader is =
+            new InputStreamReader(
+                                  new FileInputStream(fileName));
+        BufferedReader br = new BufferedReader(is);
+        OutputStreamWriter os =
+            new OutputStreamWriter(
+                                   new FileOutputStream("Output"));
+        BufferedWriter bw = new BufferedWriter(os);
+        String line;
+
+        int test = 1;
+        line = br.readLine();
+        int tot_test = Integer.parseInt(line);
+        while (tot_test >= test) {
+            System.out.println("Case #" + test++ + ": " + calc(br));
+        }
+    }
+
+    String calc(BufferedReader br) throws Exception {
+	String[] NL = br.readLine().split(" ");
+	int N = Integer.parseInt(NL[0]);
+	int L = Integer.parseInt(NL[1]);
+
+	String[] outlets = br.readLine().split(" ");
+	String[] devices = br.readLine().split(" ");
+	
+	List<String> perm_list = getPermutationList(L);
+	System.out.println(perm_list.size());
+	int curr_result = L;
+	boolean flag = false;
+	for (String perm : perm_list) {
+	    if (flag == true) {
+		if (count1(perm) >= curr_result) {
+		    break;
+		}
+	    }
+	    String[] new_outlets = getChangedOutlets(perm, outlets);
+	    if (isValid(new_outlets, devices) == true) {
+		/*ChargingChaos.print(outlets);
+		System.out.println();
+		ChargingChaos.print(devices);
+		System.out.println();
+		ChargingChaos.print(new_outlets);
+		System.out.println();*/
+		int cnt = count1(perm);
+		if (cnt < curr_result) {
+		    curr_result = cnt;
+		}
+		flag = true;
+	    }
+	}
+	
+	if (flag == false) {
+	    return "NOT POSSIBLE";
+	}
+
+	return Integer.toString(curr_result);
+	
+	// return null;
+    }
+
+    boolean isValid(String[] outlets, String[] devices) {
+	boolean[] flag = new boolean[outlets.length];
+	int cnt = 0;
+
+	for (int i = 0; i <= outlets.length - 1; i++) {
+	    for (int j = 0; j <= devices.length - 1; j++) {
+		if (flag[j] == false) {
+		    if (outlets[i].equals(devices[j]) == true) {
+			flag[j] = true;
+			cnt++;
+		    }
+		}
+	    }
+	}
+
+	if (cnt == outlets.length) {
+	    return true;
+	}
+
+	return false;
+    }
+
+    String[] getChangedOutlets(String perm, String[] outlets) {
+	String[] new_outlets = new String[outlets.length];
+
+	for (int i = 0; i <= outlets.length - 1; i++) {
+	    new_outlets[i] = changeOutlet(perm, outlets[i]);
+	}
+	return new_outlets;
+    }
+
+    String changeOutlet(String perm, String outlet) {
+	String result = new String();
+	for (int i = 0; i <= perm.length() - 1; i++) {
+	    if (perm.charAt(i) == '0') {
+		result += Character.toString(outlet.charAt(i));
+	    } else {
+		result += reverse(outlet.charAt(i));
+	    }
+	}
+
+	return result;
+    }
+
+    String reverse(char c) {
+	if (c == '0') {
+	    return "1";
+	}
+	return "0";
+    }
+
+    int count1(String str) {
+	int cnt = 0;
+	for (int i = 0; i <= str.length() - 1; i++) {
+	    if (str.charAt(i) == '1') {
+		cnt++;
+	    }
+	}
+	return cnt;
+    }
+
+    List<String> getPermutationList(int L) {
+	List<String> result = new ArrayList<String>();
+	result.add("0");
+	result.add("1");
+	for (int i = 2; i <= L; i++) {
+	    addToResult(result);
+	}
+	return result;
+    }
+
+    void addToResult(List<String> result) {
+	int size = result.size();
+	for (int i = 0; i <= size - 1; i++) {
+	    String curr_result = result.get(i);
+	    result.set(i, curr_result + "0");
+	    result.add(curr_result + "1");
+	}
+    }
+}

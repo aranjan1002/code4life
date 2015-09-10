@@ -1,0 +1,22 @@
+//import java.util.*;
+//import java.lang.*;
+
+
+class GreaterGameDiv2 {
+    public int calc(int[] snuke, int[] sothe) {
+	int result = 0;
+	for (int i = 0; i < snuke.length; i++) {
+	    if (snuke[i] > sothe[i]) {
+		result++;
+	    }
+	}
+	#System.out.println(result);
+	return result;
+    }
+
+    public static void main(String[] args) {
+	int[] sn = {3,5,9,16,14,20,15,17,13,2};
+	int[] so = {6,18,1,8,7,10,11,19,12,4};
+	new GreaterGameDiv2().calc(sn, so);
+    }
+}

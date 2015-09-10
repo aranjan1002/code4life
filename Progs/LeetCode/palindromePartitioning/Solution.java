@@ -1,0 +1,40 @@
+import java.util.*;
+import java.lang.*;
+
+public class Solution {
+    public static void main(String[] args) {
+	System.out.println(new Solution().partition("ab"));
+    }
+
+    public List<List<String>> partition(String s) {
+        List<List<String>> result = new ArrayList<List<String>>();
+        
+        if (s.length() == 0) {
+            return result;
+        }
+        
+        List<String> temp = new ArrayList<String>();
+        temp.add(new String(Character.toString(s.charAt(0))));
+        
+        result.add(temp);
+        
+        for (int i = 1; i <= s.length() - 1; i++) {
+            char ch = s.charAt(i);
+            List<List<String>> temp_result = new ArrayList<List<String>>();
+            for (int j = 0; j <= result.size() - 1; j++) {
+                List<String> curr_result = result.get(j);
+                String last_string = curr_result.get(curr_result.size() - 1);
+                char last_char = last_string.charAt(last_string.length() - 1);
+                if (last_char == ch) {
+                    List<String> new_result = new ArrayList(curr_result);
+                    new_result.set(new_result.size() - 1, last_string + Character.toString(ch));
+                    temp_result.add(new_result);
+                } 
+		curr_result.add(Character.toString(ch));
+            }
+            result.addAll(temp_result);
+        }
+        
+        return result;
+    }
+}

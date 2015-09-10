@@ -1,0 +1,51 @@
+>package edu.strippacking.NFDH;
+
+import java.lang.Comparable;
+
+public class Rectangle implements Comparable {
+    double id, width, height;
+    boolean isPreemptive = false;
+
+    Rectangle(double id, double w, double h) {
+	if (id < 0 || w < 0 || h < 0 || w > Constants.W) {
+	    throw new RuntimeException("Invalid rectangle");
+	}
+	this.id = id;
+	width = w;
+	height = h;
+    }
+
+    Rectangle(double id, double w, double h, boolean isPreemptive) {
+	this(id, w, h);
+	this.isPreemptive = isPreemptive;
+    }
+
+    @Override
+    public String toString() {
+	StringBuilder sb = new StringBuilder();
+	sb.append("Rect: Id-")
+	    .append(id)
+	    .append(", Width-")
+	    .append(width)
+	    .append(", Height-")
+	    .append(height)
+	    .append(", Preemptive-")
+	    .append(isPreemptive);
+	return sb.toString();
+    }
+
+    // To ensure descending order of sorting rectangles returns
+    // 1 if height of this rectangle < height of o
+    // 0 if heights are equal
+    // -1 if height of this rectangle > height of o
+    public int compareTo(Object o) {
+	Rectangle r = (Rectangle) o;
+	if (height < r.height) {
+	    return 1;
+	} else if (height == r.height) {
+	    return 0;
+	} else {
+	    return -1;
+	}
+    }
+}

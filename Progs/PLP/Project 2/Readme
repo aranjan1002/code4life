@@ -1,0 +1,16 @@
+The file containing the main function is
+Standardize.cpp
+
+You can either execute make command or type the following to compile
+g++ -o standardize.o Standardize.cpp
+
+In order to test the program for output using the difftest.pl, you can execute the following:
+./difftest.pl -1 "rpal/rpal FILE" -2 "./standardize.o FILE" -t rpal/tests/ -r results -v 2
+
+The following switches work and have the same functionality as rpal
+
+-ast
+-st
+-noout
+
+Thanks.

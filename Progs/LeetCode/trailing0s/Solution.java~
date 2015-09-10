@@ -1,0 +1,15 @@
+public class Solution {
+    public static void main(String[] args) {
+	System.out.prinltn(new Solution().trailingZeroes(5));
+    }
+    public int trailingZeroes(int n) {
+        int count5 = n / 5;
+        int cnt = 1;
+        for (int i = 25; i <= n; i = i * 5) {
+            count5 += cnt;
+            cnt++;
+        }
+        
+        return count5;
+    }
+}

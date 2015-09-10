@@ -1,0 +1,81 @@
+public class Solution {
+    public void solve(char[][] board) {
+        this.board = board;
+        b = board.length;
+        
+        if (b == 0) {
+            return;
+        }
+        
+        l = board[0].length;
+        
+        if (l == 0) {
+            return;
+        }
+        
+        for (int i = 0; i <= l - 1; i++) {
+            if (board[0][i] == 'O') {
+                MakeSmallO(0, i);
+            }
+            if (board[b - 1][i] == 'O') {
+                MakeSmallO(b - 1, i);
+            }
+        }
+        
+        for (int j = 0; j <= b - 1; j++) {
+            if (board[j][0] == 'O') {
+                MakeSmallO(j, 0);
+            }
+            
+            if (board[j][l - 1] == 'O') {
+                MakeSmallO(j, l - 1);
+            }
+        }
+        
+        for (int i = 0; i <= b - 1; i++) {
+            for (int j = 0; j <= l - 1; j++) {
+                if (board[i][j] == 'O') {
+                    board[i][j] = 'X';
+                }
+                if (board[i][j] == 'o') {
+                    board[i][j] = 'O';
+                }
+            }
+        }
+    }
+    
+    void MakeSmallO(int i, int j) {
+        board[i][j] = 'o';
+        if (i - 1 >= 0) {
+            if (board[i - 1][j] == 'O') {
+                MakeSmallO(i - 1, j);
+            }
+        }
+        
+        if (j - 1 >= 0) {
+            if (board[i][j - 1] == 'O') {
+                MakeSmallO(i, j - 1);
+            }
+        }
+        
+        if (i + 1 <= b - 1) {
+            if (board[i + 1][j] == 'O') {
+                MakeSmallO(i + 1, j);
+            }
+        }
+        
+        if (j + 1 <= l - 1) {
+            if (board[i][j + 1] == 'O') {
+                MakeSmallO(i, j + 1);
+            }
+        }
+    }
+    
+    char[][] board = {{'X', 'X', 'X', 'X'},
+		      {'X', 'O', 'O', 'X'},
+		      {'X', 'X', 'O', 'X'},
+		      {'X', 'O', 'X', 'X'}};
+    int b = 0;
+    int l = 0;
+    
+}

@@ -1,0 +1,29 @@
+public class All {
+    public static void main(String[] args) {
+
+    }
+
+    public static void deleteDups2(LinkedListNode head) {
+	if (head == null) {
+	    return;
+	}
+    
+	LinkedListNode runnerNode = null;
+	LinkedListNode currNode = head;
+    
+	while(currNode.next != null) {
+	    int currVal = currNode.val;
+	    runnerNode = currNode;
+
+	    while (runnerNode.next != null) {
+		if (runnerNode.next.val == currVal) {
+		    runnerNode.next = runnerNode.next.next;
+		} else {
+		    runnerNode = runnerNode.next;
+		}
+	    }
+        
+	    currNode = currNode.next;
+	}
+    }
+}

@@ -1,0 +1,399 @@
+package edu.ufl.cise.cop5618fa12.hw1;
+
+import java.lang.*;
+import java.util.concurrent.*;
+
+public class PetersonTest implements HW1Test {
+
+    PetersonTest() {	
+    }
+
+    /*tests the lock and unlock methods for correctness.  N0 and N1 may be used
+     * to parameterize the test, for example indicating the number of critical
+     * section entries for thread0 and thread1 respectively
+     *
+     * returns false if an error is detected, true otherwise
+     */
+    public boolean testLock(HW1Lock lock, int N0, int N1)
+        throws InterruptedException {
+	startLatch = new CountDownLatch(1);
+	endLatch = new CountDownLatch(2);
+	
+	success = true;
+	HWThread t1 = new HWThread(0, N0, lock, 1);
+	HWThread t2 = new HWThread(1, N1, lock, 1);
+	
+	t1.start();
+	t2.start();
+
+	startLatch.countDown();
+	endLatch.await();
+
+	return success;
+    }
+
+    /*tests the trylock and unlock methods for correctness.  N0 and N1 may be used
+     * to parameterize the test, for example indicating the number of critical
+     * section entries for thread0 and thread1 respectively
+     *
+     * returns false if an error is detected, true otherwise
+     */
+    public boolean testTrylock(HW1Lock lock, int N0, int N1)
+        throws InterruptedException {
+	startLatch = new CountDownLatch(1);
+        endLatch = new CountDownLatch(2);
+
+	success = true;
+	HWThread t1 = new HWThread(0, N0, lock, 2);
+        HWThread t2 = new HWThread(1, N1, lock, 2);
+
+        t1.start();
+        t2.start();
+
+	startLatch.countDown();
+        endLatch.await();
+
+	return success;
+    }
+
+    /*tests the lockInterruptibly and unlock methods for correctness.  N0 and N1 may be \
+      used
+      * to parameterize the test, for example indicating the number of critical
+      * section entries for thread0 and thread1 respectively
+      *
+      * returns false if an error is detected, true otherwise
+      */
+    public boolean testLockInterruptibly(HW1Lock lock, int N0, int N1)
+        throws InterruptedException {
+	startLatch = new CountDownLatch(1);
+        endLatch = new CountDownLatch(2);
+
+	success = true;
+	HWThread t1 = new HWThread(0, N0, lock, 3);
+        HWThread t2 = new HWThread(1, N1, lock, 3);
+
+        t1.start();
+        t2.start();
+
+	startLatch.countDown();
+        endLatch.await();
+        return success;
+    }
+
+
+    /*runs the same test on lock1 and lock2 to compare the performance when
+     * when there is no contention.   N may be used to parameterize the test;
+     * for example indicating the number of critical section entries
+     *
+     * returns elapsed1 - elapsed0 where elapsedi is the
+     * elapsed time for the test with locki
+     */
+    public long comparePerformanceSingleThread(HW1Lock lock1,
+					       HW1Lock lock2, int N) { 
+	long elapsedTime1 = 0, elapsedTime2 = 0;
+	try {
+	    endLatch = new CountDownLatch(1);
+	    long startTime1 = System.nanoTime();
+	    HWThread t1 = new HWThread(0, N, lock1, 1);
+	    t1.start();
+	    endLatch.await();
+	    	    
+	    endLatch = new CountDownLatch(1);
+	    HWThread t2 = new HWThread(0, N, lock1, 2);
+	    t2.start();
+	    endLatch.await();
+	    	    
+	    endLatch = new CountDownLatch(1);
+	    HWThread t3 = new HWThread(0, N, lock1, 3);
+	    t3.start();
+	    endLatch.await();
+	    
+	    elapsedTime1 = System.nanoTime() - startTime1;
+	    // System.out.println(elapsedTime1);
+
+	    // System.out.println("Elapsed time by lock1: " + elapsedTime1);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	try {
+	    endLatch = new CountDownLatch(1);
+            long startTime2 = System.nanoTime();
+            HWThread t4 = new HWThread(0, N, lock2, 1);
+            t4.start();
+	    endLatch.await();
+	    
+	    endLatch = new CountDownLatch(1);
+            HWThread t5 = new HWThread(0, N, lock2, 2);
+            t5.start();
+	    endLatch.await();
+
+	    endLatch = new CountDownLatch(1);
+            HWThread t6 = new HWThread(0, N, lock2, 3);
+            t6.start();
+	    endLatch.await();
+
+            elapsedTime2 = System.nanoTime() - startTime2;
+
+            // System.out.println("Elapsed time by lock2: " + elapsedTime2);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+	return elapsedTime2 - elapsedTime1;
+    }
+
+    private void runTwoThreads(HW1Lock lock, 
+			       int N0,
+			       int N1,
+			       int whatToTest) 
+	throws InterruptedException {
+	startLatch = new CountDownLatch(1);
+	endLatch = new CountDownLatch(2);
+	HWThread t11 = new HWThread(0, N0, lock, whatToTest);
+	HWThread t12 = new HWThread(1, N1, lock, whatToTest);
+	t11.start();
+	t12.start();
+	startLatch.countDown();
+	endLatch.await();
+    }
+			       
+
+    /*runs the same test on lock1 and lock2 to compare the performance when
+     * when there is contention.   N0 and N1 may be used to parameterize the test;
+     * for example indicating the number of critical
+     * section entries for thread0 and thread1 respectively
+     *
+     * returns elapsed1 - elapsed0 where elapsedi is the
+     * elapsed time for the test with locki
+     */
+    public long comparePerformanceTwoThread(HW1Lock lock1,
+					    HW1Lock lock2, 
+					    int N0, 
+					    int N1) 
+	throws InterruptedException { 
+	long elapsedTime1 = 0, elapsedTime2 = 0;
+        try {
+	    long startTime1 = System.nanoTime();
+	    runTwoThreads(lock1, 
+			  N0,
+			  N1,
+			  1);
+
+	    runTwoThreads(lock1,
+                          N0,
+                          N1,
+                          2);
+
+	    runTwoThreads(lock1,
+                          N0,
+                          N1,
+                          3);
+            
+            elapsedTime1 = System.nanoTime() - startTime1;
+            // System.out.println(elapsedTime1);
+
+            // System.out.println("Elapsed time by lock1: " + elapsedTime1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+	    long startTime2 = System.nanoTime();
+            runTwoThreads(lock2,
+                          N0,
+                          N1,
+                          1);
+
+            runTwoThreads(lock2,
+                          N0,
+                          N1,
+                          2);
+
+            runTwoThreads(lock2,
+                          N0,
+                          N1,
+                          3);
+
+            elapsedTime2 = System.nanoTime() - startTime2;
+
+            // System.out.println("Elapsed time by lock2: " + elapsedTime2);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return elapsedTime2 - elapsedTime1;
+    }
+
+    private class HWThread extends Thread {
+	int threadID = 0, loopCount = 0, testWhat = 0;
+	// testWhat: 1 - testLock, 2 - testTryLock, 3 - testLockInterruptibly
+	// boolean flags = new boolean[MAXLOOPCOUNT];
+	// static int counter = 0;
+	HW1Lock lock = null;
+	HWThread(int id, int cnt, HW1Lock lck, int testWht) {
+	    threadID = id;
+	    loopCount = cnt;
+	    lock = lck;
+	    testWhat = testWht;
+	}
+	
+	@Override
+	public void run() {
+	    if (testWhat == 1) {
+		testLock();
+	    }
+	    else if (testWhat == 2) {
+		testTryLock();
+	    }
+	    else if (testWhat == 3) {
+		testLockInterruptibly();
+	    }
+	    else {
+		System.out.println("Unrecognizable test command: " + testWhat);
+	    }
+	}
+
+	// Precondition- success is true
+	public void testLock() {		
+	    try {
+		// System.out.println("Waiting for countdown");
+		if (startLatch != null)
+		    startLatch.await();
+	    } catch(InterruptedException e) {
+		System.out.println("Error");
+	    }
+	    // System.out.println("Wait is over");
+	    if (success == false) {
+		return;
+	    }
+	    for (int i = 0; i < loopCount; i++) {
+                lock.lock(threadID);
+                try {
+                    if (incrementCounterAndCheckCorrectness() == false) {
+			success = false;
+			break;
+		    }
+                }
+                finally {
+                    lock.unlock(threadID);
+                }
+            }
+	    endLatch.countDown();
+	}
+
+	// Precondition- success is true
+	public void testTryLock() {
+	    try {
+                // System.out.println("Waiting for countdown");
+		if (startLatch != null)
+		    startLatch.await();
+            } catch(InterruptedException e) {
+                System.out.println("Error");
+            }
+	    if (success == false) {
+		return;
+	    }
+	    for (int i = 0; i < loopCount; i++) {
+		if (lock.tryLock(threadID) == false) {
+		    i--;
+		    continue;
+		}
+		else {
+		    try {
+			if (incrementCounterAndCheckCorrectness() == false) {
+			    success = false;
+			    break;
+			}
+		    } finally {
+			lock.unlock(threadID);
+		    }
+		}
+	    }
+	    endLatch.countDown();
+	}
+
+	// Precondition- success is true
+	public void testLockInterruptibly() {
+	    try {
+                System.out.println("Waiting for countdown");
+		if (startLatch != null)
+		    startLatch.await();
+            } catch(InterruptedException e) {
+                System.out.println("Error");
+            }
+	    System.out.println("Now starting");
+	    if (success == false) {
+		return;
+	    }
+	    for (int i = 0; i < loopCount / 2; i++) {
+		System.out.println(i);
+		try {
+		    lock.lockInterruptibly(threadID);
+		    if (incrementCounterAndCheckCorrectness() == false) {
+                        success = false;
+                        return;
+		    }
+		} catch (InterruptedException e) {
+		    // this should not have happened
+		    System.out.println(e.getMessage());
+		    success = false;
+		    return;
+		} finally {
+		    lock.unlock(threadID);
+		}
+	    }
+	    
+	    try {
+		this.interrupt();
+		lock.lockInterruptibly(threadID);
+		System.out.println("No exception was thrown!");
+		success = false;
+		return;
+	    } catch (InterruptedException e) {
+		// System.out.println("Got the exception");
+		// e.printStackTrace();
+	    } finally {
+		lock.unlock(threadID);
+	    }
+	    for (int i = loopCount/2; i < loopCount; i++) {
+		try {
+		    lock.lockInterruptibly(threadID);
+		    System.out.println(i);
+		    if (incrementCounterAndCheckCorrectness() == false) {
+			success = false;
+			return;
+		    }
+		} catch (InterruptedException e) {
+		    // this should not have happened
+		    e.printStackTrace();
+		    success = false;
+		    return;
+		} finally {
+		    lock.unlock(threadID);
+		}
+	    }
+	    endLatch.countDown();
+	}
+
+	public boolean incrementCounterAndCheckCorrectness() {
+	    counter++;
+	    //	    System.out.println("Thread: " + threadID
+	    //		       + " counter: " + counter);
+	    if (prevVal != counter - 1) {
+		System.out.println("Test failed. Expected: " +
+				   (prevVal + 1) +
+				   " Found: " +
+				   counter);
+		return false;
+	    }
+	    else {
+		prevVal = counter;
+		return true;
+	    }
+	}
+    }
+
+    private static int counter = 0, prevVal = 0;
+    private static boolean success;
+    
+    private CountDownLatch startLatch, endLatch;
+
+    // private static final int MAXLOOPCOUNT = 100000;
+}

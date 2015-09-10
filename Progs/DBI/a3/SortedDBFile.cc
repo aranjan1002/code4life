@@ -1,0 +1,232 @@
+#include "SortedDBFile.h"
+#include "HeapDBFile.h"
+#include <cstdlib>
+
+#define BUFFSIZE 100
+
+SortedDBFile :: SortedDBFile(SortInfo& so) : sortInfo(so) {
+  input = NULL;
+  output = NULL;
+  bigQ = NULL;
+  repeat = false;
+}
+
+int SortedDBFile :: Open(char* fPath) {
+  currMode = reading;
+  return GenericDBFile :: Open(fPath);
+}
+
+int SortedDBFile :: Create(char* fPath) {
+  currMode = reading;
+  return GenericDBFile :: Create(fPath);
+}
+
+void SortedDBFile :: Add(Record& addMe) {
+  SwitchToWriting();
+  input->Insert(&addMe);
+}
+
+void SortedDBFile :: MoveFirst() {
+  repeat = false;
+  SwitchToReading();
+}
+
+void SortedDBFile :: Load(Schema& f_schema, char* loadpath) {
+  FILE *tableFile = fopen(loadpath, "r");
+  Record temp;
+  SwitchToWriting();
+  while (temp.SuckNextRecord(&f_schema, tableFile) == 1) {
+    input->Insert(&temp);
+  }
+}
+
+void SortedDBFile :: SwitchToWriting() {
+  repeat = false;
+  if (currMode == reading) {
+    currMode = writing;
+    InitPipesAndBigQ();
+  }
+  else if (currMode != writing) {
+    cerr << "DBFile mode is not set" << endl;
+    exit(1);
+  }
+}
+
+void SortedDBFile :: SwitchToReading() {
+  if (currMode == writing) {
+    currMode = reading;
+    GenericDBFile :: MoveFirst();
+    input->ShutDown();
+    Merge();
+  }
+  else if (currMode != reading) {
+    cerr << "DBFile mode is not set" << endl;
+    exit(1);
+  }
+}
+
+void SortedDBFile :: Merge() {
+  //MoveFirst();
+  HeapDBFile tempFile;
+  tempFile.Create("temp");
+  Record r1, r2;
+  GetNext(r1);
+  output->Remove(&r2);
+  ComparisonEngine comp;
+  
+  while (r1.isNull() == false && r2.isNull() == false) {
+    while (r1.isNull() == false && 
+	   comp.Compare(&r1, &r2, sortInfo.myOrder) <= 0) {
+      tempFile.Add(r1);
+      GetNext(r1);
+    }
+    if (r1.isNull() == false) {
+      while (r2.isNull() == false && 
+	     comp.Compare(&r1, &r2, sortInfo.myOrder) >= 0) {
+	tempFile.Add(r2);
+	output->Remove(&r2);
+      }
+    }
+  }
+  while (r1.isNull() == false) {
+    tempFile.Add(r1);
+    GetNext(r1);
+  }
+  while (r2.isNull() == false) {
+    tempFile.Add(r2);
+    output->Remove(&r2);
+  }
+
+  Copy(tempFile);
+  tempFile.Close();
+  //remove("temp");
+  //rename("temp", fileName);
+}
+
+void SortedDBFile :: Copy(HeapDBFile& tempFile) {
+  Page pageToCopy;
+  tempFile.MoveFirst();
+  myFile->Close();
+  myFile->Open(0, fileName);
+  Record temp;
+  Page *page = new Page;
+  int cnt = 0;
+  while (tempFile.GetNext(temp)) {
+    if(page->Append(&temp) == 0) {
+      myFile->AddPage(page, cnt++);
+      delete page;
+      page = new Page;
+      if (page->Append(&temp) == 0) {
+	cerr << "unable to insert record in a newly created page";
+	exit(1);
+      }
+    }
+  }
+  page->MoveFirst();
+  if (page->IsEmpty() == false) {
+    myFile->AddPage(page, cnt);
+  }
+}
+
+void SortedDBFile :: InitPipesAndBigQ() {
+  if (input != NULL) {
+    delete input;
+  }
+  if (output != NULL) {
+    delete output;
+  }
+  if (bigQ != NULL) {
+    delete bigQ;
+  }
+  input = new Pipe(BUFFSIZE);
+  output = new Pipe(BUFFSIZE);
+  bigQ = new BigQ(*input, *output, *(sortInfo.myOrder), sortInfo.runLength);
+}
+
+int SortedDBFile :: GetNext(Record& fetchMe) {
+  SwitchToReading();
+  if (GenericDBFile :: GetNext(fetchMe) == 0) {
+    int currLen = myFile->GetLength() - 2;
+    if (readPageNo < currLen) {
+      ReplaceReadPage(++readPageNo);
+      return GenericDBFile :: GetNext(fetchMe);
+    }
+    else {
+      return 0;
+    }
+  }
+  else {
+    return 1;
+  }
+}
+
+SortedDBFile :: ~SortedDBFile() {
+  delete input;
+  delete output;
+  delete bigQ;
+}
+
+int SortedDBFile :: Close() {
+  if (currMode == writing) {
+    SwitchToReading();
+  } 
+  return GenericDBFile :: Close();
+}
+
+int SortedDBFile :: GetNext (Record &fetchme, CNF &cnf, Record &literal) {
+  OrderMaker cnfOrder, dummy;
+  cnf.GetSortOrders(cnfOrder, dummy);
+  OrderMaker queryOrder;
+  ComparisonEngine comp;
+  //cout << literal.isNull();
+  if (literal.isNull() == false &&
+      repeat == false && 
+      queryOrder.BuildQueryOrderMaker(*(sortInfo.myOrder), cnfOrder)) {
+    repeat = true;
+    int pageCnt = myFile->GetLength() - 2;
+    if (pageCnt < 0) {
+      cerr << "Error: Check!" << endl;
+      exit(1);
+    }
+    int start = readPageNo, end = pageCnt, mid = (start + end) / 2;
+    while(true) {
+      // cout << "mid page: " << mid << endl;
+      if (readPageNo != mid) {
+	ReplaceReadPage(mid);
+      }
+      else {
+	break;
+      }
+      if (GetNext(fetchme)) {
+	int c = comp.Compare(&fetchme, &queryOrder, &literal, &cnfOrder);
+	if (c == -1) {
+	  // cout << "should move forward";
+	  start = mid + 1;
+	}
+	else if (c == 1) {
+	  // cout << "should move behind";
+	  end = mid - 1;
+	}
+	else {
+	  // cout << "found it!";
+	  ReplaceReadPage(mid);
+	  return 1;
+	  break;
+	}
+      }
+      else {
+	return 0;
+      }
+      
+      mid = (start + end) / 2;
+    }
+  }
+  while (GetNext(fetchme)) {
+    if(comp.Compare(&fetchme, &literal, &cnf)) {
+      return 1;
+    } /*else {
+      cout << "does not match" << endl;
+      }*/
+  }
+  return 0;
+}

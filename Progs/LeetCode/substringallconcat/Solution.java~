@@ -1,0 +1,139 @@
+public class Solution {
+    public static void main(String[] args) {
+	String S = "barfoothefoobarman";
+	String[] L = {"foo", "bar"};
+
+	System.out.println(new Solution().findSubstring(S, L));
+    }
+
+    public List<Integer> findSubstring(String S, String[] L) {
+        List<String> concat_L_list = findConcatList(L);
+        List<String> substring_S_list = getSubstrings(S, L);
+        List<Integer> result = findMatches(concat_L_list, S);
+        return result;
+    }
+    
+    public List<String> findConcatList(String[] L) {
+        int l = L.length;
+        List<Integer> index_list = new ArrayList<Integer>();
+        for (int i = 0; i <= l - 1; i++) {
+            index_list.add(new Integer(i));
+        }
+        
+        List<List<Integer>> permutations_list = getPermutations(index_list);
+        List<String> concat_list = getConcatList(L, permutations_list);
+        return concat_list;
+    }
+    
+    public List<List<Integer>> getPermutations(List<Integer> index_list) {
+        List<List<Integer>> result = new ArrayList<List<Integer>>();
+        if (index_list.size() == 0) {
+            return result;
+        }
+        permute(index_list, new ArrayList<List<Integer>>(), result);
+        return result;
+    }
+
+    public void permute(List<Integer> curr_index_list,
+                        List<List<Integer>> permutations_so_far,
+                        List<List<Integer>> result) {
+        if (curr_index_list.size() == 1) {
+            result.addAll(addToList(permutations_so_far, curr_index_list.get(0)));
+        } else {
+            for (int i = 0; i <= curr_index_list.size() - 1; i++) {
+                List<List<Integer>> new_permutation_list =
+                    addToList(permutations_so_far, curr_index_list.get(i));
+                List<Integer> new_index_list = getNewIndexList(curr_index_list, i);
+                permute(new_index_list, new_permutation_list, result);
+            }
+        }
+    }
+
+    public List<List<Integer>> addToList(List<List<Integer>> permutations_so_far,
+                                         Integer i) {
+        List<List<Integer>> result = new ArrayList<List<Integer>>();
+        for (int j = 0; j <= permutations_so_far.size() - 1; j++) {
+            List<Integer> permutation = new ArrayList(permutations_so_far.get(j));
+            permutation.add(i);
+            result.add(permutation);
+        }
+
+        if (result.size() == 0) {
+            List<Integer> new_list = new ArrayList<Integer>();
+            new_list.add(i);
+            result.add(new_list);
+        }
+
+        return result;
+    }
+
+    public List<Integer> getNewIndexList(List<Integer> index_list, int i) {
+        List<Integer> new_list = new ArrayList(index_list);
+        new_list.remove(i);
+        return new_list;
+    }
+    
+    public List<String> getConcatList(String[] L, List<List<Integer>> permutations_list) {
+        List<String> result = new ArrayList<String>();
+        for (int i = 0; i <= permutations_list.size() - 1; i++) {
+            String curr_result = new String();
+            List<Integer> curr_permutation = permutations_list.get(i);
+            for (int j = 0; j <= curr_permutation.size() - 1; j++) {
+                curr_result = curr_result + L[curr_permutation.get(j).intValue()];
+            }
+            result.add(curr_result);
+        }
+        return result;
+    }
+    
+    public List<String> getSubstrings(String S, String[] L) {
+        int chars_count = countChar(L);
+        List<String> result = new ArrayList<String>();
+        for (int i = 0; i + chars_count <= S.length(); i++) {
+            result.add(S.substring(i, i + chars_count));
+        }
+        return result;
+    }
+    
+    int countChar(String[] L) {
+        int count = 0;
+        for (int i = 0; i <= L.length - 1; i++) {
+            count += L[i].length();
+        }
+        
+        return count;
+    }
+    
+    List<Integer> findMatches(List<String> concat_L_list, String S) {
+        List<Integer> result = new ArrayList<Integer>();
+        for (int i = 0; i <= concat_L_list.size() - 1; i++) {
+            String s = concat_L_list.get(i);
+            List<Integer> idx = findSubstring(S, s);
+            if (idx.size() != 0) {
+                result.addAll(idx);
+            }
+        }
+        
+        return result;
+    }
+    
+    List<Integer> findSubstring(String S, String s) {
+        List<Integer> result = new ArrayList<Integer>();
+        for (int i = 0; i <= S.length() - 1; i++) {
+            if (S.charAt(i) == s.charAt(0)) {
+                int j = 0;
+                int temp = i;
+                while (temp <= S.length() - 1 && 
+                       j <= s.length() - 1 &&
+                       S.charAt(temp) == s.charAt(j)) {
+		    temp++;
+		    j++;
+		}
+                if (j == s.length()) {
+                    result.add(new Integer(i));
+                }
+            }
+        }
+        return result;
+    }
+}

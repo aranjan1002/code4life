@@ -1,0 +1,1742 @@
+#!/bin/ksh
+#@ This program came from: ftp://ftp.armory.com/pub/admin/nidleout
+#@ Look there for the latest version.
+#@ If you don't find it, look through http://www.armory.com/~ftp/
+#
+# nidleout: new idleout
+# @(#) nidleout 3.8 2004-12-06
+# 1991-10-13 John H. DuBois III (john@armory.com)
+# 1991-10-20 Also check time since last access, using l -u.
+#            Both time since last access and time since last modify must be
+#            greater than the idleout time for a user to be idled out.
+#            This fixes the problem where the user is in an application that
+#            relies entirely on the line discipline for tty output,
+#            and never does a write itself (ex in insert mode, mail in compose
+#            mode), so that the tty modify time is never updated.
+# 1991-11-27 Changed modem tty pattern examples to *[A-Z]* from *[A-Z].
+# 1992-02-08 Changed format of IDLETIME to be a list of user patterns and idle
+#            times, so some users can be given longer idle times than others.
+# 1992-03-30 Do a ps on ttys for logfile *before* killing off processes.
+# 1992-04-03 Added '... to <user>' to iwrite message
+#            eval the test '[[ $user == $pat ]]'; required by new ksh
+# 1992-05-12 Added -r option
+#            Changed IDLETIME to IDLETIMES because its format is different.
+# 1992-05-13 Added SAVEPROCS
+# 1993-04-06 Don't do a ps if SAVEPROCS is empty
+#            Ignore ttys with line disc 2 (event driver) set.
+# 1993-04-12 Added -x flag and some debug code.  Let default file values be
+#            replaced by internal values by giving empty value on cmd line.
+#            Made 60 minute internal default idleout time.
+#            Ignore ttys with no line discipline (slip/ppp).
+#            Made TTYS able to be a ksh pattern.
+#            Give users a minute to clean up.
+# 1993-04-28 Do not assume PAGER will be set.
+# 1993-06-02 exec ksh if not running it.
+# 1993-07-01 Added ability to do a ps on more than 20 ttys
+# 1993-08-04 Set PATH explicitly.
+# 1993-11-17 Invoke ps with full path.  Print error if it fails.
+# 1993-12-31 Added checking for processes using /dev/tty.  Added -A option.
+#            Fixed bug that prevented users from being idled out if modify
+#            time was 0, regardless of -a.
+# 1994-03-20 Use " instead of ' around pattern in eval [[ foo == $pattern ]]
+# 1994-06-17 Fixed bug in code that ignores ttys with no line discipline.
+# 1994-07-24 New idle time specification format.  Optimize various operations.
+#            Kill write if it hangs.  Added  p option.
+# 1994-09-13 Added NOCHECKDISC.
+# 1995-01-23 Missed some kills that needed stderr redirected.
+# 1995-05-13 Added date & time to error messages.
+# 1995-08-25 Work around ksh bug? by not piping idlettys() into a read statement
+# 1995-12-27 Test whether utmp entries are still active by kill -0'ing their
+#            procs.
+# 1995-12-28 More v5 porting: Use who -x if available instead of nwho;
+#            work with new time format in ps output.
+# 1996-06-10 Added SIGLIST.  Use correct field for tty in ps output in ps_t().
+# 1996-09-05 Use ditty for stty of Digi ttys.  Deal correctly with 5.0 stty
+#            output that contains both line discipline number & name.
+#            Only force device name to lower case when opening sio ports.
+# 1997-06-18 Deal with who output that includes comments from inittab
+# 1997-10-24 Include full year in logs.
+# 2000-02-15 Avoid passing all tty names as a single string to awk.
+# 2000-02-22 Better logfile date formatting.
+# 2001-04-30 3.5.3 Allow idle times > 1440.  Added -o/WHO_OLD.
+#            Use ls -lT to get access times so that times > 24 hours can be
+#            processed.
+# 2001-07-04 3.5.4 Use who -f to skip local pty use (scoterm/xterm/etc.)
+# 2001-07-18 3.5.5 Let WHO_OLD=0 indicate that who never reports old.
+#            Use -P (parsable) option to who if available, to get unbounded
+#            idle times.
+# 2001-08-08 3.5.6 Work with old ls that does not have -T option
+# 2002-11-14 3.6 UnixWare compatibility fixes.
+#            Made -x take a value.
+# 2002-12-20 3.7 Check for console tty using event line discipline.
+#            Added c option.  Set default log file name.
+# 2004-10-24 3.8 Added check for slip line discipline.
+
+# todo: Add a category like 'procs', which require that at least the tty
+# modify time be touched regularly, for apps that may need to run for a long
+# time w/o user input but which will be constantly updating a status.
+# e.g. ftp with 'hash' turned on; lynx
+# Also, there are some applications (e.g. WordPerfect) that apparently update
+# the access time (only) regularly; may be doing non-blocking reads, or perhaps
+# reads interrupted by timers for the sake of file syncs and such?  An option
+# to use the modify time instead of the access time for certain procs would
+# fix this.  ref#787557
+
+# Notes:
+# There could be a problem when using -A: if a user was using some utility
+# that used the event driver, or which had /dev/tty open, nidleout would
+# ignore the tty, but if the user quit the utility & nidleout checked the
+# tty before the user typed anything further, it would find that the access
+# time should be trusted & it would be old.  But, it appears that the access
+# time on ttys is updated not only when returning from a read(), but also
+# when entering it(!), so this is not a problem in practice unless this
+# behavior is changed.
+
+if [ -z "$SECONDS" ]; then
+    exec /bin/ksh -c "$0 $@"
+fi
+
+### Begin OSVersion
+# @(#) OSVersion 1.1
+# 1996-02-15 john h. dubois iii (john@armory.com)
+# 2003-09-07 1.1 Fail gracefully on non-SCO OSes
+#
+# OSVersion: Determine what release of SCO UNIX this program is executing
+# under.
+# Usage: OSVersion [version-number]
+#
+# These global variables are set:
+# _OSRelease is set to the entire OS release (e.g. 3.2v5.0.0}
+# _OSVersion is set to the version part (e.g. 5.0.0)
+# _OSMajor is set to the major part of the version (e.g. 5)
+# _OSSystem is set to the system (e.g. SCO_SV, UnixWare)
+# _OSNode is set to the nodename
+#
+# If no argument is given, the major part of the version (e.g. 5) is returned.
+# If the version cannot be determined (generally because OS is not recognized
+# as any version of SCO UNIX, _OSMajor is set to 0, none of the other variables
+# are set, and 0 is returned.
+#
+# If an argument is given, it should be an OS version string.
+# The return value is then:
+# 0 if the system OS version is lexicographically less than the given string
+# 1 if they are equal
+# 2 if the system OS version is greater
+# 3 if the OS is not recognized
+function OSVersion {
+    typeset arg=$1 field eq value
+    if [[ -z $_OSRelease ]]; then
+	_OSMajor=0
+	# Name of release field is different in different langs
+	# Any uname that has -X will be /bin/uname.  A system that has such
+	# a uname may also have a uname that doesn't have -X, so use /bin/uname
+	# explicitly.
+	LANG=english_us.ascii /bin/uname -X 2>/dev/null |
+	while read field eq value; do
+	    case "$field" in
+	    Release)
+		_OSRelease=$value
+		_OSVersion=${value##*v}
+		_OSMajor=${_OSVersion%%.*}
+		;;
+	    System)
+		_OSSystem=$value
+		;;
+	    Node)
+		_OSNode=$value
+		;;
+	    esac
+	done
+    fi
+    # For SCO UNIX 3.2v4 and earlier
+    [[ -n $_OSNode && $_OSNode == "$_OSSystem" ]] && _OSSystem=SCO_SV
+    [[ -z $arg ]] && return $_OSMajor
+    [[ -z $_OSVersion ]] && return 3
+    [[ $_OSVersion > $arg ]] && return 2
+    [[ $_OSVersion < $arg ]] && return 0
+    return 1
+}
+### End OSVersion
+### Begin-lib days
+#
+# The current version of this library can be found by searching
+# http://www.armory.com/~ftp/
+#
+# Requires ksh93
+#
+# @(#) days 1.4.1 2010-01-14
+# 1997-06-29 john h. dubois iii (john@armory.com)
+#            From various functions 1993-1997
+# 2001-04-30 1.1 Added unixtime() & lDate2unixtime
+# 2001-08-08 1.2 Let lDate2unixtime deal with dates that do not have
+#                year/time-of-day
+# 2007-07-28 1.3 make month2num check full value passed
+# 2008-07-09 1.4 Make diffdays default to current date for new date
+
+# These two are used by various of the functions below to initialize MStart[]
+integer MStart
+# Initializes MStart[] to a current-year-specific table of month-number to
+# starting-day
+function mstart_setup {
+    if (( $(date +%y) % 4 == 0 )); then
+	MStart=( 0 31 60 91 121 152 182 213 244 274 305 335 366 )
+    else
+	MStart=( 0 31 59 90 120 151 181 212 243 273 304 334 365 )
+    fi
+}
+
+# doy2date day-of-current-year
+# Returns the day-of-current-year converted to month & day (separated by a
+# space) in global doy2date (only works for current year due to leap year
+# variation)
+function doy2date {
+    integer M
+    M=$1/32+1
+    (( $1 > MStart[M] )) && M=M+1
+    doy2date="$M $(($1 - MStart[M-1]))"
+}
+
+# date2doy month day-of-month
+# Returns the month & day-of-month converted to day-of-current-year in global
+# date2doy (only works for current year due to leap year variation)
+function date2doy {
+    integer month
+    [[ $1 == +([0-9]) ]] && month=$1 || {
+	month2num "$1" && return 0
+	month=$?
+    }
+    date2doy=$((MStart[month-1] + $2))
+}
+
+typeset -A monthTo
+function initMonths {
+    typeset monthName
+    integer ind
+    monthNumToName=( "" january february march april may june july august september october november december )
+    unset monthNumToName[0]
+    for ind in ${!monthNumToName[*]}; do
+	monthName=${monthNumToName[ind]}
+	monthTo[${monthName:0:3}]=(num=$ind name=$monthName)
+    done
+}
+
+# Convert month-name to numeric month (1-12) and return it.
+# Any abbreviation of a month of at least 3 characters can be passed.
+# Case is ignored.
+# On failure, 0 is returned.
+function month2num {
+    typeset -l month=$1
+    typeset monthAbbr=${month:0:3}
+
+    [[ -z $month ]] && return 0
+    (( ${#monthNumToName} == 0 )) && initMonths
+    # make sure abbrevitation is correct
+    [[ ${monthTo[$monthAbbr].name:0:${#month}} != "$month" ]] && return 0
+    return ${monthTo[$monthAbbr].num}
+}
+
+# unixdays year month day-of-month
+# Returns the number of complete days that passed from 1970 Jan 1 to the start
+# of the given date in global unixdays.
+# The month may be given in numeric form (Jan=1) or by name, in which case at
+# least the first 3 characters must be passed (case is ignored).
+# Works from 1970 onward.
+# Years 0-69 are taken to be 2000-2069, years 70-99 are taken to be 1970-1999,
+# years 100-1969 are disallowed; others years are taken to be complete year.
+integer unixdays _ud_year=-1 _ud_month _ud_dom
+function unixdays {
+    integer year day leap_days MDays month
+    year=$1 day=$3 || return 1
+
+    # Convert month to numeric form if necessary
+    if [[ $2 == +([0-9]) ]]; then
+	month=$2
+	(( month < 1 || month > 12 )) && return -1
+    else
+	month2num "$2" && return 1
+	month=$?
+    fi
+
+    (( year < 0 || year >= 100 && year <= 1969 )) && return 1
+    (( year < 70 )) && ((year+=2000))
+    (( year < 100 )) && ((year+=1900))
+    leap_days=year/4-year/100+year/400+1
+    (( month <= 2 && year%4 == 0 )) && ((leap_days-=1))
+    (( ${#_ud_MDays[*]} == 0 )) &&
+    _ud_MDays=( 0 0 31 59 90 120 151 181 212 243 273 304 334 365 )
+    unixdays="year*365+_ud_MDays[month]+day-1+leap_days-719528"
+    return 0
+}
+
+# unixtime Year Month Day [Hour [Minute [Second]]]
+# Returns the number of seconds that passed from 1970 Jan 1 00:00:00
+# to the given GMT date in the global variable unixtime.
+integer unixtime
+function unixtime {
+    typeset Month=$2
+    (( $# < 6 )) && Second=0
+    (( $# < 5 )) && Minute=0
+    (( $# < 4 )) && Hour=0
+    integer Year=$1 Day=$3 Hour=$4 Minute=$5 Second=$6
+    integer ret=$?
+    (( ret != 0 )) && return $ret
+    unixdays "$Year" "$Month" "$Day" || return $?
+    unixtime='((unixdays*24+Hour)*60+Minute)*60+Second'
+    return 0
+}
+
+# Convert a file timestamp as printed by "TZ=0 ls -lT" or "TZ=0 ls -l" to an
+# epoch time and return it in the global lDate2unixtime.
+#
+# ls -lT produces output in this format:
+#                          After shifting:  1  2   3        4
+# crw-------   1 0        15        58, 39 Apr 30 21:51:20 2001 /dev/ttyp39
+# In this case, the fields labeled 1-4 above would be passed (Mon, Day,
+# Time, and Year).
+#
+# ls -l  produces output in one of these formats:
+#                                           1   2   3
+# crw-------   1 bin      terminal   5,  0 Aug  8 01:10 /dev/tty1a
+#                                           1   2    3
+# -rw-r--r--   2 spcecdt  jni         1613 Jan 23  1999 strings
+# In these cases, the fields labeled 1-3 above would be passed (Mon, Day,
+# Time or Mon, Day, Year).  If the year is not given, the current year is used
+# as long as it would place the time no more than an hour in the future,
+# else the previous year is used.
+#
+# Mon may be a month name/abbreviation or number
+# The time is assumed to be in GMT, as if produced by "TZ=0 ls -lT ..."
+# On error, -1 is returned.
+integer lDate2unixtime
+function lDate2unixtime {
+    typeset Mon Day Time Year
+    integer cmptime=0
+
+    Mon=$1 Day=$2
+    if (( $# == 4 )); then
+	Time=$3 Year=$4
+    elif [[ $3 == [0-9][0-9][0-9][0-9] ]]; then
+	Time=00:00 Year=$3
+    else
+	Time=$3
+	set -- $(TZ=0 date '+%Y %m %d %H %M %S')
+	Year=$1
+	# Get current time for comparison
+	unixtime "$@"
+	cmptime=$unixtime+3600
+    fi
+
+    oIFS=$IFS
+    IFS=:
+    set -- $Time
+    IFS=$oIFS
+    unixtime "$Year" "$Mon" "$Day" "$@" || return $?
+    if (( cmptime > 0 && unixtime > cmptime )); then
+	((Year-=1))
+	unixtime "$Year" "$Mon" "$Day" "$@" || return $?
+    fi
+    lDate2unixtime=$unixtime
+    return 0
+}
+
+# curtime 1994-07-25 john h. dubois iii
+# Returns the UNIX epoch time in global curtime.
+# This is used to avoid having to repeatedly call date & do this
+# calculation.
+# Depends on SECONDS not being messed with.
+integer curtime _shell_start=-1
+function curtime {
+    integer Y m d H M S
+    if (( _shell_start == -1 )); then
+	# If all date utilities had %s this wouldn't be necessary...
+	TZ=0 date '+%Y %m %d %H %M %S' | read Y m d H M S
+	unixdays $Y $m $d
+	curtime="unixdays*86400+H*3600+M*60+S"
+	_shell_start=curtime-SECONDS
+    else
+	curtime=_shell_start+SECONDS
+    fi
+}
+
+# diffdays year1 month1 day-of-month1 [year2 month2 day-of-month2]
+# months may be given as integers or names/abbreviations
+# Sets global diffdays to the number of complete days that passed
+# from date 1 to date 2.  If date 2 is not given, the current date is used.
+integer diffdays
+function diffdays {
+    unixdays $1 $2 $3
+    integer oldDate=unixdays
+    shift 3
+    (( $# == 0 )) && set -- $(printf "%(%Y %m %d)T")
+    unixdays $1 $2 $3
+    diffdays=unixdays-oldDate
+}
+### End-lib days
+### Begin-lib debug
+# @(#) debug 1.0
+# 2004-10-30 john h. dubois iii (john@armory.com)
+
+integer debug_level=0
+
+function dbprint {
+    if (( "$1" <= debug_level )); then
+	shift
+	print -ru2 -- "$name: $*"
+    fi
+}
+
+# The time formatting here is ksh93-specific
+function dblog {
+    if (( debug_level >= $1 )); then
+	shift
+	printf "%(%Y-%m-%d %T)T %s\n" "" "$name $*" >&2
+    fi
+}
+
+function dblog1 {
+    dblog 1 "$@"
+}
+### End-lib debug
+### Begin-lib CurTime
+# 1994-07-25 john h. dubois iii (john@armory.com)
+# This avoids having to repeatedly invoke date if all that is needed is
+# the hours and minutes.
+# Note that this is mainly useful for ksh88; in ksh93 the approriate way of
+# doing this is through the %T printf formatter.
+
+integer CurMinute
+function CurMinute {
+    (( CurMinute=(SECONDS/60+StartTime) % 1440 ))
+}
+
+function CurTime {
+    typeset -Z2 Hr Min
+
+    CurMinute
+    ((Hr=CurMinute/60))
+    ((Min=CurMinute%60))
+    CurTime=$Hr:$Min
+}
+
+# StartTime may be negative; doesn't matter if only CurMinute uses it.
+integer StartTime
+function TimeInit {
+    integer hr min
+
+    date "+%H %M" | read hr min
+    StartTime=hr*60+min-SECONDS/60
+}
+
+# Example:
+# TimeInit
+# CurTime
+# print -r -- $CurTime
+# sleep 60
+# CurTime
+# print -r -- $CurTime
+### End-lib CurTime
+
+# iwrite: write from the idleout daemon to a tty
+# Usage: iwrite tty message [user]
+function iwrite {
+    # Use the same device that user is logged in on, rather than always using
+    # the lower case device.  Some serial drivers will only let one device be
+    # opened, and this code avoids hanging.
+    typeset tty=$1
+    typeset touser message=$2 user=$3 msg
+
+    if [ -w /dev/$tty ]; then
+	[ $# = 3 ] && touser=" to $user"
+	msg=\
+"\n\r\07\07\07Message from idleout_daemon$touser $(date \"+[ %a %h %m %T ]\") ...
+$message\r"
+	(( debug_level >= 3 )) && print -u2 "iwrite: Writing$touser $tty:\n$msg"
+	print "$msg" > /dev/$tty&
+	sleep 5
+	if kill -9 $! 2>/dev/null; then
+	    ErrMsg "write (pid $!)$touser on $tty hung."
+	    sleep 1
+	    kill -9 $! 2>/dev/null &&
+	    ErrMsg "could not kill write process $!; hung?"
+	fi
+    fi
+}
+
+function ErrMsg {
+    print -u2 "$(date '+%D %T') $name: $*"
+}
+
+# Usage: hm2min hrs:min
+# Converts the time in hrs:min format to a number of minutes and sets
+# hm2min to it.
+typeset -i10 hm2min	# make sure this prints in base 10
+function hm2min {
+    typeset IFS=:
+
+    set -- $1
+    hm2min=$1*60+$2
+}
+
+# Usage: check_atime ttyname ...
+# check_atime prints a single line listing the times in minutes since the last
+# read from each tty completed.  The times are printed in the same order
+# as the tty names are given.
+function check_atime {
+    integer l_time age
+    integer lsShift=4
+    typeset f tty lscmd
+
+    [ -n "$lsOpt" ] && lsShift=5
+    curtime
+    l_time=curtime
+    cd /dev
+    # ls -lT produces output in this format:
+    #                          After shifting:  1  2   3        4       5
+    # crw-------   1 0        15        58, 39 Apr 30 21:51:20 2001 /dev/ttyp39
+    # ls -l  produces output in this format:
+    # crw-------   1 bin      terminal   5,  0 Aug  8 01:10 /dev/tty1a
+
+    set -A lscmd -- ls -lnu$lsOpt -- "$@"
+    dbprint 2 "$0: Issuing command: ${lscmd[*]}"
+    TZ=0 "${lscmd[@]}" | while read line; do
+	dbprint 3 "$0: Got line from ls:
+$line"
+	set -- $line
+	shift $(($#-lsShift))
+	set -A f -- "$@"
+	tty=${f[lsShift-1]}
+	unset f[lsShift-1]
+	lDate2unixtime "${f[@]}"
+	age=$(( (l_time-lDate2unixtime) / 60 ))
+	dbprint 4 "$0: tty=$tty, time=$lDate2unixtime, curtime=$l_time, age=$age"
+	print $tty $age
+#	print -ru2  $tty $(( (l_time-lDate2unixtime) / 60 ))
+    done | awk '
+    # This deals with the inability of ls to print file lines in
+    # the same order as the names are presented to it.
+    # Pass tty names as ttys var so awk will not take them to be file names to
+    # read from.
+    {
+	close("/dev/stderr")
+	times[$1] = $2
+    }
+    END {
+	n = split(ttys,elem)
+	for (i = 1; i <= n; i++)
+	    printf "%s ",times[elem[i]]
+	print ""
+    }
+    ' ttys="$*"
+}
+
+# Usage: TTYMatch user tty
+# Return success if user & tty match a rule, and its time is nonzero
+function TTYMatch {
+    integer i=0
+
+    while (( i < NumRules )); do
+	eval [[ \$user = "${R_user[i]}" '&&' \$tty == "${R_tty[i]}" ]] &&
+	[ ${R_time[i]} -ne 0 ] && return 0
+	((i+=1))
+    done
+    return 1
+}
+
+# Usage: MakeTTYList
+# MakeTTYList finds ttys that have been idle at least one minute,
+# that users are logged in on and that match the tty,user pair of a rule.
+# It sets the arrays ttys[], access_times[], modtimes[], and users[],
+# starting with index 0, to each tty name, the number of minutes since it has
+# been accessed, the number of since it has been modified, and the user logged
+# in on it.
+#
+# Expect who -u ouput to be in this form:
+#spcecdt    tty05        Oct 04 01:21   .       84
+#rbnhood    tty3F        Oct 04 13:25  0:27   2918  This is an inittab comment
+# When split on space, the fields are:
+#   1         2           3  4    5      6     7    8    ...
+#rbnhood    tty3F        Oct 04 13:25  0:27   2918  This is an inittab comment
+# Expect who -ux ouput to be in this form:
+#root       tty01        Dec 26 22:25                       old     706
+#pax        tty1b        Dec 27 21:35                      13:09   3872  comment
+#cdk        tty3F        Dec 28 12:20                        .    26533
+#cardinal   ttyp0        Dec 28 12:30 gorn.evolve.com        .    28045
+#ssahin     ttyp14       Dec 25 18:42 narwhal.cc.metu.edu.tr 12:34   1152
+# When split on space, the fields for lines that include hostname are:
+#   1         2           3  4    5         6                7      8
+#cardinal   ttyp0        Dec 28 12:30 gorn.evolve.com        .    28045
+#
+# Determining the difference between an entry with and without remote hostname:
+# With:    f6 is a hostname; f7 is old/./#:#; f8 is pid
+# Without: f6 is old/./#:#;  f7 is pid;       f8 may be comment
+# Among these, the only that is guaranteed to be discernible is f7, which will
+# only consist entirely of a string of digits if it is a pid (no-hostname)
+function MakeTTYList {
+    # cannot typeset -i idle because the field may be "." (not idle) or "old"
+    typeset idle line user tty x= P= kill
+    integer minutes i=0 proc
+    typeset IFS=' '
+
+    # ksh has a design flaw that causes it to send a SIGCONT before all
+    # signals, even signal 0 (!).  Under UnixWare, this causes some
+    # processes to update the tty access time.  So, use /bin/kill instead.
+    [[ $_OSSystem == UnixWare ]] && kill=/bin/kill || kill=kill
+
+    unset ttys access_times modtimes user
+    # Get modify times of ttys that have been idle at least 1 minute
+    # and are ttys that idleout should act on
+    $utmpx && x=x
+    $who_parsable && P=P
+    # -f: Skip ptys that are in local use (scoterm/xterm/etc.)
+    # 2009-03-03 This should really use who -x instead of -f, with the
+    #            existance of a remote hostname indicating a remote login.
+    dbprint 9 "$0: Running: who -f -u$x$P"
+    who -f -u$x$P | while read line; do
+	dbprint 9 "$0: processing who line: $line"
+	set -- $line
+	# We use field 1 (user), 2 (tty), 6/7 (idletime), 8/9 (pid),
+	# 6 (hostname).
+	user=$1 tty=$2
+	# -P gives us unbounded idletime field, but also adds a year field to
+	# login time.  To deal with that, shift.
+	$who_parsable && shift
+	case "$7" in
+	+([0-9]))
+	    idle=$6 proc=$7
+	    ;;
+	*)
+	    idle=$7 proc=$8
+	    SetHost "$tty" "$6"
+	    ;;
+	esac
+	# Some pty using procs don't clean up after themselves.  This is an
+	# easy but not conclusive test for that.
+	$kill -0 $proc 2>/dev/null 1>&2 || {
+	    dbprint 3 "PID $proc for line $tty does not exist."
+	    continue
+	}
+	case "$idle" in
+	old)
+	    # If we haven't been told when who will report 'old',
+	    # translate it to default value of 24 hours
+	    (( who_old == 0 )) && idle=24:00 || idle=0:$who_old
+	    ;;
+	.)
+	    idle=0:00	# don't skip these; might be using acc time not mod
+	    ;;
+	*)
+	    dbprint 5 "$0: $tty: $idle"
+	    ;;
+	esac
+	if TTYMatch $user $tty; then
+	    hm2min $idle
+	    minutes=hm2min
+	    ttys[i]=$tty
+	    modtimes[i]=$minutes
+	    users[i]=$user
+	    ((i+=1))
+	    dbprint 3 "From who -u: $user on $tty idle $minutes minute(s)"
+	fi
+    done
+    (( i == 0 )) && dbprint 3 "MakeTTYList: No idle users."
+    (( i == 0 )) && return
+    # Get tty read times
+    # Runs ls, awk, date once
+    check_atime ${ttys[*]} | read line
+    set -A access_times $line
+    dbprint 3 \
+    "Passed ${#ttys[*]} ttynames to check_atime; got ${#access_times[*]} fields back:
+$line"
+}
+
+# Usage: TTYIdle maxtime tty-index access_only modify_backup
+# A line is idle for as long as it has not been read from or written to,
+# unless <access_only> is true, in which case it is idle for as long as
+# it has not been read from (last-written time is ignored.)
+# If modify_backup is true, the modify time is used if the tty is using the
+# event line discipline, or if a process on the tty has /dev/tty open and is
+# not stopped.
+# If skipConsEvent is true, console ttys are skipped if they are using the
+# event line discipline.
+# ttys are ignored if they have no line discipline.
+# This function takes the global arrays
+# ttys[], access_times[], modtimes[], and users[], applies rules for which of
+# modtime & acctime should be used for the tty, ignores ttys in certain
+# situations, and assigns the result to TTYIdle
+integer TTYIdle
+function TTYIdle {
+    integer ind=$1 maxtime=$2 access_only=$3 modify_backup=$4 LineDisc
+    integer minutes atime=${access_times[ind]} mtime=${modtimes[ind]}
+    typeset deb
+
+    ((debug_level)) && deb="${ttys[ind]}: atime=$atime,mtime=$mtime: "
+
+    # if user is not idle, return
+    if (( mtime == 0 && atime == 0 )); then
+	TTYIdle=0
+	return
+    fi
+    # if mod & acc time are the same, no need for line disc info to decide
+    # between them; and if they are less than allowed time, no need to know
+    # if there is any line disc at all, so skip it
+    if (( mtime == atime && mtime < maxtime )); then
+	TTYIdle=mtime
+	return
+    fi
+    ChkLineDisc ${ttys[ind]}	# Runs stty
+    LineDisc=$?
+    dbprint 3 "ChkLineDisc ${ttys[ind]} returned $LineDisc"
+    if (( LineDisc == 255 )); then
+	dbprint 3 "$deb No line discipline; skipping."
+	minutes=0
+    elif $skipConsEvent && [[ LineDisc -eq 2 && ${ttys[ind]} == tty[0-9][0-9] ]];
+    then
+	dbprint 3 "$deb Console tty using event line discipline; skipping."
+	minutes=0
+    elif [[ LineDisc -eq 4 ]]; then
+	dbprint 3 "$deb slip line discipline; skipping."
+	minutes=0
+    # Set minutes to the lesser of access time & mod time.
+    elif (( atime <= mtime )); then
+	dbprint 3 "$deb atime <= mtime; using atime"
+	minutes=atime
+    else
+	((debug_level)) && deb="${deb}mtime < atime; "
+	# If access_only, use access time regardless...
+	if ((access_only)); then
+	    # unless modify_backup, in which case the modify time
+	    # should be used if a process on the tty has /dev/tty
+	    # open or the event driver is being used
+	    if ((modify_backup)); then
+		if Not_devtty_user ${ttys[ind]} && [ LineDisc -ne 2 ];
+		then
+		    dbprint 4 "${deb}trusting/using atime"
+		    minutes=atime
+		else	# /dev/tty open or event driver in use
+		    dbprint 4 "${deb}not trusting atime; using mtime"
+		    minutes=mtime
+		fi
+	    else
+		dbprint 4 "${deb}using atime anyway"
+		minutes=atime
+	    fi
+	else
+	    dbprint 4 "${deb}using mtime"
+	    minutes=mtime
+	fi
+    fi
+    TTYIdle=minutes
+}
+
+# Put a list of all pids that have /dev/tty open in global var devttyUsers,
+# in the form of a ksh pattern.
+function devtty {
+    typeset IFS
+
+    set -- $(/etc/fuser /dev/tty 2>/dev/null)
+    # Make devttyUsers a ksh pattern
+    IFS=\|
+    devttyUsers="@($*)"
+
+    devttyDone=1
+}
+
+# Not_devtty_user: check whether a process that has /dev/tty open is running on
+# the named tty & is not stopped or a zombie
+# Usage: Not_devtty_user ttyname
+# Global vars: TTYNames[], PIDs[], devttyUsers, ttyprocsDone, devttyDone
+function Not_devtty_user {
+    typeset tty=$1
+    integer i=0
+
+    # Run ttyprocs to get a list of all of the procs on this tty.
+    ((!ttyprocsDone)) && ttyprocs ${ttys[*]}
+    ((!devttyDone)) && devtty
+    while [ -n "${TTYNames[i]}" ]; do
+	if [[ ${TTYNames[i]} == "$tty" && ${ProcStates[i]} != [ZT] ]] &&
+	eval [[ ${PIDs[i]} == $devttyUsers ]]
+	then
+	    dbprint 3 "Process ${PIDs[i]} has /dev/tty open."
+	    return 1
+	fi
+	((i+=1))
+    done
+    return 0
+}
+
+# NotSaveProc: check whether a protected process is running on a tty.
+# Usage: NotSaveProc ttyname process-pattern
+# Returns success if no protected processes are on the tty.
+# Global vars: ProcNames[], TTYNames[]
+function NotSaveProc {
+    typeset tty=$1 saveprocs=$2
+    integer i=0
+
+    [ "$saveprocs" = \* ] && return 1
+    ((!ttyprocsDone)) && ttyprocs ${ttys[*]}
+    while [ -n "${TTYNames[i]}" ]; do
+	if [[ ${TTYNames[i]} == "$tty" && ${ProcStates[i]} != [ZT] ]] &&
+	eval [[ ${ProcNames[i]} == "$saveprocs" ]]
+	then
+	    dbprint 3 "Protected process \"${ProcNames[i]}\" running on $tty"
+	    return 1
+	fi
+	((i+=1))
+    done
+    return 0
+}
+
+# ChkLineDisc: check what line discipline a tty is using.
+# Usage: ChkLineDisc ttyname
+# Return value: Line discipline number,
+# or 255 if no line disc (slip/ppp/event/etc. is being used.
+# ptys present a problem because if the master is not open, an attempt to open
+# the slave will hang.  Generally, the utmp entry will be removed at the time
+# the master side is closed, but a case where it isn't is guaranteed to cause
+# nidleout to hang until killed, since the master can't be opened again while
+# anything (like nidleout) is waiting on open.
+# Therefore, the global nocheckdisc may be set to a pattern describing ttys
+# that this function should not attempt to open.  0 is always returned instead.
+function ChkLineDisc {
+    typeset stty_out line tty=$1
+    typeset -l ltty=$tty	# Use lower case port for non-blocking sio open
+    integer retval
+
+    # Only know how to check this under OpenServer
+    [[ $_OSSystem != SCO_SV ]] && return 0
+    if [ -n "$nocheckdisc" ] && eval [[ \"$tty\" == "$nocheckdisc" ]]; then
+	dbprint 3 "$tty matches \"$nocheckdisc\"; not checking line disc."
+	return 0
+    fi
+    # Some serial drivers will not allow two devices for the same port to be
+    # opened at the same time.  Use ditty if available for Digiboard ports;
+    # it will do a non-blocking open.  Only have the tty name to go on to
+    # determine if it's a Digi port...
+    if [[ "$tty" == tty[[:upper:]][0-9][0-9] ]] && whence ditty >/dev/null; then
+	stty_out="$( (ditty -a -n /dev/$tty) 2>/dev/null)"
+    else
+	stty_out="$( (stty -a < /dev/$ltty) 2>/dev/null)"
+    fi
+    # Under OpenServer, lack of any line discipline indicates that slip or ppp
+    # is being used.
+    # Line discipline 2 is the event driver.
+    if [ -z "$stty_out" ]; then
+	print -u2 -- "$0: could not get termio parameters for $ltty"
+	return 0
+    fi
+    dbprint 8 "stty output for $tty:
+$stty_out"
+    if [[ "$stty_out" != *"line ="* ]]; then
+	dbprint 3 "$tty has no line discipline."
+	return 255
+    else
+	line=${stty_out#*line = }
+	line=${line%%[!0-9]*}
+	case $line in
+	0) ;;
+	2) dbprint 3 "$tty is using line discipline $line (event driver)."
+	   ;;
+	*) dbprint 3 "$tty is using line discipline $line.";;
+	esac
+	return $line
+    fi
+}
+
+# Put the host that pty user is logged in from in Hosts[ptynum]
+# Expects nwho output to be in these forms:
+# mickah   ttyp7       Jul 23 12:42  (friday.foo.com)
+# spcecdt  ttyp9       Jul 23 12:38  (deeptht.armory.com:0)
+function FindHosts {
+    typeset IFS='	 ():' user pty d1 d2 h1 h2 host
+
+    unset Hosts
+    nwho | while read user pty d1 d2 h1 h2 host; do
+	host=${host#\(}	# having ( in IFS doesn't seem to work
+	SetHost "$pty" "$host"
+    done
+}
+
+# Usage:
+# SetHost tty hostname
+# Put the host that pty user is logged in from in Hosts[ptynum]
+# Note: the indexing used here assumes that pty names are decimal numbered.
+# Could convert non-decimal numbers, but then the decimal ones would have
+# different values.  Should really use minor # but too much trouble.
+# So non-decimal ptys are ignored.
+function SetHost {
+    typeset pty=$1 host=$2 ptynum
+
+    if [[ "$pty" == ttyp* && -n "$host" ]]; then
+	ptynum=${pty#ttyp}
+	if [[ "$ptynum" == +([0-9]) ]]; then
+	    Hosts[$ptynum]=$host
+	    dbprint 3 "User $user on $pty is logged in from $host"
+	else
+	    dbprint 2 "Warning: non-decimal pty name '$pty'."
+	fi
+    fi
+}
+
+# Under 3.2v4:
+#                             Already open
+# Open of   Neither	Master&slave	Master only	Slave only
+# master    Succeeds	Fails		Fails		Fails
+# slave     Hangs	Succeeds	Succeeds	Hangs
+#
+# Usage: idlettys access_only modify_backup
+# idlettys prints one line.
+# The first word on the line is the number of minutes until the tty that
+# is closest to reaching its idle limit without having reached it will
+# reach that limit.
+# If there are no ttys idle for a minute or more that have not reached
+# their limit, the number printed will be the smallest rule time.
+#
+# The rest of the words are the indexes in ttys[] of lines that match
+# a rule.
+#
+# A line is idle for as long as it has not been read from or written too.
+#
+# Global vars:
+# idlettys uses ttys[], ttytimes[], users[], idlettys_ilist, and
+# idlettys_mintime
+# R_user, R_tty, R_procs, R_rhost, and R_time
+# MinTime is the shortest idleout time for any rule.
+integer ttytimes idlettys_mintime
+function idlettys {
+    typeset access_only=$1 modify_backup=$2
+    typeset tty user rhost
+    # mindiff is initialized to MinTime, so that even if all idle times are 0,
+    # we will wake up after MinTime.
+    integer i=0 j diff mins time MaxTime Did_nwho=0 ptynum
+    idlettys_ilist=
+    idlettys_mintime=MinTime
+
+    $utmpx && Did_nwho=1
+    while (( i < ${#ttys[*]} )); do
+	tty=${ttys[i]}
+	user=${users[i]}
+	j=0
+	# find the highest-time rule that matches the idle user
+	MaxTime=0
+	while (( j < NumRules )); do
+	    if eval [[ \$user = "${R_user[j]}" '&&' \$tty == "${R_tty[j]}" ]]
+	    then
+		rhost=${R_rhost[j]}
+		if [[ "$tty" == ttyp+([0-9]) && $rhost != \* ]]; then
+		    ((Did_nwho)) || { FindHosts; Did_nwho=1; }
+		    ptynum=${tty#ttyp*}
+		    eval [[ \"\${Hosts[ptynum]}\" == "$rhost" ]] || {
+			((j+=1))
+			continue
+		    }
+		fi
+		# Make sure no protected processes are running on the tty
+	        if NotSaveProc "$tty" "${R_procs[j]}"; then
+		    ((j+=1))
+		    continue
+		fi
+		mins=${R_time[j]}
+		dbprint 3 "$user on $tty matches rule $j (itime=$mins)."
+		if (( mins == 0 )); then
+		    MaxTime=0
+		    break
+		fi
+		(( mins > MaxTime )) && MaxTime=mins
+	    fi
+	    ((j+=1))
+	done
+	dbprint 3 "$user on $tty: idleout time = $MaxTime"
+	# If a rule said this login should not be idled out, or there was no
+	# rule for the login, skip it
+	if (( MaxTime > 0 )); then
+	    # Find the allowed idle time for this tty
+	    TTYIdle $i $MaxTime access_only=$1 modify_backup=$2
+	    time=TTYIdle
+	    dbprint 3 "ttytimes[$i]=$time"
+	    ttytimes[i]=time
+	    dbprint 3 "idle time for $tty: $time"
+	    if (( time >= MaxTime )); then
+		idlettys_ilist="$idlettys_ilist $i"
+	    else
+		diff=MaxTime-time
+		(( diff < idlettys_mintime )) && idlettys_mintime=diff
+	    fi
+	fi
+	((i+=1))
+    done
+    dbprint 4 "In idlettys, ttytimes indexes are <$idlettys_ilist>.
+Values are <${ttytimes[*]}>"
+}
+
+# Usage: ttyprocs tty ...
+# ttyprocs sets the arrays ProcNames[], PIDs[], TTYNames[], and ProcStates[]
+# to the real names, process ids, controlling ttys, and states of all
+# of the processes attached to any of the ttys given as arguments.
+# Indexes start at 1.
+# hmm, this doesn't seem to actually pay attention to its ttyname arguments...
+# Under 3.2v4 ps -l output has this form:
+#  F S    UID   PID  PPID  C PRI NI  ADDR1  ADDR2  SZ     WCHAN  TTY      TIME CMD
+# 20 S      0  1618  1615  3  30 20    9d4    69d  88  f00ef8a0  p0       0:10 ksh
+# 20 O      0  9925  1618 36  78 20    366    30d  84            p0       0:00 ps
+# Under 5.0 it has this form:
+#  F S    UID   PID  PPID  C PRI NI     ADDR   SZ     WCHAN     TTY        TIME CMD
+#  0 S      0 26072  1231  0  73  0 fb11d218  144  fb11d218  ttyp17    00:00:00 te
+# 20 O      0  5059 26073 14  60  0 fb11d370  192         -  ttyp17    00:00:00 ps
+function ttyprocs {
+    typeset pid header f s uid pid ppid c pri ni addr args tty
+    integer i=0
+    dbprint 3 "ttyprocs args: $*"
+    unset PIDs ProcNames TTYNames ProcStates
+    ps_t -l "$@" | {
+	read header
+
+	while read f s uid pid ppid c pri ni addr args; do
+	    dbprint 3 "From ps_t -l: $f|$s|$uid|$ppid|$c|$pri|$ni|$addr|$args"
+	    # zombies lack many fields and are not important, so skip them.
+	    [ "$2" = Z ] && continue
+	    ProcStates[i]=$s
+	    PIDs[i]=$pid
+	    # Remaining fields are ADDR2 SZ WCHAN TTY TIME CMD
+	    # or SZ WCHAN TTY TIME CMD
+	    # addr2 and/or wchan may be missing and/or size may merge into
+	    # addr2.  Deal with this by shifting until TIME is in field 2
+	    set -- $args
+	    while [[ $# -gt 0 && $2 != ?([0-9][0-9]:)+([0-9]):[0-5][0-9] ]]
+	    do
+		shift
+	    done
+	    (( $# < 3 )) && continue
+
+	    tty=$1
+	    # This was needed for the ps of some earlier OS - maybe XENIX? -
+	    # which removed the leading 'tty' from tty names.
+	    # But it would need to check for tty, pts, console, etc. these
+	    # days, so just skip it...
+	    # [[ $tty != tty* ]] && tty=tty$tty
+	    TTYNames[i]=$tty
+	    shift 2
+	    ProcNames[i]="$*"
+	    dbprint 3 "line $((i+1)) from ps -l: State=$s PID=$pid TTY=${TTYNames[i]} Proc=$*"
+	    ((i+=1))
+	done
+    }
+    dbprint 3 "ttyprocs read $i non-zombie process lines."
+    ttyprocsDone=1
+}
+
+# Usage: ps_t ps-options tty ...
+# Pass a null argument if no ps-options
+# Equivalent to ps -t, except that tty args are given separately
+# Knows where to find tty field for default, -l, and -f output.
+function ps_t {
+    typeset TTYPat line IFS psopts=$1
+
+    shift	# get rid of ps options
+    # ps -t has a 20 tty limit but is faster
+    if (( $# <= 20 )); then
+	dbprint 2 "$0: running /bin/ps $psopts -t $*"
+	# Redir from /dev/null in case run with no fd 0, which breaks protlib.
+	/bin/ps $psopts -t "$*" < /dev/null || ErrMsg ps failed: errno $ERRNO
+	return 0
+    fi
+
+    # Make TTYPat a ksh pattern
+    IFS=\|
+    TTYPat="*($*)"
+
+    IFS="
+"
+
+    # This & the for loop are much faster than a read loop
+    dbprint 2 "$0: running /bin/ps $psopts -e"
+    set -- $(/bin/ps $psopts -e < /dev/null || ErrMsg ps failed: errno $ERRNO)
+    IFS=" 	
+"
+    # print header & get rid of it
+    print -- "$1"
+    shift
+
+    dbprint 2 "$0: read $# lines from ps.  Comparing ttys to $TTYPat"
+    # eval is necessary to make TTYPat be treated as a regexp.
+    # repeated eval is expensive, so eval the whole loop, quoting
+    # everything except TTYPat.
+eval '
+    for line in "$@"; do
+	set -- $line
+	case "$psopts" in
+	-f) tty=$6;;
+	-l) tty=${12};;
+	*) tty=$2;;
+	esac
+	[[ $tty != tty* ]] && tty=tty$tty
+	dbprint 3 "$0: tty = $tty"
+	[[ $tty == '"$TTYPat"' ]] && print -- "$line"
+    done
+'
+}
+
+# Usage: ttykill ttyname idlemin [user]
+# Global variables: TTYNames[], PIDs[], Signals[], KillSleep[]
+function ttykill {
+    typeset tty=$1 idlemin=$2 pids signal
+    integer i=0 sleep
+
+    while [ -n "${TTYNames[i]}" ]; do
+	dbprint 3 "$0: TTYNames[$i]=${TTYNames[i]}"
+	[ ${TTYNames[i]} = "$tty" ] && pids="$pids ${PIDs[i]}"
+	((i+=1))
+    done
+    dbprint 3 "pids for $tty: $pids"
+    [ -z "$pids" ] && return 0
+
+    i=0
+    while (( i < ${#Signals[*]} )); do
+	signal=${Signals[i]}
+	if ((debug_level)); then
+	    if [[ "$signal" == +([0-9]) ]]; then
+		print -u2 "Sending signal $signal to $pids"
+	    else
+		print -u2 "Sending SIG$signal to $pids"
+	    fi
+	fi
+	kill -$signal $pids 2>/dev/null
+	sleep=${KillSleep[i]}
+	((i+=1))
+	if (( i < ${#Signals[*]} && sleep > 0 )); then
+	    dbprint 1 "Sleeping for $sleep seconds."
+	    sleep $sleep
+	fi
+    done
+}
+
+# Usage: idleout <access_only> <modify_backup> <action> <logfile>
+# Sends a SIGHUP to processes attached to ttys that match a rule.
+# A number is printed that is the minimum number of minutes until another
+# tty could match a rule.
+function idleout {
+    typeset access_only=$1 modify_backup=$2 action=$3 logfile=$4
+    typeset tty idlei ttyNames
+    integer sleeptime idlemin i
+
+    CurTime
+    dbprint 1 "Time: $CurTime"
+    ttyprocsDone=0
+    devttyDone=0
+    # Make ttys[], access_times[], modtimes[], users[]
+    MakeTTYList
+    idlettys $access_only $modify_backup
+    sleeptime=idlettys_mintime
+    idlei=$idlettys_ilist
+    dbprint 2 "In idleout, ttytimes values are <${ttytimes[*]}>"
+    if [ -z "$idlei" ]; then
+	print $sleeptime
+	return 0
+    fi
+    for i in $idlei; do
+	ttyNames="$ttyNames ${ttys[i]}"
+    done
+    # Run ttyprocs to get a list of processes to kill for each tty.
+    ((!ttyprocsDone)) && ttyprocs $ttyNames
+    dbprint 1 "ttys to idle out users on:$ttyNames"
+
+    # Do a ps on ttys for logfile before killing off processes...
+    if [ -n "$logfile" -a -w "$logfile" ]; then
+	{
+	    date +"%Y-%m-%d %T %Z"
+	    ps_t -f $ttyNames | tail -n +2
+	} >> $logfile
+    fi
+    for i in $idlei; do
+	tty=${ttys[i]} idlemin=${ttytimes[i]} user=${users[i]}
+	if (( idlemin <= 0 )); then
+	    ErrMsg \
+	    "Error: $user idle $idlemin minute(s) on $tty; trying to idleout?"
+	    ErrMsg "ttytimes index is <$i>.  ttytimes[$i] is <${ttytimes[i]}>."
+	    ErrMsg \
+	"ttytimes indexes are <$idlei>.  ttytimes values are <${ttytimes[*]}>"
+	    continue
+	fi
+	case $action in
+	warn) iwrite $tty \
+"\rYou have been idle for more than $idlemin minutes.
+\rPlease log out if you aren't going to do anything." $user
+	;;
+	kill) iwrite $tty \
+"\rYou have been idle for more than $idlemin minutes,
+\rso you're being logged off.  You have one minute to clean up.  Goodbye!" $user
+	;;
+	esac
+    done
+
+    dbprint 3 "Action: $action"
+    if [ $action = kill ]; then
+	sleep 60	# Give the user the promised minute to clean up.
+	dbprint 2 "Grace period expired; killing..."
+	for i in $idlei; do
+	    tty=${ttys[i]} idlemin=${ttytimes[i]} user=${users[i]}
+	    dbprint 4 "+ttykill $tty $idlemin $user"
+	    ttykill $tty $idlemin $user
+	done
+    fi
+    print $sleeptime
+}
+
+# MakeIdleArrs: convert a list of user=time specs to rules.
+# Usage: MakeIdleArrs pattern=time [ pattern=time ... ]
+# MakeIdleArrs returns 0 on success, 1 on failure
+function MakeIdleArrs {
+
+    for arg; do
+	if [[ $arg != *=* ]]; then
+	    print -ru2 -- \
+	"$name: Bad idle time rule; should have the form userpat=minutes: $arg"
+	    return 1
+	fi
+	MakeRule "user=${arg%=*}:time=${arg#*=}" || return 1
+    done
+    return 0
+}
+
+function main {
+    integer sleeptime
+
+    while :; do
+	idleout $access_only $modify_backup $action $logfile |
+	read sleeptime
+	dbprint 1 "$name: Sleeping for $sleeptime minute(s)"
+	if (( sleeptime == 0 )); then
+	    print -u2 "$name: got 0 sleeptime!"
+	    sleeptime=1
+	fi
+	sleep $((sleeptime * 60))
+    done
+}
+
+# Usage:
+# MakeRule rule
+# rule is a set of colon-separated fields.
+# Each field is of the form name=value
+# Parses rules & stores them in global arrays
+# R_user, R_tty, R_procs, R_rhost, R_time, and R_signals,
+# starting with index 0.
+# The smallest time greater than 0 is put in global MinTime.
+# The number of rules is stored in global NumRules
+# The return value is 0 on success, 1 if the rule was bad
+integer NumRules=0 MinTime=0
+function MakeRule {
+    typeset OIFS IFS Rule=$1 field var value Fields
+    integer Err=0 i=0 NumFields
+
+    dbprint 1 "rule: $Rule"
+    OIFS=$IFS
+    IFS=:
+    set -A Fields -- $Rule
+    IFS=$OIFS
+    R_user[NumRules]=\*
+    R_tty[NumRules]=\*
+    R_procs[NumRules]=\*
+    R_rhost[NumRules]=\*
+    R_time[NumRules]=
+#    R_signals[NumRules]=$signals
+    NumFields=${#Fields[*]}
+    while (( i < NumFields )); do
+	field=${Fields[i]}
+	IFS==
+	set -- $field
+	IFS=$OIFS
+	var=$1 value=$2
+	case $var in
+	time)
+	    if [[ "$value" != +([0-9]) ]]; then
+		print -u2 "$name: Invalid time given in rule:\n$Rule"
+		Err=1
+	    else
+		if (( who_old > 0 && value >= who_old )); then
+		    print -u2 "Warning: time '$value' changed to $((value-1))."
+		    value=who_old-1
+		fi
+		R_time[NumRules]=$value
+		(( (MinTime == 0 || value < MinTime) && value > 0 )) &&
+			MinTime=$value
+	    fi
+	    ;;
+	user|tty|procs)
+	    eval R_$var[NumRules]=\$value
+	    ;;
+	rhost)
+	    if ! $utmpx && [ Found_nwho -ne 0 ]; then
+		print -u2 \
+		"$name: need either who -x or nwho if rhost param is used."
+		Err=1
+	    fi
+	    eval R_rhost[NumRules]=\$value
+	    ;;
+	*)
+	    print -u2 \
+	    "$name: Invalid field '$var' assigned to in rule:\n$Rule"
+	    Err=1
+	    ;;
+	esac
+	((i+=1))
+    done
+    if (( ${#R_time[*]} <= NumRules )); then
+	print -u2 "$name: No time given in rule:\n$Rule"
+	Err=1
+    fi
+    ((Err)) || ((NumRules+=1))
+    return $Err
+}
+
+# Usage: ProcDefFile default-file-name
+# Sets globals idletimes, log, ttys, saveprocs, siglist
+# Uses globals NoRules and debug_level.
+function ProcDefFile {
+    typeset DefFile=$1 var
+    typeset -l lowvar
+    integer Err=0
+
+    [ ! -r $DefFile ] && return 0
+    while read line; do
+	case "$line" in
+	*([ 	])|\#*)		# comment/space
+	    dbprint 1 "comment/space: $line"
+	    ;;
+	@(IDLETIMES|LOGFILE|TTYPAT|SAVEPROCS|NOCHECKDISC|SIGLIST|WHO_OLD)=*)
+	    dbprint 1 "simple-var: $line"
+	    # Assign these values carefully
+	    var=${line%%=*}
+	    lowvar=$var
+	    # Assign values only if empty (not set on command line)
+	    eval [ -z \"$"$lowvar"\" ] && eval $lowvar=\${line#$var=}
+	    ;;
+	[[:upper:]]*=*)
+	    print -u2 \
+	    "$name: Value assigned to unknown variable in $DefFile:\n$line"
+	    Err=1
+	    ;;
+	*=*)
+	    ((NoRules)) || MakeRule "$line" || Err=1
+	    ;;
+	*)
+	    print -u2 "$name: Bad line in $DefFile:\n$line"
+	    Err=1
+	    ;;
+	esac
+    done < $DefFile
+    return $Err
+}
+
+# Usage: MakeSigArrs siglist
+integer KillSleep
+typeset -u Signals
+function MakeSigArrs {
+    integer i=0
+    typeset siglist=$1
+
+    OIFS=$IFS
+    IFS=,
+    set -- $siglist
+    IFS=$OIFS
+    while (( $# >= 1 )); do
+	Signals[i]=$1
+	shift
+	if (( $# > 1 )); then
+	    KillSleep[i]=$1 || {
+		print -u2 "$name: Bad sleep time: $1.  Exiting."
+		exit 1
+	    }
+	    shift
+	fi
+	dbprint 1 "siglist pair $i: signal=${Signals[i]} sleep=${KillSleep[i]}"
+	((i+=1))
+    done
+}
+
+# Start of main program
+
+set -o noglob
+Err=0
+DefFile=/etc/default/nidleout
+logfile=/usr/adm/idleout
+integer fgnd=0 access_only=0 modify_backup=0 ttyprocsDone NoRules=0
+integer who_old=0 NoRun=0
+skipConsEvent=true
+action=kill
+name=${0##*/}
+
+
+Usage="Usage:
+$name [-aAcdefnpwxh] [-t<tty-pattern>] [-i<idle-times>] [-l<logfile>]
+          [-S<signal-list>] [-o<old-time>] [-s<save-procs>] [-D<tty-pattern>]
+	  [-x<debug-level>]"
+
+while getopts :cD:t:i:l:s:S:aAdefhno:pwx: flag; do
+    case $flag in
+    a)	access_only=1;;
+    A)	access_only=1; modify_backup=1;;
+    c)	skipConsEvent=false;;
+    d)  action=log;;
+    D)  nocheckdisc=$OPTARG;;
+    e)  NoRun=1;;
+    f)  fgnd=1;;
+    n)	NoRules=1;;
+    p)  nocheckdisc="ttyp*";;
+    w)  action=warn;;
+    x)
+	debug_level=$OPTARG
+	if (( debug_level <= 0 )); then
+	    print -ru2 -- \
+"$name: Bad value '$OPTARG' given for option -x (should be a positive integer).
+Exiting."
+	    exit 1
+	fi
+	;;
+    t)	ttypat=$OPTARG;;
+    s)	saveprocs=$OPTARG;;
+    S)  siglist=$OPTARG;;
+    i)	idletimes=$OPTARG;;
+    o)  who_old=$OPTARG;;
+    l)	logfile=$OPTARG
+	{ >> $logfile; } 2>/dev/null || {
+	    print -r -- "Cannot write to $logfile."
+	    Err=1
+	}
+	;;
+    h)
+	[ ! -t 0 -o ! -t 1 ] && PAGER=cat
+	${PAGER:-pg} <<END_HELP
+$name: Log out idle users.
+     $name logs out idle users.  Whether a user is idle or not is determined
+by examining the last-modified and last-accessed time on the user's tty.  The
+modify time is updated each time that the terminal is written to.  The access
+time is updated each time the terminal is read from.  The terminal is read from
+each time that it returns a line or character of input (depending on whether it
+is in canonical or non-canonical mode) to a process that has requested input.
+These are imperfect indicators of user activity; there is no facility for
+finding out when the last actual input from a user was received.
+     Most utilities read from and write to the tty in such a way that both the
+access and modify times are updated.  However, there are some situations in
+which the modify and/or access time on a tty are not updated even though a user
+is active.  The most common are: use of /dev/tty for input and/or output, use
+of the event driver, extended interaction with the tty driver, output via
+direct video access, use of utilities that do not read input for an extended
+period, and complete bypass of the tty mechanism. Options are provided to deal
+with most of these situations.  The following explanations will help you
+recognize them.
+     Some utilities, like pg(C) and less, access the user's tty input by
+reading the device /dev/tty because the process' standard input may have been
+redirected.  In this case, the access time on /dev/tty will be updated instead
+of the access time on the "real" tty.  Similarly, some utilities write to
+/dev/tty because they are liable to be invoked with their output redirected;
+these will not update the modify time of the real tty.
+      Any process that uses the event driver will prevent the access time on
+the tty from being updated, because the event driver bypasses the normal read
+mechanism.  Utilities that use a mouse, like usemouse(C) and the console X
+server, are examples of utilities that use the event driver.
+     Many utilities rely on the line discipline for echoing keyboard input. The
+line discipline does not update the modify time on the tty when it echos input,
+so it will appear that nothing is being written to the user's tty when in such
+a utility (mail(C), ex(C), etc.)  Xon/xoff flow control are also handled within
+the tty driver.  If a user is reading a large file and pausing the output with
+xoff and xon (^S/^Q), the access time will not be updated even though the user
+is typing the xon/xoff characters.
+     Applications that are running on the console and are using direct video
+memory access (VP/ix, Merge, and applications that produce graphical displays,
+like the console X server) will not update the modify time, because they don't
+write to the tty.  These applications are also particularly likely to use the
+event driver, which means that they also will not update the tty access time,
+so that there is no means of telling whether the tty is idle or not.  For this
+reason, by default console ttys that are using the event line discipline are
+skipped.  See the -c option.
+     Some applications do processing for an extended period, and do not read
+from the tty while doing this processing.  Even though a user may be typing,
+and depending on the utility the input may be being echoed by the line
+discipline, since no read is being done the user becomes idle.  An example of
+this is ftp; during a long transfer a user will become idle, even if the user
+types input in an attempt at avoiding idleness.
+     Finally, some processes divert serial IO at a low level within the kernel.
+Examples of this are the SLIP and PPP drivers.  These update neither the access
+nor modify time.  $name never acts on ttys that have no line discipline,
+which indicates that a driver of this type in in use.
+     When $name is started, it goes into the background and begins checking
+the times on users' ttys.  If a user has been idle for more than the specified
+time, a message is written to the user's tty warning that the user is about to
+be logged off.  After ten seconds has passed, all processes attached to the tty
+that the user is logged in on are sent a terminate signal.  This allows
+processes that catch the terminate signal to clean up.  After another ten
+seconds has passed, all of the remaining processes are sent a hangup signal, so
+that processes that ignore the terminate signal but pay attention to the hangup
+signal can clean up.  After another ten seconds has passed, all of the
+processes are sent a kill signal, which cannot be ignored.
+
+$Usage
+Options:
+Some of the following options can also be set by assigning values to variables
+in the configuration file described below.  Variable names appear in
+parentheses following option descriptions.
+-l<logfile>:  Set the name of the log file to which one line is written, in the
+    format of ps -f, for each process running on the user's tty at the time
+    the user is logged out.  The default is $logfile.
+    The log file will NOT be written to unless it already exists at the time
+    $name is run.  If an explicit log file name is given but the file does
+    not already exist, $name will abort with an error.  (LOGFILE)
+-d: Log processes running on an idle tty in the logfile, but do not log anyone
+    out.  If a user remains idle, the user will probably be logged more than
+    once.
+-w: Like -d, except that a warning is sent to the user's tty.
+-e: Exit immediately after all initialization is complete (for testing of
+    rules, etc.)  Usually used with -x.
+-f: Remain in the foreground.  This makes it easier to kill the process if
+    necessary.
+-a: Use only the access time on a tty for the idle time.  The default is to
+    consider the time since the most recent of the access and modify times to
+    be the idle time.  In general, the access time (which is the last time that
+    input from the user was acted on) is a better indicator of user activity
+    than the modify time.  For example, some utilities regularly write to a tty
+    even when they are not being used.  If a tty with such a utility running
+    on it should be considered idle if no one is typing at it, use -a.  Note
+    that, as described above, some processes do not update the access time on
+    the tty even when they are reading input from a terminal.  If -a is given,
+    users using these utilities are liable to be incorrectly logged out.  Use
+    -s and/or -A to prevent this.
+-A: Like -a, except that if the tty is using the event driver, or if a process
+    on the tty has /dev/tty open and is not stopped, the modify time is used
+    instead of the access time.  In most cases this is a better option to use
+    than -a.  However, even -A will not help the situation where a user is
+    using xon/xoff to read a large file, or where a user has begun a lengthy
+    operation that will not read any more input from the user until it has
+    completed.
+-c: By default, if a console tty is using the event driver, it is not acted on.
+    If -c is given, it is acted on like any other tty using the event driver.
+    This is liable to cause direct-video-access applications to be
+    inappropriately idled out.
+-n: Ignore any rules given in the configuration file.  Simple assignments are
+    still acted on.
+-o<who-old>: Set the number of minutes at which the 'who' utility reports that
+    a user's idle time is 'old' rather than reporting the actual number of
+    hours and minutes that they are idle.  Typical values are 1440 (1 day) or
+    6000 (100 hours).  This information is used to translate a value of 'old'
+    in who output into an amount of time that the user has been idle.  Any
+    rules that specify idle times longer than this will be altered to specify
+    an idle time less than the 'old' time, in the expectation that who will not
+    be able to report a higher time.  The default is to assume that who will
+    never report 'old', so no idle time rules are altered.  However, if who
+    does report 'old' and -o has not been given, it will be translated to an
+    idle time of 1 day.  In this case, rules that specify idle times greater
+    than 1 day will never cause anyone to be idled out.  (WHO_OLD)
+-D<tty-pattern>: Do not check the line discipline in effect on any ttys that
+    match the pattern given.  To prevent the line discipline from being checked
+    for any tty, use -D '*'.  -D can be used if there are ttys that $name
+    should not attempt to open for reading (as is necessary to check the line
+    discipline).  (NOCHECKDISC)
+-p: Do not attempt to determine what line discipline is in use on ptys.  Due to
+    pty open behavior in some releases of the operating system, in some
+    circumstances an attempt at opening the slave side will hang.  Note that if
+    -p is given, users using an alternate line discipline on a pty are liable
+    to be incorrectly idled out.  -p is equivalent to -D 'ttyp*'
+-s<save-procs>: Do no idle out any processes that match the pattern
+    <save-procs>.  If the name of any process running on a tty matches the
+    pattern given, the user on that tty will not be idled out (no processes on
+    the tty will be killed).  This would typically be used to save processes
+    that do not update the access or modify time on a tty, or, if the -a flag
+    is being used, processes which may update the modify time but not the
+    access time.  Example pattern: "@(pg|sx|sz|sb)".  If a pattern is given
+    on the command line, it should be protected from the shell with quotes.
+    (SAVEPROCS)
+-i<idle-times>: Set the number of minutes a user may be idle before being
+    logged out.  The format of <idle-times> is:
+    userpat=minutes[:userpat=minutes...]
+    Each colon-separated specification gives a shell pattern to compare user
+    names to and the maximum idle time, in minutes, for users whose login names
+    match that pattern.  An example of a simple specification is "*=15".  This
+    specifies that the idleout time for all users is 15 minutes.  An example of
+    a more complex specification is "@(root|backup)=240:spcecdt=60:*=15".  This
+    specifies that root and backup have an idleout time of 4 hours, spcecdt
+    has an idleout time of 1 hour, and everyone else has an idleout time of 15
+    minutes.  User names are compared to patterns in the order they are given,
+    and the time for the first pattern that a user name matches is used.  The
+    default is "*=60".  A time of 0 minutes means that no idleout should be
+    done.  If a pattern is given on the command line, it should be protected
+    from the shell with quotes.  (IDLETIMES)
+-t<tty-pattern>: Act only on ttys that match <tty-pattern>.  <tty-pattern>
+    should match the trailing component of the tty name, without the leading
+    /dev.  Use "*" to match all ttys.  "*[[:upper:]]*" would typically be used
+    to only match modem ttys. "!(ttyp*)" will match all real ttys, but allow
+    users on pseudo-ttys to be idle.  The default is "*".  (TTYPAT)
+-S<signal-list>: Send the signals in <signal-list> to processes to kill them. 
+    The value has the form:
+    <signal>[,<sleeptime>,signal ...]
+    <signal> is either a signal number or the name of the signal without the
+    leading 'SIG', e.g. KILL.  <sleeptime> is the period in seconds to sleep
+    after sending the preceding signal and before sending the next signal.
+    Each signal name/number other than the last MUST be followed by a sleep
+    time.  The default is INT,10,HUP,10,KILL.  This causes a SIGINT to be sent,
+    followed by a sleep of 10 seconds, then a SIGHUP to be sent, followed by a
+    sleep of 10 seconds, and finally a SIGKILL to be sent.  (SIGLIST)
+-x<debug-level>: Set debugging to level <debug-level>.  <debug-level>
+    should be a positive integer from 1 through 9.  Higher levels produce more
+    verbose output.  Debugging information is written to the standard error
+    output.  
+
+     More complex actions can be specified in the configuration file
+/etc/default/nidleout.  Lines in this file that are blank or begin with '#' are
+ignored.  Other lines have one of two forms, either
+VARNAME=value
+or
+field=value:field=value:...
+The first form is used to assign values to certain of the parameters that can
+be given on the command line, as explained above.  For example:
+
+WHO_OLD=1440
+IDLETIMES=*=15
+TTYPAT=*[[:upper:]]*
+NOCHECKDISC=ttyp*
+SAVEPROCS=@(pg|more|ftp|Xsco)
+
+will set the maximum-who-idletime, idle time, tty pattern, and save processes
+pattern, and leave the logfile name set to the default.  Values given on the
+command line override any set in the default file.
+     The second form is used to specify idleout actions that are dependent
+on more than one parameter.  Each line describes an idleout rule.  The rule
+consists of various parameters that must match a user login in order for that
+rule to match the login.  A rule matches only if all of the parameters given
+match.  The idleout time used for each login is the highest time of any rule
+that matches the login.  The parameter fields are user, tty, procs, and rhost.
+The value of each field is given in ksh pattern syntax.  Any parameters not
+assigned a value in a rule default to '*', so that those parameters always
+match.  The 'time' field gives the idleout time for a rule; every rule must
+have a time field.  Note that values equal to or higher than 1440 minutes (1
+day) may never be acted on, since some versions of 'who' will not report values
+higher than that (see the -o option).  A time field of 0 means that logins
+matching this rule should not be idled out.
+     The user and tty fields are matched against the user's login name and the
+tty the user is on.  The procs field will match if any process running on the
+tty matches its value.  The rhost field is matched against the host that a
+remote user is logged in from, for rlogin and telnet connections.  It will be
+matched against the domain name of the host if it has one, else its IP address.
+Use of this parameter requires either that the 'who' command implements the -x
+option (print remote hostnames), or the existence of the 'nwho' program, and is
+only checked for pseudo-ttys regardless of the tty parameter.
+Example:
+
+# These users are allowed to be idle for 60 minutes on a modem.
+user=@(spcecdt|root|pax):tty=tty3[A-H]:time=60
+# These users are allowed to be idle for 1 day on a pty.
+user=@(spcecdt|root|filbo):tty=ttyp+([0-f]):time=1439
+# Users coming from any host in armory.com will never be idled out.
+tty=ttyp+([0-f]):rhost=*.armory.com:time=0
+# These procs read and write /dev/tty, or don't read input during processing.
+tty=tty@(3[A-H]|p+([0-f])):procs=@(pg|rb|rz|rx|sb|sz|sx|ftp):time=240
+# Idle out general modem users in 10 minutes.
+tty=tty3[A-H]:time=10
+# Idle out net users in 14 hours.
+tty=ttyp+([0-f]):time=840
+
+     Note that the simpler idleout specifications (IDLETIMES, etc.) other than
+NOCHECKDISC would not normally be used in conjunction with rules.  The -n
+option can be used to skip any rules in the configuration file so that simple
+specifications can be given on the command line.  They are internally converted
+into rules as follows: Each field of IDLETIMES becomes a rule with only user
+and time set.  TTYPAT and SAVEPROCS become rules with only tty or procs set,
+respectively, and with time set to 0; in the case of TTYPAT anything except the
+tty pattern is matched.
+     $name is a Korn shell script.  If it is not invoked from a Korn shell,
+and hashpling is not enabled on the system, it must be run by the Korn shell
+explicitly.  If $name is put in /usr/bin, use the command:
+/bin/ksh $0 <arguments...>
+END_HELP
+	exit 0;;
+    +?)	# no way to tell getopts to not treat +x as an option
+	print -r -u2 "$name: Do not prefix options with '+'."
+	exit 1
+	;;
+    :)
+	print -r -u2 \
+"$name: Option -$OPTARG requires a value.
+$Usage
+Use -h for help."
+	exit 1
+	;;
+    \?)
+	print -r -u2 \
+"$name: -$OPTARG: no such option.
+$Usage
+Use -h for help."
+	exit 1
+	;;
+    esac
+done
+
+# External commands used:
+# /bin/ksh awk date who stty ps sleep tail fuser nwho
+export PATH=/bin:/usr/bin:/local/bin
+
+who_parsable=false
+if who -x >/dev/null 2>&1; then
+    utmpx=true
+    Found_nwho=1
+    who -P >/dev/null 2>&1 && who_parsable=true
+else
+    utmpx=false
+    whence nwho > /dev/null
+    Found_nwho=$?
+fi
+
+# Does ls have the -T option?
+ls -dT / >/dev/null 2>&1 && lsOpt=T || lsOpt=
+
+if ((debug_level)); then
+    print -ru2 -- "Who has -P option: $who_parsable"
+    print -ru2 -- "Extra ls options: $lsOpt"
+fi
+
+ProcDefFile $DefFile || Err=1
+
+if [ $Err = 1 ]; then
+    print "Exiting."
+    exit 1
+fi
+
+# Convert simple specs to arrays
+OIFS=$IFS
+IFS=:
+MakeIdleArrs $idletimes || exit 1
+IFS=$OIFS
+[ -n "$ttypat" ] && MakeRule "tty=!($ttypat):time=0"
+[ -n "$saveprocs" ] && MakeRule "procs=$saveprocs:time=0"
+# If no inclusion rules at all given, set this one
+(( MinTime == 0 )) && MakeRule "time=60"
+: "${siglist:=INT,10,HUP,10,KILL}"
+MakeSigArrs "$siglist"
+
+if ((debug_level)); then
+    integer i=0
+    while (( i < NumRules )); do
+	print -u2 "Rule $i: user=${R_user[i]}  tty=${R_tty[i]}"\
+	" procs=${R_procs[i]}  rhost=${R_rhost[i]}  time=${R_time[i]}"
+	((i+=1))
+    done
+    print -u2 "nocheckdisc=$nocheckdisc"
+    print -u2 "siglist=$siglist"
+fi
+
+trap "" HUP
+
+if [ -n "$logfile" ]; then
+    print -r -- "$name: logfile is $logfile.  $NumRules rule(s)."
+else
+    print -r -- "$name: $NumRules rule(s)."
+fi
+
+TimeInit
+
+((NoRun)) && exit 0
+
+OSVersion
+
+if [ $fgnd = 1 ]; then
+    main
+else
+    main &
+fi
+

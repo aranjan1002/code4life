@@ -1,0 +1,22 @@
+class DeleteDupChars {
+    public static void main(String[] args) {
+	System.out.println(new DeleteDupChars().deleteDupChars(args[0]));
+    }
+
+    public String deleteDupChars(String str) {
+	char[] string = str.toCharArray();
+	int length = str.length();
+	for (int i=0; i<length; i++) {
+	    int cnt = 0;
+	    for (int j=i+1; j< length; j++) {
+		if(string[i] == string[j]) {
+		    cnt++;
+		    string[j] = 0;
+		}
+		else string[j-cnt] = string[j];
+	    }
+	}
+	return new String(string);
+    }
+}
+				   

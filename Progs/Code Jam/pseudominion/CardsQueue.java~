@@ -1,0 +1,23 @@
+class CardsQueue {
+    Card[] cards = new Card[80];
+    int top = -1;
+    int rear = -1;
+
+    public void insert(Card c) {
+	if(top == -1 && rear == -1) {
+	    ++top;
+	}
+	else cards[++rear] = c;
+    }
+
+    public Card get() {
+	if(top >= 0) {
+	    return cards[top++];
+	}
+	return null;
+    }
+
+    public boolean notEmpty() {
+	return top != rear;
+    }
+}

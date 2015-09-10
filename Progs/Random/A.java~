@@ -1,0 +1,9 @@
+class A {
+  B b;
+     public String get() {
+       return toString();
+     }
+  public String toString() {
+    return b.toString();
+  }
+}

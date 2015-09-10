@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+for i in `ls tests`
+do
+      echo "Now running test program" $i ...
+       rpal                        tests/$i > tests/$i.out
+#      rpal -l                     tests/$i > tests/$i.out
+#      rpal    -ast                tests/$i > tests/$i.out
+#      rpal         -st            tests/$i > tests/$i.out
+#      rpal             -db        tests/$i > tests/$i.out
+#      rpal                 -noout tests/$i > tests/$i.out
+done

@@ -1,0 +1,23 @@
+Here is a solution to the exercise in which
+we extend the RPAL version of Tiny's denotational
+semantics description, to a larger language we'll
+call Medium.
+
+The RPAL code is in 'medium'.
+
+'doall' is a shell script that runs the medium
+interpreter ('mi') on each of 25 test programs.
+
+'mi' is a 'medium interpreter', that
+concatenates 'medium' with the given test program,
+runs 'rpal' on the resulting temporary file,
+and then removes the temporary file.
+
+To run all 25 test programs, simply run 'doall'.
+This shell script expects to find 'rpal' in your
+current search path.
+
+The expected results are in the 'results' file.
+
+Enjoy.
+

@@ -1,0 +1,27 @@
+package edu.cp.project;
+
+import java.util.regex.Pattern;
+
+class ClientMessageReader {
+    ClientMessageReader() {
+    }
+
+    /*MSG_TYPE getMessageType(String msg) {
+	MSG_TYPE msgType;
+	if (Pattern.matches(REG_MSG, msg)) {
+	    msgType = MSG_TYPE.REG;
+	} else if (Pattern.matches(CHNG_POS_MSG, msg)) {
+	    msgType = MSG_TYPE.CHNG_POS;
+	} else {
+	    msgType = MSG_TYPE.INVALID;
+	}
+	return msgType;
+	}*/
+
+    public static final String REG_MSG = "REG [a-zA-Z]* [GP]";
+    public static final String MOVE_DIR_MSG = "[UDLR]";
+
+    public enum MSG_TYPE {REG, CHNG_POS, INVALID};
+    public enum CLIENT_TYPE {PACMEN, GHOST};
+    public enum MOVE_DIR {UP, DOWN, LEFT, RIGHT};
+}

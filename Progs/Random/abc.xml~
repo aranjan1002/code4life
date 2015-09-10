@@ -1,0 +1,87 @@
+<HurricaneTrajectories>
+<Hurricane id="bcp011950.txt">
+<Trajectory>
+<Point basin="CP" cy="01" warningdate="1950081200" tech="BEST" tau="0" lat="145N" long="1445W" vmax="25" />
+<Point basin="CP" cy="01" warningdate="1950081206" tech="BEST" tau="0" lat="149N" long="1448W" vmax="25" />
+<Point basin="CP" cy="01" warningdate="1950081212" tech="BEST" tau="0" lat="152N" long="1452W" vmax="25" />
+<Point basin="CP" cy="01" warningdate="1950081218" tech="BEST" tau="0" lat="155N" long="1456W" vmax="25" />
+<Point basin="CP" cy="01" warningdate="1950081300" tech="BEST" tau="0" lat="157N" long="1458W" vmax="25" />
+<Point basin="CP" cy="01" warningdate="1950081306" tech="BEST" tau="0" lat="159N" long="1463W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950081312" tech="BEST" tau="0" lat="163N" long="1469W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950081318" tech="BEST" tau="0" lat="166N" long="1476W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950081400" tech="BEST" tau="0" lat="168N" long="1481W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950081406" tech="BEST" tau="0" lat="175N" long="1491W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950081412" tech="BEST" tau="0" lat="183N" long="1501W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950081418" tech="BEST" tau="0" lat="193N" long="1513W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950081500" tech="BEST" tau="0" lat="201N" long="1524W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950081506" tech="BEST" tau="0" lat="207N" long="1534W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950081512" tech="BEST" tau="0" lat="214N" long="1544W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950081518" tech="BEST" tau="0" lat="223N" long="1556W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950081600" tech="BEST" tau="0" lat="230N" long="1566W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081606" tech="BEST" tau="0" lat="237N" long="1575W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081612" tech="BEST" tau="0" lat="243N" long="1584W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081618" tech="BEST" tau="0" lat="247N" long="1596W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081700" tech="BEST" tau="0" lat="247N" long="1608W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081706" tech="BEST" tau="0" lat="245N" long="1616W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081712" tech="BEST" tau="0" lat="240N" long="1624W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081718" tech="BEST" tau="0" lat="236N" long="1631W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081800" tech="BEST" tau="0" lat="233N" long="1638W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081806" tech="BEST" tau="0" lat="228N" long="1647W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081812" tech="BEST" tau="0" lat="226N" long="1656W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081818" tech="BEST" tau="0" lat="225N" long="1665W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081900" tech="BEST" tau="0" lat="225N" long="1674W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081906" tech="BEST" tau="0" lat="226N" long="1687W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081912" tech="BEST" tau="0" lat="227N" long="1697W" vmax="75" />
+<Point basin="CP" cy="01" warningdate="1950081918" tech="BEST" tau="0" lat="232N" long="1704W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950082000" tech="BEST" tau="0" lat="236N" long="1715W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950082006" tech="BEST" tau="0" lat="241N" long="1724W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950082012" tech="BEST" tau="0" lat="247N" long="1737W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950082018" tech="BEST" tau="0" lat="253N" long="1743W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950082100" tech="BEST" tau="0" lat="260N" long="1757W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950082106" tech="BEST" tau="0" lat="267N" long="1769W" vmax="45" />
+<Point basin="CP" cy="01" warningdate="1950082112" tech="BEST" tau="0" lat="274N" long="1780W" vmax="25" />
+</Trajectory>
+</Hurricane>
+<Hurricane id="bcp011951.txt">
+<Trajectory>
+<Point basin="CP" cy="01" warningdate="1951032100" tech="BEST" tau="0" lat="234N" long="1650W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032106" tech="BEST" tau="0" lat="234N" long="1639W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032112" tech="BEST" tau="0" lat="235N" long="1629W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032118" tech="BEST" tau="0" lat="235N" long="1619W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032200" tech="BEST" tau="0" lat="236N" long="1610W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032206" tech="BEST" tau="0" lat="236N" long="1594W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032212" tech="BEST" tau="0" lat="240N" long="1579W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032218" tech="BEST" tau="0" lat="254N" long="1572W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032300" tech="BEST" tau="0" lat="272N" long="1565W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032306" tech="BEST" tau="0" lat="288N" long="1556W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032312" tech="BEST" tau="0" lat="300N" long="1549W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032318" tech="BEST" tau="0" lat="294N" long="1547W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032400" tech="BEST" tau="0" lat="281N" long="1546W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032406" tech="BEST" tau="0" lat="276N" long="1543W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032412" tech="BEST" tau="0" lat="271N" long="1540W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032418" tech="BEST" tau="0" lat="256N" long="1537W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032500" tech="BEST" tau="0" lat="242N" long="1535W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032506" tech="BEST" tau="0" lat="235N" long="1536W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032512" tech="BEST" tau="0" lat="230N" long="1542W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032518" tech="BEST" tau="0" lat="228N" long="1549W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032600" tech="BEST" tau="0" lat="225N" long="1558W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032606" tech="BEST" tau="0" lat="221N" long="1569W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032612" tech="BEST" tau="0" lat="216N" long="1579W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032618" tech="BEST" tau="0" lat="211N" long="1583W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032700" tech="BEST" tau="0" lat="208N" long="1584W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032706" tech="BEST" tau="0" lat="208N" long="1585W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032712" tech="BEST" tau="0" lat="210N" long="1586W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032718" tech="BEST" tau="0" lat="212N" long="1585W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032800" tech="BEST" tau="0" lat="214N" long="1583W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032806" tech="BEST" tau="0" lat="217N" long="1580W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032812" tech="BEST" tau="0" lat="220N" long="1578W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032818" tech="BEST" tau="0" lat="221N" long="1584W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032900" tech="BEST" tau="0" lat="221N" long="1592W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032906" tech="BEST" tau="0" lat="222N" long="1598W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032912" tech="BEST" tau="0" lat="224N" long="1604W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951032918" tech="BEST" tau="0" lat="227N" long="1610W" vmax="26" />
+<Point basin="CP" cy="01" warningdate="1951033000" tech="BEST" tau="0" lat="231N" long="1617W" vmax="26" />
+</Trajectory>
+</Hurricane>
+</HurricaneTrajectories>
+

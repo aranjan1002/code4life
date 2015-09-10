@@ -1,0 +1,24 @@
+class InsertionSort {
+    public static void main(String[] args) {
+	int[] n = {2, 4, 24, 213, 1, 32};
+	new InsertionSort().sort(n);
+    }
+
+    public void sort(int[] n) {
+	for (int i = 1; i < n.length; i++) {
+	    int temp = n[i];
+	    int j;
+	    for (j = i - 1; j >= 0; j--) {
+		n[j + 1] = n[j];
+	    }
+	    n[j + 1] = temp;
+	}
+	print(n);
+    }
+
+    public void print(int[] n) {
+	for (int i = 0; i <= n.length - 1; i++) {
+	    System.out.println(n[i]);
+	}
+    }
+}

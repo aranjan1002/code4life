@@ -1,0 +1,27 @@
+public class Solution {
+    public static void main(String[] args) {
+	new Solution().generateMatrix(3);
+    }
+
+    public int[][] generateMatrix(int n) {
+        int[][] result = new int[n][n];
+        int dist = 0;
+        
+        cnt = 1;
+        while (cnt <= n * n) {
+	    for (int i = dist; i <= n - 1 - dist; i++) {
+		result[dist][i] = cnt++;
+	    }
+	    for (int i = dist; i <= n - 1 - dist; i++) {
+		result[i][n - 1 - dist] = cnt++;
+	    }
+	    for (int i = n - 1 - dist; i >= dist; i--) {
+		result[n - 1 - dist][i] = cnt++;
+	    }
+	    for (int i = n - 1 - dist; i >= dist + 1; i--) {
+		result[i][dist] = cnt++;
+	    }
+	    dist++;
+        }
+    }
+}

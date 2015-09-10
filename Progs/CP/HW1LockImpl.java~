@@ -1,0 +1,24 @@
+package edu.ufl.cise.cop5618fa12.hw1;
+
+import java.util.concurrent.atomic.*;
+
+public class HW1LockImpl implements HW1Lock {
+
+    public void lock(int threadID) {
+	
+    }
+
+    public void lockInterruptibly(int threadID)
+        throws InterruptedException;
+
+    public boolean tryLock(int threadID);
+
+    public void unlock(int threadID);
+
+    private AtomicIntegerArray flag = new AtomicIntegerArray[2];
+
+    public void monitor() {
+	System.out.println("Flags 0 and 1: " + flag.get(0) 
+			   + " " + flag.get(1));
+    }
+}

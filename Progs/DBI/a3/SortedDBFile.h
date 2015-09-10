@@ -1,0 +1,45 @@
+#ifndef SORTEDDBFILE_H
+#define SORTEDDBFILE_H
+
+#include "GenericDBFile.h"
+#include "File.h"
+#include "DBFile.h"
+#include "BigQ.h"
+#include "HeapDBFile.h"
+
+using namespace std;
+
+typedef enum {reading, writing} mode;
+
+class SortedDBFile : public GenericDBFile {
+ public:
+  SortedDBFile(SortInfo& so);
+  int Open(char* fpath);
+  void Add(Record&);
+  void Load(Schema&, char*);
+  int Create(char*);
+  int GetNext(Record&);
+  int GetNext (Record &fetchme, CNF &cnf, Record &literal);
+
+  int GetNext (Record &fetchme, CNF &cnf, Record &literal, 
+			       Schema *sc);
+
+  void MoveFirst();
+  int Close();
+  ~SortedDBFile();
+  
+ private:
+  void InitPipesAndBigQ();
+  void SwitchToReading();
+  void SwitchToWriting();
+  void Merge();
+  void Copy(HeapDBFile&);
+
+  mode currMode;
+  SortInfo& sortInfo;
+  Pipe *input, *output;
+  BigQ* bigQ;
+  bool repeat;
+};
+
+#endif

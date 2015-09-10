@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DietSFS", "DietSFS.csproj", "{1457AFAA-B32E-4BA1-805E-822231AE4156}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DietSolver", "DietSolver.csproj", "{7AF0BB48-3B8E-4343-AF14-8B1D8D6D6889}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LPex1SFS", "LPex1SFS.csproj", "{87DEEACB-D82D-4595-9AA6-079BCD53C5AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LPex1Solver", "LPex1Solver.csproj", "{483145CD-12EC-486D-BF89-E12A5AC728C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIPex1SFS", "MIPex1SFS.csproj", "{02848937-6225-44D3-9730-304340F40601}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIPex1Solver", "MIPex1Solver.csproj", "{2C672B2A-408A-4217-8BEE-36F67D41953D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QPex1SFS", "QPex1SFS.csproj", "{40A62F50-CD13-4BCE-827E-54D678FBE260}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QPex1Solver", "QPex1Solver.csproj", "{B553CE37-C2D8-44F3-A8BF-935F2B867989}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1457AFAA-B32E-4BA1-805E-822231AE4156}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1457AFAA-B32E-4BA1-805E-822231AE4156}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1457AFAA-B32E-4BA1-805E-822231AE4156}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1457AFAA-B32E-4BA1-805E-822231AE4156}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AF0BB48-3B8E-4343-AF14-8B1D8D6D6889}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AF0BB48-3B8E-4343-AF14-8B1D8D6D6889}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AF0BB48-3B8E-4343-AF14-8B1D8D6D6889}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AF0BB48-3B8E-4343-AF14-8B1D8D6D6889}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87DEEACB-D82D-4595-9AA6-079BCD53C5AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87DEEACB-D82D-4595-9AA6-079BCD53C5AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87DEEACB-D82D-4595-9AA6-079BCD53C5AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87DEEACB-D82D-4595-9AA6-079BCD53C5AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{483145CD-12EC-486D-BF89-E12A5AC728C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{483145CD-12EC-486D-BF89-E12A5AC728C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{483145CD-12EC-486D-BF89-E12A5AC728C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{483145CD-12EC-486D-BF89-E12A5AC728C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02848937-6225-44D3-9730-304340F40601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02848937-6225-44D3-9730-304340F40601}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02848937-6225-44D3-9730-304340F40601}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02848937-6225-44D3-9730-304340F40601}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C672B2A-408A-4217-8BEE-36F67D41953D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C672B2A-408A-4217-8BEE-36F67D41953D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C672B2A-408A-4217-8BEE-36F67D41953D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C672B2A-408A-4217-8BEE-36F67D41953D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40A62F50-CD13-4BCE-827E-54D678FBE260}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40A62F50-CD13-4BCE-827E-54D678FBE260}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40A62F50-CD13-4BCE-827E-54D678FBE260}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40A62F50-CD13-4BCE-827E-54D678FBE260}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B553CE37-C2D8-44F3-A8BF-935F2B867989}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B553CE37-C2D8-44F3-A8BF-935F2B867989}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B553CE37-C2D8-44F3-A8BF-935F2B867989}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B553CE37-C2D8-44F3-A8BF-935F2B867989}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

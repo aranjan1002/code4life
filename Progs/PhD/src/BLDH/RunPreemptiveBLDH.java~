@@ -1,0 +1,31 @@
+package edu.strippacking.run;
+
+import java.util.ArrayList;
+import java.io.IOException;
+
+import edu.strippacking.BLDH.PreemptiveBLDH;
+import edu.strippacking.InputFileReader;
+import edu.strippacking.Job;
+
+class RunPreemptiveBLDH {
+    public static void main(String[] args) 
+	throws IOException {
+	new RunPreemptiveBLDH().start(args);
+    }
+
+    private void start(String[] args) 
+	throws IOException {
+	inputFile = args[0];
+	jobList = InputFileReader.readFile(inputFile);
+	long start_time = System.nanoTime();
+	double result = preBLDH.getMaxPower(jobList);
+	long elapsed_time = System.nanoTime() - start_time;
+        System.out.print(jobList.size() + " " +
+                         res + " " + elapsed_time);
+	System.out.println(result);
+    }
+
+    private ArrayList<Job> jobList = new ArrayList<Job>();
+    private PreemptiveBLDH preBLDH = new PreemptiveBLDH();
+    private String inputFile = new String();
+}

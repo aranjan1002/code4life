@@ -1,0 +1,94 @@
+package edu.strippacking;
+
+import java.lang.Double;
+import java.lang.Integer;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import edu.strippacking.FFDH.FFDHMix;
+import edu.strippacking.NFDH.NFDHMix;
+import edu.strippacking.NFDH.NFDH;
+
+public class JobScheduling {
+    public static void main(String[] args) 
+	throws Exception {
+	if (args.length != 2 && args.length != 3) {
+	    throw new JobSchedulingException(errorMessage);
+	}
+	else {
+	    updateParameters(args);
+	    readFile();
+	    // new Display().displayJobs(jobs);
+	    runAlgorithm();
+	}
+    }
+
+    private static void updateParameters(String[] args) 
+	throws NumberFormatException {
+	algCode = Integer.parseInt(args[0]);
+	fileName = args[1];
+	if (args.length == 3) {
+	    preemptionPercentage = Double.parseDouble(args[2]);
+	}
+    }
+
+    private static void readFile() 
+	throws IOException {
+	InputFileReader reader = new InputFileReader();
+	if (preemptionPercentage == 0) {
+	    jobs = reader.readFile(fileName);
+	} else {
+	    jobs = reader.readFile(fileName, preemptionPercentage / 100);
+	}
+    }
+
+    private static void runAlgorithm() 
+	throws Exception {
+	
+	switch (algCode) {
+	case 0:
+	    // Run all algorithms
+	    System.out.print("NFDH:");
+	    runAlgorithm(new NFDH(), jobs, Constants.W);
+	    System.out.print("NFDHMix: ");
+	    runAlgorithm(new NFDHMix(), jobs, Constants.W);
+	    System.out.print("FFDHMix: ");
+	    runAlgorithm(new FFDHMix(), jobs, Constants.W);
+	    break;
+	case 1: 
+	    // Run FFDHMix
+	    runAlgorithm(new FFDHMix(), jobs, Constants.W);
+	    break;
+	case 2:
+	    // Run NFDHMix
+	    runAlgorithm(new NFDHMix(), jobs, Constants.W);
+	default:
+	    throw new JobSchedulingException("Invalid alg_code\n" + 
+					     errorMessage);
+	}
+    }
+
+    // runs algorithm and displays result(time taken)
+    private static void runAlgorithm(SchedulingAlgorithm alg,
+				     ArrayList<Job> jobs,
+				     Double D) {
+	long start_time = System.nanoTime();
+	double result = alg.schedule(jobs, D);
+	long elapsed_time = System.nanoTime() - start_time;
+	System.out.println(result + "(" + elapsed_time + ")");
+    }
+
+    private static double preemptionPercentage = 0;
+    private static int algCode;
+
+    private static String fileName;
+    private static ArrayList<Job> jobs = new ArrayList<Job>();
+    
+    private static final String errorMessage = "Usage: \n" +
+	"java edu.strippacking.JobScheduling " +
+	"<alg_code> " +
+	"<file_pathname> " +
+	"<%age of preemption>\n" +
+	"%age of preemption = 0 by default\n" +
+	"alg_code: 0 All 1 FFDHMix 2 NFDHMix";
+}

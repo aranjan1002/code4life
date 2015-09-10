@@ -1,0 +1,46 @@
+class ChargingChaos {
+    public static void main(String[] args) {
+	new ChargingChaos().start();
+    }
+
+    public void start()
+        throws Exception {
+        InputStreamReader is =
+            new InputStreamReader(
+                                  new FileInputStream("Input2"));
+        BufferedReader br = new BufferedReader(is);
+        OutputStreamWriter os =
+            new OutputStreamWriter(
+                                   new FileOutputStream("Output"));
+        BufferedWriter bw = new BufferedWriter(os);
+        String line;
+
+        int test = 1;
+        line = br.readLine();
+        int tot_test = Integer.parseInt(line);
+        while (tot_test >= test) {
+            System.out.println("Case #" + test++ + ": " + calc(br));
+        }
+    }
+
+    String calc(BufferedInput br) {
+	String[] NL = br.readLine().split(" ");
+	int N = Integer.parseInt(NL[0]);
+	int L = Integer.parseInt(NL[1]);
+
+	String[] outlets = br.readLine().split(" ");
+	String[] devices = sort(br.readLine().split(" "));
+	
+
+	Permutation p = new Permutation(L);
+	
+	
+    }
+
+    String[] sort(String[] str_arr) {
+	for (int i = 0; i <= str_arr.length() - 1; i++) {
+	    for (int j = i + 1; j <= 
+	}
+    }
+
+}

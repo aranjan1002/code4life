@@ -1,0 +1,9 @@
+Pseudo codes for operations on hmpoint
+Note . Here, I have not explained how the input or output is represented. My only focus is on the algorithms
+1)   Deftime: Set of time intervals in which the hmpoint exists
+Return the lifetime of hmpoint
+2)     Trajectory: Projection of a moving point into a plane yielding a line	
+
+for each upoint
+    for each mpoi
+    	add the mpoi to the

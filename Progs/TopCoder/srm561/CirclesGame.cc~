@@ -1,0 +1,106 @@
+#include <vector>
+#include <set>
+#include <string>
+
+using namespace std;
+
+struct CirclesGame
+{
+  int n;
+  vector<int> x,y,r;
+    
+  /* Handy function, is circle a inside circle b?
+       For convenience, if a=b, it returns true
+  */
+  bool isInside(int a, int b)
+  {
+    if (r[a] <= r[b] ) {
+      int dx = x[a] - x[b];
+      int dy = y[a] - y[b];
+      return (dx*dx + dy*dy <= r[b]*r[b]);
+    }
+    return false;
+  }
+
+  int parent[50];
+
+
+  int mem[50];
+  //
+  //   Calculate the nimber of the sub-tree beginning at node x:
+  //
+  int nimber(int x)
+  {
+    int & res = mem[x];
+    if (res == -1) {
+      res = 0;
+      set<int> choices;
+      // For each node inside the sub-tree, let us simulate
+      // what happens if it and its ancestors are removed:
+      for (int i=0; i<n; i++) {
+	if (isInside(i, x)) {
+	  int total = 0;
+	  for (int j=0; j<n; j++) {
+	    // For a node to be a root of one of the remaining
+	    // trees, it has to be a direct children of
+	    // of one of the removed nodes:
+	    //
+	    if ( (j!=x) && isInside(j,x) && (parent[j]!=-1)
+		 && (isInside(i,parent[j]))
+		 && (! isInside(i,j) ) ) {
+                              
+	      // Calculate the xor of all the remaining trees.
+	      total ^= nimber(j);
+	    }
+	  }
+	  choices.insert(total);
+	}
+      }
+      // Find the first natural number not included among our available
+      // choices, that would be the sub-tree's nimber.
+      res = 0;
+      while ( choices.count(res) ) {
+	res++;
+      }
+    }
+    return res;
+  }
+    
+  string whoCanWin(vector <int> _x, vector <int> _y, vector <int> _r)
+  {
+    x = _x; y = _y; r = _r;
+    n = x.size();
+        
+    vector<int> roots;
+    for (int i=0; i<n; i++) {
+      //find the direct parent of circle i
+      // the smallest circle that contains it:
+      parent[i] = -1;
+      for (int p=0; p<n; p++) {
+	if (isInside(i, p) && (i!=p) ) {
+	  if (parent[i] == -1) {
+	    parent[i] = p;
+	  } else if (r[parent[i]] > r[p]) {
+	    parent[i] = p;
+	  }
+	}
+      }
+      if (parent[i] == -1) {
+	// No parent, this node is a root.
+	roots.push_back(i);
+      }
+    }
+    int t = roots.size();
+    int wins[t+1];
+    wins[t] = false;
+    memset(mem, -1, sizeof(mem));
+    // Find the total game's nimber
+    // Equal to the xor of all the trees.
+    int r = 0 ;
+    for (int i=0; i<t; i++) {
+      r ^= nimber( roots[i] );
+    }
+    return (r ? "Alice" : "Bob");
+
+  }
+};

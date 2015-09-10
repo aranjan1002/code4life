@@ -1,0 +1,29 @@
+public class Solution {
+    public static void mainS(String[] args) {
+	new Solution().searchInsert({0, 1}, 4);
+    }
+
+    public int searchInsert(int[] A, int target) {
+        if (A.length == 0) {
+            return 0;
+        }
+        int idx = find(A, target, 0, A[A.length - 1]);
+        
+        return idx;
+    }
+    
+    int find(int[] A, int target, int head, int tail) {
+        if (head < tail) {
+            int mid = (head + tail) / 2;
+            if (A[mid] == target) {
+                return head;
+            } else if (A[mid] <= target) {
+                return find(A, target, mid + 1, tail);
+            } else {
+                return find(A, target, head, mid - 1);
+            }
+        } else {
+            return head;
+        }
+    }
+}

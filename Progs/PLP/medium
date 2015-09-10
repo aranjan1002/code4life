@@ -1,0 +1,264 @@
+let Debug v = (v, Print('\\n'), Print v, Print 'Debug: ') 1
+in
+
+let EQ x y = Istruthvalue x & Istruthvalue y
+	     -> (x & y) or (not x & not y)
+	     |  Isstring x     & Isstring y
+	     or Isinteger x    & Isinteger y -> x eq y
+					     |  false
+in
+let COMP f g x = let R = f x in R @EQ 'error' -> 'error'
+                                | g R
+in
+let PIPE x f = x @EQ 'error' -> 'error'
+                            | (f x)
+in
+let Return v s = (v,s)
+in
+let Check Dom (v,s) = Dom eq 'Num'  ->
+			   Isinteger v -> (v,s)
+                                        | 'error'
+                    | Dom eq 'Bool' ->
+			   Istruthvalue v -> (v,s)
+                                    | 'error'
+                    | 'error'
+
+in
+let Domain s = s @EQ 'integer' -> 'Num'
+	     | s @EQ 'boolean' -> 'Bool'
+             | 'undef'
+              
+in
+let Dummy s = s
+in
+let Cond F1 F2 (v,s) = s @PIPE (v -> F1 | F2)
+in
+let ReplaceType m i t x = (let p = m i in x @EQ i -> (p 1,t) | m x)
+in
+let ReplaceValue m i v x = (let p = m i in x @EQ i -> (v,p 2) | m x)
+in
+let Head i = i 1
+in
+let Tail T = Rtail T (Order T)
+		    where rec Rtail T N =
+                                N eq 1 -> nil |
+                                   (Rtail T (N-1) aug (T N))
+in
+
+let rec EE E (m,i,o) =
+   Isinteger E -> Return E (m,i,o)
+ | Isstring E ->
+     (  E eq 'true'  -> Return true (m,i,o)
+      | E eq 'false' -> Return false (m,i,o)
+      | E eq 'read'  -> Null i -> 'error' | (Head i,(m,Tail i,o))
+      | E eq 'eof'   -> Return (Null i) (m,i,o)
+      | (let Mem   = m E in
+	 let Value = Mem 1 in
+	 let Type  = Mem 2 in
+	     Value @EQ 'undef' or
+	     Type  @EQ 'undef' -> 'error'
+			| (Value,(m,i,o))
+        )
+     )
+ | Istuple E ->
+    (   (E 1) @EQ 'not' ->
+	      (m,i,o) @PIPE EE(E 2)
+                      @PIPE (Check 'Bool')
+                      @PIPE (fn(v,s).(not v,s))
+      | (E 1) @EQ '<='  ->
+              (m,i,o) @PIPE EE(E 2)
+                      @PIPE (Check 'Num')
+                      @PIPE (fn(v1,s1). s1
+			       @PIPE EE(E 3)
+                               @PIPE (Check 'Num')
+                               @PIPE (fn(v2,s2).(v1 le v2,s2))
+                            )
+      | (E 1) @EQ '='  ->
+              (m,i,o) @PIPE EE(E 2)
+                      @PIPE (Check 'Num')
+                      @PIPE (fn(v1,s1). s1
+			       @PIPE EE(E 3)
+                               @PIPE (Check 'Num')
+                               @PIPE (fn(v2,s2).(v1 eq v2,s2))
+                            )
+      | (E 1) @EQ '>='  ->
+              (m,i,o) @PIPE EE(E 2)
+                      @PIPE (Check 'Num')
+                      @PIPE (fn(v1,s1). s1
+			       @PIPE EE(E 3)
+                               @PIPE (Check 'Num')
+                               @PIPE (fn(v2,s2).(v1 ge v2,s2))
+                            )
+      | (E 1) @EQ '<>'  ->
+              (m,i,o) @PIPE EE(E 2)
+                      @PIPE (Check 'Num')
+                      @PIPE (fn(v1,s1). s1
+			       @PIPE EE(E 3)
+                               @PIPE (Check 'Num')
+                               @PIPE (fn(v2,s2).(v1 ne v2,s2))
+                            )
+      | (E 1) @EQ '<'  ->
+              (m,i,o) @PIPE EE(E 2)
+                      @PIPE (Check 'Num')
+                      @PIPE (fn(v1,s1). s1
+			       @PIPE EE(E 3)
+                               @PIPE (Check 'Num')
+                               @PIPE (fn(v2,s2).(v1 ls v2,s2))
+                            )
+      | (E 1) @EQ '>'  ->
+              (m,i,o) @PIPE EE(E 2)
+                      @PIPE (Check 'Num')
+                      @PIPE (fn(v1,s1). s1
+			       @PIPE EE(E 3)
+                               @PIPE (Check 'Num')
+                               @PIPE (fn(v2,s2).(v1 gr v2,s2))
+                            )
+      | (E 1) @EQ '+'   ->
+	      (m,i,o) @PIPE EE(E 2)
+		      @PIPE (Check 'Num')
+		      @PIPE (fn(v1,s1). s1
+			       @PIPE EE(E 3)
+			       @PIPE (Check 'Num')
+			       @PIPE (fn(v2,s2).(v1 + v2,s2))
+                            )
+      | (E 1) @EQ '-'   ->
+	      (m,i,o) @PIPE EE(E 2)
+		      @PIPE (Check 'Num')
+		      @PIPE (fn(v1,s1). s1
+			       @PIPE EE(E 3)
+			       @PIPE (Check 'Num')
+			       @PIPE (fn(v2,s2).(v1 - v2,s2))
+                            )
+      | (E 1) @EQ '*'   ->
+	      (m,i,o) @PIPE EE(E 2)
+		      @PIPE (Check 'Num')
+		      @PIPE (fn(v1,s1). s1
+			       @PIPE EE(E 3)
+			       @PIPE (Check 'Num')
+			       @PIPE (fn(v2,s2).(v1 * v2,s2))
+                            )
+      | (E 1) @EQ '/'   ->
+	      (m,i,o) @PIPE EE(E 2)
+		      @PIPE (Check 'Num')
+		      @PIPE (fn(v1,s1). s1
+			       @PIPE EE(E 3)
+			       @PIPE (Check 'Num')
+			       @PIPE (fn(v2,s2).(v1 / v2,s2))
+                            )
+      | (E 1) @EQ 'and'   ->
+	      (m,i,o) @PIPE EE(E 2)
+		      @PIPE (Check 'Bool')
+		      @PIPE (fn(v1,s1). s1
+			       @PIPE EE(E 3)
+			       @PIPE (Check 'Bool')
+			       @PIPE (fn(v2,s2).(v1 & v2,s2))
+                            )
+      | (E 1) @EQ 'or'   ->
+	      (m,i,o) @PIPE EE(E 2)
+		      @PIPE (Check 'Bool')
+		      @PIPE (fn(v1,s1). s1
+			       @PIPE EE(E 3)
+			       @PIPE (Check 'Bool')
+			       @PIPE (fn(v2,s2).(v1 or v2,s2))
+                            )
+      | 'error'
+    )
+ | 'error'
+in
+let rec CC C s =
+
+let rec Statements C i N = i gr N -> Dummy
+			   | i eq N -> CC (C i)
+                           | CC (C i) @COMP Statements C (i+1) N
+in
+let rec Expressions C i N = i gr N -> 'error'
+			    | i eq N -> EE(C i)
+			      @COMP (fn(v,s).(s 1,s 2,s 3 aug v))
+                            | EE(C i)
+			      @COMP (fn(v,s).(s 1,s 2,s 3 aug v))
+			      @COMP Expressions C (i+1) N
+in
+     not (Istuple C) -> 'error'
+   | (C 1) @EQ 'assign'
+	  -> s @PIPE EE (C 3)
+	       @PIPE (fn(v,s).s 1 (C 2) 2 eq 'undef' -> 'error'| (v,s))
+	       @PIPE (Check (s 1 (C 2) 2))
+	       @PIPE (fn(v,s). (ReplaceValue (s 1) (C 2) v,s 2,s 3))
+   | (C 1) @EQ 'output'
+	  -> s @PIPE Expressions C 2 (Order C)
+   | (C 1) @EQ 'if'
+	  -> s @PIPE EE (C 2)
+	       @PIPE (Check 'Bool')
+	       @PIPE Cond (CC(C 3)) (Order C eq 4 -> CC(C 4) | Dummy)
+   | (C 1) @EQ 'while'
+	  -> s @PIPE EE (C 2)
+	       @PIPE (Check 'Bool')
+               @PIPE Cond (CC('block',C 3,C)) Dummy
+   | (C 1) @EQ 'do'
+	  -> s @PIPE (Statements C 2 (Order C - 1))
+	       @PIPE EE (C (Order C))
+	       @PIPE (Check 'Bool')
+	       @PIPE Cond (CC(C)) Dummy
+
+   | (C 1) @EQ 'for'
+	  -> s @PIPE CC ('block',
+                             C 2,
+                             ('while',
+                                  C 3,
+                                  ('block', C 5, C 4)
+                             )
+                        )
+
+   | (C 1) @EQ 'block'
+	  -> s @PIPE Statements C 2 (Order C)
+   | (C 1) @EQ 'case'
+	  -> s @PIPE EE (C 2)
+	       @PIPE (Check 'Num')
+	       @PIPE (Clauses 3 (Order C)    where
+		   rec Clauses i N (ev,s) =
+		      i gr N -> s
+                    | s @PIPE (fn s. Istuple (C i)       -> s | 'error')
+			@PIPE (fn s. Order (C i) eq 3    -> s | 'error')
+			@PIPE (fn s. C i 1 eq 'c_clause' -> s | 'error')
+			@PIPE EE (C i 2) 
+			@PIPE (Check 'Num')
+			@PIPE (fn (v,s).ev eq v -> 
+			Clauses (N+1) N (ev, s @PIPE (CC(C i 3)))
+						| Clauses (i+1) N (ev,s)
+
+                              )
+                     )
+   | 'error'
+
+in
+let NN N T s = s 1 N 2 @EQ 'undef'
+		     -> (ReplaceType (s 1) N T,s 2,s 3)
+		     | 'error' 
+in
+let rec rDD D i N s = i gr N -> 'error'
+	      | i eq N -> NN (D i) (Domain(D (Order D))) s
+	      | (NN (D i) (Domain(D (Order D))) s @PIPE rDD D (i+1) N )
+in
+let DD D s = rDD D 2 (Order D -1) s 
+in
+let rec rDDs D i N s = i eq N -> DD (D i) s
+		   | (DD (D i) s @PIPE rDDs D (i+1) N )
+in
+let DDs D s = Order D eq 1 -> s
+	      | rDDs D 2 (Order D) s
+in
+
+let PP P =
+     not (Istuple P) -> (fn i. 'error')
+   | not ((P 1) @EQ 'program') -> (fn i. 'error')
+   | (  (fn i. P 2 ne P 5 -> 'error'
+	     | ((fn ().('undef','undef')),i,nil)
+	       @PIPE DDs (P 3)
+	       @PIPE (fn s.s)
+	       @PIPE CC  (P 4)
+        )
+	@COMP (fn s.(s 3)) 
+     )
+			    
+in
+

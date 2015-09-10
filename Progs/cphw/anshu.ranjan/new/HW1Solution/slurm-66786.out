@@ -1,0 +1,32 @@
+Buildfile: build.xml
+
+clean:
+   [delete] Deleting directory /cise/homes/njindal/cop5618/HW1/anshu.ranjan/HW1Solution/bin
+
+build-subprojects:
+
+init:
+    [mkdir] Created dir: /cise/homes/njindal/cop5618/HW1/anshu.ranjan/HW1Solution/bin
+     [copy] Copying 1 file to /cise/homes/njindal/cop5618/HW1/anshu.ranjan/HW1Solution/bin
+
+build-project:
+     [echo] HW1: /cise/homes/njindal/cop5618/HW1/anshu.ranjan/HW1Solution/build.xml
+    [javac] Compiling 13 source files to /cise/homes/njindal/cop5618/HW1/anshu.ranjan/HW1Solution/bin
+    [javac] Note: /cise/homes/njindal/cop5618/HW1/anshu.ranjan/HW1Solution/test/edu/ufl/cise/cop5618fa12/hw1/TestPetersonLocks.java uses or overrides a deprecated API.
+    [javac] Note: Recompile with -Xlint:deprecation for details.
+
+build:
+
+TestPetersonLocks:
+    [mkdir] Created dir: /cise/homes/njindal/cop5618/HW1/anshu.ranjan/HW1Solution/junit
+    [junit] Running edu.ufl.cise.cop5618fa12.hw1.TestPetersonLocks
+    [junit] Tests run: 12, Failures: 0, Errors: 2, Time elapsed: 218.699 sec
+    [junit] Test edu.ufl.cise.cop5618fa12.hw1.TestPetersonLocks FAILED
+
+TestPetersonTest:
+    [junit] Running edu.ufl.cise.cop5618fa12.hw1.TestPetersonTest
+    [junit] Tests run: 15, Failures: 1, Errors: 4, Time elapsed: 4,001.329 sec
+    [junit] Test edu.ufl.cise.cop5618fa12.hw1.TestPetersonTest FAILED
+
+BUILD SUCCESSFUL
+Total time: 70 minutes 26 seconds

@@ -1,0 +1,28 @@
+public class prime {
+    public static void main(String[] args) {
+	new prime().start();
+    }
+
+    public void start() {
+	int primeCount = 0;
+	for(int i=2; true; i++) {
+	    if(isPrime(i)){
+		primeCount++;
+		System.out.println(i);
+		if(primeCount == 10001) {
+		    System.out.println(i);
+		    break;
+		}
+	    }
+	}
+    }
+    public boolean isPrime(int i) {
+	for(int j=2; j<=Math.sqrt(i); j++) {
+	    if(i%j == 0) {
+		return false;
+	    }
+	}
+	return true;
+    }
+	
+}

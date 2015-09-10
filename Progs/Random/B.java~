@@ -1,0 +1,13 @@
+class B {
+  A a;
+     public String get() {
+       return toString();
+     }
+  public String toString() {
+    return a.toString();
+  }
+
+public static void main(String[] args) {
+    System.out.println(new B().get());
+}
+}

@@ -1,0 +1,317 @@
+package networks.project;
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.regex.Pattern;
+
+class ClientListener implements Runnable {
+    public void run() {
+	try {
+	    int cmd;
+	    while (true) {
+		// System.out.println("Listening to client");
+		rcvPkt = new DatagramPacket(rcvData, rcvData.length);
+		UDPServer.serverSocket.receive(rcvPkt);
+		rec = new Record(rcvPkt.getData());
+		cmd = rec.getCmd();
+		System.out.println("CMD" + cmd);
+		if (cmd == CmdCode.INSERT) {
+		    insert();
+		}
+		else if (cmd == CmdCode.DELETE) {
+		    delete();
+		}
+		else if (cmd == CmdCode.FIND) {
+		    find();
+		}
+		else if (cmd == CmdCode.KILL) {
+		    kill();
+		    break;
+		}
+		else if (cmd == CmdCode.TEST) {
+		    test();
+		}
+		else if (cmd == CmdCode.LINK) {
+		    link();
+		}
+		else if (cmd == CmdCode.UNLINK) {
+		    unlink();
+		}
+		else if (cmd == CmdCode.REGISTER) {
+		    register();
+		}
+		else if (cmd == CmdCode.UNREGISTER) {
+		    unregister();
+		}	      
+		else if (cmd == CmdCode.LIST) {
+		    list();
+		}
+		else {
+		    sendData =  new String("Command not recognized");
+		    sendResponse();
+		}
+		// System.out.println(sendData);
+		// sendResponse();
+		rcvData = new byte[1024];
+	    }
+	} catch (NetworkProjectException e) {
+	    sendData = e.getMessage();
+	    e.printStackTrace();
+	} catch (SocketException e) {
+	    sendData = e.getMessage();
+	    e.printStackTrace();
+	} catch (UnknownHostException e) {
+	    e.printStackTrace();
+	} catch (IOException e) {
+	    e.printStackTrace();
+	}
+    }
+
+    private void insert() 
+	throws NetworkProjectException, UnknownHostException, IOException {
+	System.out.println(new String(rec.getBytes()));
+	String name = rec.getName();
+	if (UDPServer.isOnList(name)) {
+	    sendData = new String("Error: name already used");
+	}
+	else {
+	    UDPServer.addToList(name, rec);
+	    sendData = new String("Success");
+	}
+	sendResponse();
+    }
+
+    private void link() 
+	throws IOException {
+	String srvname = rec.getName();
+	if (UDPServer.isOnList(srvname) == false) {
+	    sendData = new String("Error: server name cannot be recognized");
+	    sendResponse();
+	}
+	else {
+	    Record recToSrv = new Record(srvname, 
+					 rcvPkt.getAddress(), 
+					 rcvPkt.getPort(),
+					 CmdCode.ACKREQ);
+	    Record srvRecord = UDPServer.getFromList(srvname);
+	    System.out.println(srvRecord.isConnected);
+	    if (srvRecord.isConnected == false)  {
+		// InetAddress srvAddr = srvRecord.getIpAddr();
+		/*System.out.println("sending to " + srvAddr + 
+		  "port " + UDPServer.portNumForSrv +
+		  "bytes " + recToSrv.getBytes() +
+		  "length "  + recToSrv.getBytes().length);*/
+		InetAddress srvAddr = srvRecord.getIpAddr();
+		DatagramPacket pktToServer = 
+		    new DatagramPacket(recToSrv.getBytes(),
+				       recToSrv.getBytes()
+				       .length,
+				       srvAddr,
+				       UDPServer.portNumForSrv);
+		UDPServer.sendToServer(pktToServer);
+	    }
+	    else {
+		sendData = "Error: server name already linked";
+		sendResponse();
+	    }
+	}
+    }
+
+    private void unlink() 
+	throws IOException {
+	String srvname = rec.getName();
+        if (UDPServer.isOnList(srvname) == false) {
+            sendData = new String("Error: server name cannot be recognized");
+            sendResponse();
+        }
+        else {
+	    Record srvRecord = UDPServer.getFromList(srvname);
+	    System.out.println(srvRecord.isConnected);
+	    if (srvRecord.isConnected == false) {
+		sendData = new String("Error: server name already unlinked");
+	    } 
+	    else {
+		srvRecord.isConnected = false;
+		sendData = new String("Success: server name " + 
+				      "successfully unlinked");
+	    }
+	    sendResponse();
+	}
+    }
+
+    private void delete() 
+	throws NetworkProjectException, UnknownHostException, IOException {
+	// Record rec = new Record(rcvData);
+	String name = rec.getName();
+	if (!UDPServer.isOnList(name)) {
+	    sendData = new String("Error: name does not exist");
+	}
+	else {
+	    Record keyRec = UDPServer.getFromList(name);
+	    if (keyRec.matches(rec)) {
+		UDPServer.removeFromList(name);
+		sendData = new String("Success");
+	    }
+	    else {
+		sendData = 
+		    new String("Error: ip or port" + 
+			       " does not match with the record");
+	    }
+	}
+	sendResponse();
+    }
+    
+    private void find() 
+	throws IOException {
+	// Record rec = new Record(rcvData);
+	Iterator it = UDPServer.getListIterator();
+	String wcName = rec.getName();
+	String wcIp = rec.getWildCardIp();
+	while(it.hasNext()) {
+	    Map.Entry pairs = (Map.Entry) it.next();
+	    Record val = (Record) pairs.getValue();
+	    if (val.matches(wcName, wcIp)) {
+		sendData = val.toString();
+		sendResponse();
+	    }
+	}
+	sendData = "Success";
+	sendResponse();
+    }
+
+    private void register() 
+	throws IOException {
+	String name = rec.getName();
+	int port = rec.getPort();
+	InetAddress addr = rcvPkt.getAddress();
+	if (UDPServer.isClientRegistered(name) == true) {
+	    sendData = "Error: name already registered";
+	}
+	else {
+	    UDPServer.registerClient(name, addr, port);
+	    sendData = "Success: name successfully registered";
+	}
+	sendResponse();
+    }
+
+    private void unregister() 
+	throws IOException {
+        String name = rec.getName();
+        if (UDPServer.isClientRegistered(name) == false) {
+            sendData = "Error: name not registered";
+        }
+        else {
+            UDPServer.unregisterClient(name);
+            sendData = "Success: name successfully unregistered";
+        }
+	sendResponse();
+    }
+
+
+    private void test()
+	throws IOException {
+	sendData = "Success: Test acknowledged";
+	sendResponse();
+    }
+
+    private void kill()
+	throws IOException {
+	System.out.println("Success: Ready to die");
+	sendData = "Success: Ready to die";
+	sendResponse();
+	UDPServer.kill();
+    }
+
+    /*    private ArrayList<Record> getServList(ArrayList<String> wcS) {
+	ArrayList<Record> result = new ArrayList<Record>();
+
+	ArrayList<Record> connectedServersList =
+            UDPServer.getConnectedServers();
+	for (String wc : wcS) {
+	    wc = wc.replaceAll("\\*", ".*");
+	    for (Record c :  connectedServersList) {
+		if (Pattern.matches(wc, c.getName())) {
+		    result.add(c);
+		}
+	    }
+	}
+	return result;
+    }
+
+    private ArrayList<String> getClientList(ArrayList<String> wcS) {
+        ArrayList<String> result = new ArrayList<String>();
+
+        ArrayList<String> connectedServersList =
+            UDPServer.getRegisteredClientNames();
+
+        for (String wc : wcS) {
+	    wc = wc.replaceAll("\\*", ".*");
+            for (String c :  connectedServersList) {
+                if (Pattern.matches(wc, c)) {
+                    result.add(c);
+                }
+            }
+        }
+        return result;
+    }
+
+    private ArrayList<String> converToList(String x) {
+	ArrayList<Record> res = new ArrayList<Record> ();
+	x.removeAll("\"");
+	String[] strSplit = str.split(",");
+	for (int i = 0; i < strSplit.length; i++) {
+	    res.add(strSplit[i]);
+	}
+	return res;
+	}*/
+
+    private void list() 
+	throws IOException {
+	System.out.println("Listing pairs"); 
+	String name = rec.getName();
+	//String strSplit = name.split(" ");
+	ArrayList<Record> connectedServersList = 
+	    UDPServer.getConnectedServers();
+	int size = connectedServersList.size() + 1;
+	sendData = "Cnt " + Integer.toString(size);
+	ArrayList<String> clientsList =  UDPServer.getRegisteredClientNames();
+	for (String n : clientsList) {
+	    if (UDPServer.isClientRegistered(name)) 
+		sendData += " " + "SELF:" + n;
+	}
+	sendResponse();
+	//String[] strSplit = str.split(",");
+        
+
+	for (int i = 0; i < size - 1; i++) {
+	    Record connectedServer = connectedServersList.get(i);
+	    Record recToSrv = new Record(connectedServer.name, 
+					 rcvPkt.getAddress(),
+					 rcvPkt.getPort(),
+					 Integer.toString(size), 
+					 CmdCode.LIST);
+	    DatagramPacket pktToServer = 
+		new DatagramPacket(recToSrv.getBytes(),
+				   recToSrv.getBytes().length,
+				   connectedServersList.get(i).getIpAddr(),
+				   UDPServer.portNumForSrv);
+	    UDPServer.sendToServer(pktToServer);
+	}
+    }
+    
+    private void sendResponse() 
+	throws IOException {
+	System.out.println(sendData);
+	sendPkt = new DatagramPacket(sendData.getBytes(),
+				     sendData.length(),
+				     rcvPkt.getAddress(),
+				     rcvPkt.getPort());
+	UDPServer.sendToClient(sendPkt);
+    }
+
+    byte[] rcvData = new byte[1024];
+    DatagramPacket rcvPkt, sendPkt;
+    String sendData;
+    Record rec;
+}

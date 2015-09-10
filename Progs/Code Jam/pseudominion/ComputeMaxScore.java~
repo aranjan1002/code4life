@@ -1,0 +1,66 @@
+class ComputeMaxScore {
+    int maxScore = 0;
+
+    public int getMaxScore(CardsInHand cardsInHand, CardsQueue cardsOnDeck) {
+	updateMaxScore(cardsInHand, cardsOnDeck, 0, 1);
+	return maxScore;
+    }
+    
+    public void updateMaxScore(CardsInHand cardsInHand, CardsQueue cardsOnDeck, int score, int turnsLeft) {
+	System.out.println("scpore" + score);
+	if(turnsLeft <= 0) {
+	    if(score > maxScore)
+		maxScore = score;
+	    return;
+	}
+	System.out.println(cardsInHand.tCards.notEmpty());
+	while(cardsInHand.tCards.notEmpty()) {
+	// System.out.println("Turn played: " + cardsInHand.tCards.top + cardsInHand.tCards.rear);
+	    Card c = cardsInHand.tCards.get();
+	    score += c.s;
+	    turnsLeft += c.t - 1;
+	    for (int i=0; i<c.c && cardsOnDeck.length > 0; i++) {
+		cardsInHand.insert(cardsOnDeck.get());
+	    }
+	System.out.println("Turn played: " + score + cardsInHand.tCards.rear);
+	}
+	if(cardsInHand.cCards.length > 0) {
+	    Card c = cardsInHand.cCards.get();
+	    updateMaxScore(cardsInHand, cardsOnDeck, score, turnsLeft);
+	    score += c.s;
+	    turnsLeft--;
+	    for (int i=0; i<c.c && cardsOnDeck.length > 0; i++) {
+		cardsInHand.insert(cardsOnDeck.get());
+	    }
+	    updateMaxScore(cardsInHand, cardsOnDeck, score, turnsLeft);
+	}
+	score += cardsInHand.sCards.getScore(turnsLeft);
+	updateMaxScore(cardsInHand, cardsOnDeck, score, 0);
+    }
+
+    public static void main(String[] args) {
+	InputStreamReader streamReader = new InputStreamReader(System.in);
+	BufferedReader buffReader = new BufferedReader(streamReader);
+	int tests = Integer.parseInt(buffReader.readLine());
+	for(int test=1; test<=tests; tests++) {
+		CardsInHand cardsInHand = new CardsInHand();
+		CardsQueue cardsOnDeck = new CardsQueue();
+		int handCards = Integer.parseInt(buffReader.readLine()):
+		for(int i=0; i<handCards; i++) {
+			String str = buffReader.readLine();
+			String[] x = str.split(" ");
+			cardsInHand.insert(new Card(Integer.parseInt(x[0])), new Card(Integer.parseInt(x[1])), new Card(Integer.parseInt(x[2])));
+		}
+	int deckCards = Integer.parseInt(buffReader.readLine()):
+	for(int i=0; i<deckCards; i++) {
+		String str = buffReader.readLine();
+		String[] x = str.split(" ");
+		cardsOnDeck.insert(new Card(Integer.parseInt(x[0])), new Card(Integer.parseInt(x[1])), new Card(Integer.parseInt(x[2])));
+	}
+	ComputeMaxScore calc = new ComputeMaxScore();
+	calc.updateMaxScore(cardsInHand, cardsOnDeck, 0, 1);
+	System.out.println(calc.maxScore);
+	}
+	
+    }
+}

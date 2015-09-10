@@ -1,0 +1,1 @@
+./difftest.pl -1 "rpal/rpal FILE" -2 "./standardize.o FILE" -t rpal/tests/ -r results -v 2

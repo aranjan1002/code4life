@@ -1,0 +1,78 @@
+public class Solution {
+    public static void main(String[] args) {
+	System.out.println(new Solution().divide(23, 1));
+    }
+
+    public int divide(int dividend, int divisor) {
+	int result = 0;
+        boolean isMinus = false;
+        if ((dividend < 0 && divisor >= 0) || (dividend >= 0 && divisor < 0)) {
+            isMinus = true;
+        }
+        
+        dividend = abs(dividend);
+        divisor = abs(divisor);
+        
+        while (dividend >= divisor) {
+            int temp_divisor = divisor;
+            int cnt = 1;
+            while (dividend - temp_divisor >= 0) {
+                result += cnt++;
+                dividend -= temp_divisor;
+                temp_divisor += temp_divisor;
+		System.out.println(cnt):
+            }
+            temp_divisor = divisor;
+        }
+        
+        if (isMinus == true) {
+            return result - result - result;
+        } else {
+            return result;
+        }
+    }
+
+    int abs(int a) {
+        if (a >= 0) {
+            return a;
+        } else {
+            return a - a - a;
+        }
+    }
+
+    public int dividew(int dividend, int divisor) {
+        if (divisor == 0) {
+            return Integer.MAX_VALUE;
+        } 
+        if (dividend == 0) {
+            return 0;
+        }
+        
+        int dividend_org = dividend;
+        int divisor_org = divisor;
+        
+        dividend = Math.abs(dividend);
+        divisor = Math.abs(divisor);
+        
+        int cnt = 1;
+        int prod = divisor;
+        
+        while (prod < dividend) {
+            prod += prod;
+            cnt += cnt;
+        }
+        while (prod > dividend) {
+            prod -= divisor;
+            cnt--;
+        }
+        
+        if (dividend_org < 0 && divisor_org > 0) {
+            cnt *= -1;
+        }
+        if (dividend_org > 0 && divisor_org < 0) {
+            cnt *= -1;
+        }
+        
+        return cnt;
+    }
+}

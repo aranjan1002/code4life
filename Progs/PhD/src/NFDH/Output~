@@ -1,0 +1,78 @@
+	NFDH	NFDHDW	NFDHIW	PreNFDH	PreNFDHDW PreNFDHIW	MixedNFDH
+/cise/homes/aranjan/DataSets/nice25
+Check! nice22.25.csv
+PR/stdevPR	1.336 0.025	1.336 0.025	1.336 0.025	1.268 0.021	1.267 0.021	1.268 0.021	1.298 0.022	
+Total files: 50
+/cise/homes/aranjan/DataSets/nice50
+PR/stdevPR	1.262 0.004	1.262 0.004	1.262 0.004	1.188 0.003	1.188 0.003	1.188 0.003	1.220 0.010	
+Total files: 50
+/cise/homes/aranjan/DataSets/nice100
+PR/stdevPR	1.203 0.004	1.203 0.004	1.203 0.004	1.150 0.004	1.150 0.004	1.150 0.004	1.175 0.008	
+Total files: 50
+/cise/homes/aranjan/DataSets/nice200
+PR/stdevPR	1.150 0.001	1.150 0.001	1.150 0.001	1.114 0.003	1.114 0.003	1.114 0.003	1.133 0.004	
+Total files: 50
+/cise/homes/aranjan/DataSets/nice500
+PR/stdevPR	1.101 0.003	1.101 0.003	1.101 0.003	1.073 0.003	1.073 0.003	1.073 0.003	1.083 0.001	
+Total files: 10
+
+/cise/homes/aranjan/DataSets/path25
+Check! path27.25.csv
+PR/stdevPR	1.544 0.001	1.544 0.001	1.544 0.001	1.485 0.007	1.489 0.007	1.485 0.007	1.517 0.003	
+Total files: 50
+/cise/homes/aranjan/DataSets/path50
+PR/stdevPR	1.568 0.042	1.568 0.042	1.568 0.042	1.486 0.016	1.486 0.016	1.486 0.016	1.522 0.015	
+Total files: 50
+/cise/homes/aranjan/DataSets/path100
+PR/stdevPR	1.552 0.018	1.552 0.018	1.552 0.011	1.485 0.017	1.485 0.017	1.485 0.017	1.517 0.020	
+Total files: 50
+/cise/homes/aranjan/DataSets/path200
+PR/stdevPR	1.525 0.008	1.525 0.008	1.525 0.008	1.470 0.014	1.470 0.014	1.470 0.014	1.491 0.012	
+Total files: 50
+/cise/homes/aranjan/DataSets/path500
+PR/stdevPR	1.447 0.031	1.447 0.031	1.447 0.028	1.413 0.029	1.413 0.029	1.413 0.029	1.428 0.027	
+Total files: 10
+/cise/homes/aranjan/DataSets/HopperT1/
+PR/stdevPR	1.587 0.014	1.587 0.014	1.587 0.014	1.408 0.041	1.408 0.041	1.408 0.041	1.529 0.012	
+Total files: 5
+/cise/homes/aranjan/DataSets/HopperT2/
+Error in file: HopperT2a.csv
+PR/stdevPR	1.506 0.026	1.506 0.026	1.506 0.026	1.409 0.014	1.409 0.014	1.409 0.014	1.438 0.016	
+Total files: 4
+/cise/homes/aranjan/DataSets/HopperT3/
+PR/stdevPR	1.501 0.003	1.480 0.007	1.480 0.007	1.377 0.024	1.377 0.024	1.377 0.024	1.418 0.005	
+Total files: 5
+/cise/homes/aranjan/DataSets/HopperT4/
+Error in file: HopperT4e.csv
+PR/stdevPR	1.303 0.004	1.318 0.006	1.318 0.004	1.258 0.011	1.258 0.011	1.258 0.011	1.294 0.003	
+Total files: 4
+/cise/homes/aranjan/DataSets/HopperT5/
+PR/stdevPR	1.336 0.002	1.331 0.004	1.331 0.013	1.267 0.010	1.267 0.010	1.267 0.010	1.302 0.005	
+Total files: 5
+/cise/homes/aranjan/DataSets/HopperT6/
+PR/stdevPR	1.377 0.013	1.382 0.001	1.382 0.001	1.312 0.003	1.312 0.003	1.312 0.003	1.347 0.017	
+Total files: 5
+/cise/homes/aranjan/DataSets/HopperT7/
+PR/stdevPR	1.312 0.010	1.312 0.017	1.312 0.017	1.272 0.021	1.272 0.021	1.272 0.021	1.301 0.017	
+Total files: 5
+/cise/homes/aranjan/DataSets/HopperN1
+PR/stdevPR	1.449 0.036	1.449 0.036	1.449 0.036	1.326 0.026	1.326 0.026	1.326 0.026	1.353 0.034	
+Total files: 5
+/cise/homes/aranjan/DataSets/HopperN2
+PR/stdevPR	1.384 0.021	1.391 0.017	1.391 0.003	1.318 0.006	1.318 0.006	1.318 0.006	1.351 0.007	
+Total files: 5
+/cise/homes/aranjan/DataSets/HopperN3
+PR/stdevPR	1.477 0.008	1.475 0.007	1.475 0.007	1.334 0.017	1.334 0.017	1.334 0.017	1.404 0.020	
+Total files: 5
+/cise/homes/aranjan/DataSets/HopperN4
+PR/stdevPR	1.335 0.067	1.351 0.074	1.351 0.074	1.280 0.049	1.280 0.049	1.280 0.049	1.308 0.055	
+Total files: 5
+/cise/homes/aranjan/DataSets/HopperN5
+PR/stdevPR	1.357 0.021	1.352 0.033	1.352 0.010	1.277 0.008	1.277 0.008	1.277 0.008	1.305 0.016	
+Total files: 5
+/cise/homes/aranjan/DataSets/HopperN6
+PR/stdevPR	1.336 0.011	1.338 0.008	1.338 0.003	1.277 0.001	1.277 0.001	1.277 0.001	1.316 0.014	
+Total files: 5
+/cise/homes/aranjan/DataSets/HopperN7
+PR/stdevPR	1.311 0.009	1.299 0.017	1.299 0.008	1.239 0.022	1.239 0.022	1.239 0.022	1.268 0.006	
+Total files: 5

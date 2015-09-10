@@ -1,0 +1,38 @@
+#include "MSSecPhase.h"
+
+MSSecPhase :: MSSecPhase(File& f, vector<int>& run_off, RecComp& c) :
+  file(f), comp(c) {
+  file = f;
+  comp = c;
+  initRuns(run_off);
+
+  RecordInfo* recInfo;
+  for (int i = 0; i < runs.size(); i++) {
+    recInfo = new RecordInfo(&c);
+    runs[i]->GetNext(recInfo->rec);
+    recInfo->run = runs[i];
+    recVec.push_back(recInfo);
+    pq.push(recInfo);
+  }
+}
+
+void MSSecPhase :: initRuns(vector<int>& runOffsets) {
+  runs.push_back(new Run(file, 0, runOffsets[0]));
+  for (int i = 0; i < runOffsets.size() - 1; i++) {
+    runs.push_back(new Run(file, runOffsets[i] + 1, runOffsets[i + 1]));
+  }
+}
+
+int MSSecPhase :: GetNext(Record& putItHere) {
+  if (pq.empty()) {
+    return 0;
+  } else {
+    RecordInfo* recInfo = pq.top();
+    pq.pop();
+    putItHere.Copy(recInfo->rec);
+    if (recInfo->run->GetNext(recInfo->rec)) {
+      pq.push(recInfo);
+    }
+    return 1;
+  }
+}

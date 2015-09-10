@@ -1,0 +1,6 @@
+class ReverseStr {
+    public static void main(String[] args) {
+	String str = "abcde\0";
+	System.out.println(str);
+    }
+}

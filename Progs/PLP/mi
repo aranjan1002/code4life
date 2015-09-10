@@ -1,0 +1,4 @@
+cat medium $1 > temp
+./standardize.o -st -noout temp
+
+

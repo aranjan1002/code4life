@@ -1,0 +1,69 @@
+import java.io.*;
+import java.util.*;
+
+class SafetyInNumbers {
+    public static void main(String[] args)
+        throws Exception {
+        new SafetyInNumbers().start();
+    }
+
+    void start() 
+	throws Exception {
+	InputStreamReader is =
+            new InputStreamReader(
+                                  new FileInputStream("Input"));
+        BufferedReader br = new BufferedReader(is);
+        OutputStreamWriter os =
+            new OutputStreamWriter(
+                                   new FileOutputStream("Output"));
+        BufferedWriter bw = new BufferedWriter(os);
+        String line;
+        int[] inputs;
+        int test = 1;
+        line = br.readLine();
+        while ((line = br.readLine()) != null) {
+	    //System.out.print("Case #" + test + ": ");
+            String toWrite = "Case #" + test++ + ": ";
+	    String[] inp = line.split(" ");
+	    inputs = new int[inp.length];
+	    int j = 0;
+	    int cnt = 0;
+            for (String s :  inp) {
+                inputs[cnt++] = Integer.parseInt(s);
+		j += inputs[cnt - 1];
+            }
+	    Arrays.sort(inputs, 1, inputs.length);
+	    System.out.println("input sorted: " + Arrays.toString(inputs));
+	    double[] results = new double[inputs.length];
+	    double tot = 0;
+	    for (int i = 2; i < inputs.length; i++) {
+		double diff = (inputs[i] - inputs[i - 1]) / j;
+		if ((i - 1) * diff > 1 - tot) {
+		    diff = (1 -  tot) / (i -1);
+		    addToAll(diff, i - 1, results);
+		    tot = 1;
+		    break;
+		}
+		addToAll(diff, i - 1, results);
+		tot += diff * (i - 1);
+		System.out.println(Arrays.toString(results));
+	    }
+	    if (tot < 1) {
+		addToAll((1 - tot) / inputs.length, inputs.length - 1, results);
+	    }
+	    for (int i = 1; i < results.length; i++) {
+		toWrite += Double.toString(results[i]) + " ";
+	    }
+	    bw.write(toWrite, 0, toWrite.length());
+	    bw.newLine();
+	}
+	br.close();
+	bw.close();
+    }
+    
+    public void addToAll(double diff, int j, double[] results) {
+	for (int i = 1; i <= j; i++){
+	    results[i] += diff;
+	}
+    }
+}

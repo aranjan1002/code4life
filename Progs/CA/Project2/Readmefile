@@ -1,0 +1,13 @@
+On my honor, I have neither given nor received unauthorized aid on this assignment
+
+please use the following commands for executing
+cd Project2
+
+make
+OR
+g++ -o MIPSsim MIPSim.cpp
+
+
+please use the following syntax for executing
+
+./MIPSsim -I <inputfilename> -O <outputfilename>

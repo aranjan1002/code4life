@@ -1,0 +1,20 @@
+public class Main {
+    public static void main(String[] args) {
+	
+    }
+
+    public void permute(List<List<Rectangle>> list, Rectangle toInsert) {
+	for (List<Rectangle> rect : list) {
+	    list.remove(rect);
+	    insertAtEachPosition(rect, toInsert);
+	    list.add(rect);
+	}
+    }
+
+    public void insertAtEachPosition(List<Rectangle> rect, Rectangle toInsert) {
+	for (int i = 0; i < rect.size(); i++) {
+	    rec.add(i, toInsert);
+	}
+	rec.add(rec.size(), toInsert);
+    }
+}

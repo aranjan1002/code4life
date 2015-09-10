@@ -1,0 +1,18 @@
+package networks.project;
+
+import java.io.*;
+
+class ClientResponder implements Runnable {
+    public void run() {
+	try {
+	    int cmd;
+	    while (true) {
+		while (UDPServer.needToSendPktsToClient() == false);
+		UDPServer.
+		    serverSocket.send(UDPServer.getPacketToSendToClient());
+	    }
+	} catch (IOException e) {
+	    e.printStackTrace();
+	}
+    }
+}

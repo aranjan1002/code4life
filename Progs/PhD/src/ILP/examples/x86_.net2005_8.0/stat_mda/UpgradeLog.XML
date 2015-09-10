@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="CutStock">
+</Property><Property Name="Solution File" Value="C:\ILOG\CPLEX_Studio122\cplex\examples\x86_.net2005_8.0\stat_mda\CutStock.sln">
+</Property><Property Name="Date" Value="Wednesday, January 23, 2013">
+</Property><Property Name="Time" Value="18:56:39 PM">
+</Property></Properties><Event ErrorLevel="0" Project="CutStock" Source="CutStock.csproj" Description="Project file successfully backed up as C:\ILOG\CPLEX_Studio122\cplex\examples\x86_.net2005_8.0\stat_mda\Backup\CutStock.csproj">
+</Event><Event ErrorLevel="1" Project="CutStock" Source="..\..\src\cs\CutStock.cs" Description="Backed up project may not build.  Project contains linked file: C:\ILOG\CPLEX_Studio122\cplex\examples\x86_.net2005_8.0\stat_mda\Backup\CutStock.cs">
+</Event><Event ErrorLevel="0" Project="CutStock" Source="..\..\src\cs\CutStock.cs" Description="File successfully backed up as C:\ILOG\CPLEX_Studio122\cplex\examples\x86_.net2005_8.0\stat_mda\Backup\CutStock.cs">
+</Event><Event ErrorLevel="1" Project="CutStock" Source="..\..\src\cs\InputDataReader.cs" Description="Backed up project may not build.  Project contains linked file: C:\ILOG\CPLEX_Studio122\cplex\examples\x86_.net2005_8.0\stat_mda\Backup\InputDataReader.cs">
+</Event><Event ErrorLevel="0" Project="CutStock" Source="..\..\src\cs\InputDataReader.cs" Description="File successfully backed up as C:\ILOG\CPLEX_Studio122\cplex\examples\x86_.net2005_8.0\stat_mda\Backup\InputDataReader.cs">
+</Event><Event ErrorLevel="1" Project="CutStock" Source="CutStock.csproj" Description="Your project is targeting .NET Framework 2.0 or 3.0. If your project uses assemblies requiring a newer .NET Framework, your project will fail to build. You can change the .NET Framework version by clicking Properties on the project menu and then selecting a new version in the '.NET Framework' dropdown box. (In Visual Basic, this is located on the Compile tab by clicking the 'Advanced Compiler Options...' button.)">
+</Event><Event ErrorLevel="0" Project="CutStock" Source="CutStock.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="CutStock" Source="CutStock.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="CutStock" Source="CutStock.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event></UpgradeLog>

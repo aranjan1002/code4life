@@ -1,0 +1,37 @@
+Testsuite: edu.ufl.cise.cop5618fa12.hw1.TestPetersonLocks
+Tests run: 12, Failures: 0, Errors: 2, Time elapsed: 209.171 sec
+
+Testcase: testPetersonArrayTestTrylock3 took 0.056 sec
+Testcase: testPetersonTwoVarTestTrylock3 took 1.882 sec
+Testcase: testPetersonArrayTestLockInterruptibly3 took 3.53 sec
+Testcase: testPetersonTwoVarTestLockInterruptibly3 took 3.527 sec
+Testcase: testSinglePerformance took 100.012 sec
+	Caused an ERROR
+test timed out after 100000 milliseconds
+java.lang.Exception: test timed out after 100000 milliseconds
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.compareAndSetNext(AbstractQueuedSynchronizer.java:2328)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.cancelAcquire(AbstractQueuedSynchronizer.java:764)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1000)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1303)
+	at java.util.concurrent.CountDownLatch.await(CountDownLatch.java:236)
+	at edu.ufl.cise.cop5618fa12.hw1.PetersonTest.comparePerformanceSingleThread(PetersonTest.java:99)
+	at edu.ufl.cise.cop5618fa12.hw1.TestPetersonLocks.testSinglePerformance(TestPetersonLocks.java:176)
+
+Testcase: testDoublePerformance took 100.001 sec
+	Caused an ERROR
+test timed out after 100000 milliseconds
+java.lang.Exception: test timed out after 100000 milliseconds
+	at java.lang.Throwable.getStackTraceElement(Native Method)
+	at java.lang.Throwable.getOurStackTrace(Throwable.java:826)
+	at java.lang.Throwable.printStackTrace(Throwable.java:655)
+	at java.lang.Throwable.printStackTrace(Throwable.java:642)
+	at java.lang.Throwable.printStackTrace(Throwable.java:633)
+	at edu.ufl.cise.cop5618fa12.hw1.PetersonTest.comparePerformanceTwoThread(PetersonTest.java:196)
+	at edu.ufl.cise.cop5618fa12.hw1.TestPetersonLocks.testDoublePerformance(TestPetersonLocks.java:188)
+
+Testcase: testPetersonArrayLockInterruptiblyDirectly1 took 0.004 sec
+Testcase: testPetersonTwoVarLockInterruptiblyDirectly1 took 0.003 sec
+Testcase: testPetersonArrayLockInterruptiblyDirectly2 took 0.002 sec
+Testcase: testPetersonTwoVarLockInterruptiblyDirectly2 took 0.002 sec
+Testcase: testPetersonArrayTestLock3 took 0.056 sec
+Testcase: testPetersonTwoVarTestLock3 took 0.023 sec

@@ -1,0 +1,37 @@
+/*
+Generated data sets with a fraction having widths just over half
+of maximum width (between 51 to 60 percent of overall width)
+Inputs
+args[0] - num of rects out of 10 whose widths will be just over half
+args[1] - total num of rects
+args[2] - overall width
+args[3] - aspect ratio between width and height: 1/a.r. <= h/w <= a.r.
+*/
+
+import java.util.Random;
+
+public class DataGen {
+    public static void main(String[] args) {
+	frac = Integer.parseInt(args[0]);
+	numRect = Integer.parseInt(args[1]);
+	w = Integer.parseInt(args[2]);
+	new DataGen().start();
+    }
+
+    public void start() {
+	for (int i = 0; i < (frac/10) * numRect; i++) {
+	    
+	    rand = (int) (rand * 10);
+	    
+	}
+
+    }
+
+    // Returns a random number between start inclusive and end exclusive
+    private double getDoubleBetween(double start, double end) {
+	return start + (rand.nextDouble() * (end - start));
+    }
+
+    private int fracRect, numRect, w, ar;
+    private Random rand = new Random();
+}

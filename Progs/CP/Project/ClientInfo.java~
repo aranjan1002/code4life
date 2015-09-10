@@ -1,0 +1,22 @@
+package edu.cp.project;
+
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+
+class ClientInfo {
+    ClientInfo(String clientName,
+               BufferedReader inFromClient,
+               PrintWriter outToCl,
+               ClientMessageReader.CLIENT_TYPE clType) {
+        clientName = clName;
+        inFromClient = inFrmCl;
+        outToClient = outToCl;
+        clientType = clType;
+    }
+
+    String clientName;
+    BufferedReader inFromClient;
+    PrintWriter outToCl;
+    ClientMessageReader.CLIENT_TYPE clientType;
+    PacMenBoard board;
+}

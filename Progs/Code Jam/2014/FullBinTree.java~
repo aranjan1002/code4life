@@ -1,0 +1,152 @@
+import java.lang.*;
+import java.util.*;
+import java.io.*;
+
+class FullBinTree {
+    public static void main(String[] args) 
+    throws Exception {
+	new FullBinTree().start(args[0]);
+    }
+
+    public void start(String fileName)
+        throws Exception {
+        InputStreamReader is =
+            new InputStreamReader(
+                                  new FileInputStream(fileName));
+        BufferedReader br = new BufferedReader(is);
+        OutputStreamWriter os =
+            new OutputStreamWriter(
+                                   new FileOutputStream("Output"));
+        BufferedWriter bw = new BufferedWriter(os);
+        String line;
+
+        int test = 1;
+        line = br.readLine();
+        int tot_test = Integer.parseInt(line);
+        while (tot_test >= test) {
+            System.out.println("Case #" + test++ + ": " + calc(br));
+        }
+    }
+
+    String calc(BufferedReader br) throws Exception {
+	List<Node> candidates = new ArrayList<Node>();
+	Map<Integer, Node> map = new HashMap<Integer, Node>();
+	int N = Integer.parseInt(br.readLine());
+	for (int i = 1; i <= N - 1; i++) {
+	    String[] nodes = br.readLine().split(" ");
+	    Integer node1 = new Integer(Integer.parseInt(nodes[0]));
+	    Integer node2 = new Integer(Integer.parseInt(nodes[1]));
+	    Node n1, n2;
+	    if (map.containsKey(node1) == true) {
+		n1 = map.get(node1);
+	    } else {
+		n1 = new Node(node1.intValue());
+		map.put(node1, n1);
+	    }
+
+	    if (map.containsKey(node2) == true) {
+		n2 = map.get(node2);
+	    } else {
+		n2 = new Node(node2.intValue());
+		map.put(node2, n2);
+	    }
+	    n1.children.add(n2);
+	    n2.children.add(n1);
+	    if (n1.children.size() == 2) {
+		candidates.add(n1);
+	    } else if (candidates.contains(n1) == true) {
+		candidates.remove(n1);
+	    }
+
+	    if (n2.children.size() == 2) {
+		candidates.add(n2);
+	    } else if (candidates.contains(n2) == true) {
+		candidates.remove(n2);
+	    }
+	}
+	//print(candidates);
+	int min = Integer.MAX_VALUE;
+	for (Node node : candidates) {
+	    int curr_min = getMin(node);
+	    //System.out.println("Candidate: " + node.label);
+	    //System.out.println("Min: " + curr_min);
+	    if(curr_min < min) {
+		min = curr_min;
+	    }
+	}
+	if (candidates.size() == 0) {
+	    return Integer.toString(N - 1);
+	}
+	return Integer.toString(min);
+    }	
+
+    private int getMin(Node node) {
+	updateCount(node, null);
+	return dfs(node, null);
+	
+    }
+
+    private int updateCount(Node root, Node parent) {
+	if (root == null) {
+	    return 0;
+	}
+	int cnt = root.children.size();
+	if (parent != null && cnt == 1) {
+	    root.nodes_count = 0;
+	    return 1;
+	} else {
+	    int result = 0;
+	    for (Node child : root.children) {
+		if (child.equals(parent) == false) {
+		    result += updateCount(child, root);
+		}
+	    }
+	    root.nodes_count = result;
+	    return root.nodes_count + 1;
+	}
+    }
+
+    private int dfs(Node root, Node parent) {
+	//System.out.println("noc: " + root.children.size());
+	if (parent != null && root.children.size() != 3 && 
+	    root.children.size() != 1) {
+	    //System.out.println("returning " + root.nodes_count);
+	    return root.nodes_count;
+	} else {
+	    if (root.children.size() == 1) {
+		return 0;
+	    } else {
+		int result = 0;
+		for (Node child : root.children) {
+		    if (child.equals(parent) == false) {
+			result += dfs(child, root);
+		    }
+		}
+		return result;
+	    }
+	}
+    }
+
+    public void print(List<Node> list) {
+	for (Node n : list) {
+	    System.out.println(n.label);
+	}
+    }
+
+    class Node {
+	List<Node> children = new ArrayList<Node>();
+	int label = 0;
+	int nodes_count = 0;
+
+	boolean equals(Node n) {
+	    if (n == null) {
+		return false;
+	    }
+	    return n.label == this.label;
+	}
+
+	Node(int label) {
+	    this.label = label;
+	}
+    }
+}

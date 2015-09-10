@@ -1,0 +1,41 @@
+ 
+** IMPORTANT: MAKE SURE THE INFORMATION BELOW IS CORRECT **
+ catalog location: 	catalog
+ tpch files dir: 	/cise/tmp/dbi_sp11/DATA/1G/
+ heap files dir: 	
+ 
+
+ select test option: 
+ 	 1. create sorted dbfile
+ 	 2. scan a dbfile
+ 	 3. run some query 
+ 	 
+ select table: 
+	 1. nation 
+	 2. region 
+	 3. customer 
+	 4. part 
+	 5. partsupp 
+	 6. supplier 
+	 7. orders 
+	 8. lineitem 
+ 	 
+ specify sort ordering (when done press ctrl-D):
+	 	
+ specify runlength:
+	 
+ output to dbfile : nation.bin
+atts: 0
+types: Int
+ input from file : /cise/tmp/dbi_sp11/DATA/1G/nation.tbl
+
+ select option for : nation.bin
+ 	 1. add a few (1 to 1k recs)
+ 	 2. add a lot (1k to 1e+06 recs) 
+ 	 3. run some query 
+ 	 
+	 added 25 recs..so far 25
+
+ create finished.. 25 recs inserted
+
+

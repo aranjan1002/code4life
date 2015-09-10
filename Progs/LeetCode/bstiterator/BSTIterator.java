@@ -1,0 +1,97 @@
+/**
+ * Definition for binary tree
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+
+public class BSTIterator {
+    public static void main(String[] args) {
+	TreeNode node = new TreeNode(3);
+	node.left = new TreeNode(1);
+	node.right = new TreeNode(5);
+	BSTIterator it = new BSTIterator(node);
+	System.out.println(it.next());
+	System.out.println(it.next());
+    }
+
+    public BSTIterator(TreeNode root) {
+        this.root = copy(root);
+    }
+    
+    TreeNodeInfo copy(TreeNode node) {
+        if (node == null) {
+            return null;
+        }
+        TreeNodeInfo new_node = new TreeNodeInfo(node);
+        new_node.left = copy(node.left);
+        new_node.right = copy(node.right);
+        return new_node;
+    }
+
+    /** @return whether we have a next smallest number */
+    public boolean hasNext() {
+        return hasNext(root);
+    }
+
+    /** @return the next smallest number */
+    public int next() {
+        nextVal = 0;
+        nodeFound = false;
+	if (root.visited == false) {
+	    root.visited = true;
+	    return root.val;
+	}
+        getNext(root.right);
+        return nextVal;
+    }
+    
+    public boolean hasNext(TreeNodeInfo node) {
+        if (node == null) {
+            return false;
+        }
+        if (node.visited == false) {
+            return true;
+        } else {
+            return (hasNext(node.left) || hasNext(node.right));
+        }
+    }
+    
+    public void getNext(TreeNodeInfo node) {
+        if (node == null) {
+            return;
+        }
+        getNext(node.left);
+        if (nodeFound == false && node.visited == false) {
+            node.visited = true;
+            nodeFound = true;
+            nextVal = node.val;
+        }
+        getNext(node.right);
+    }
+    
+    class TreeNodeInfo {
+        int val;
+        TreeNodeInfo left;
+        TreeNodeInfo right;
+        
+        boolean visited = false;
+        
+        TreeNodeInfo (TreeNode node) {
+            this.val = node.val;
+        }
+    }
+    
+    TreeNodeInfo root;
+    int nextVal = 0;
+    boolean nodeFound = false;
+}
+
+/**
+ * Your BSTIterator will be called like this:
+ * BSTIterator i = new BSTIterator(root);
+ * while (i.hasNext()) v[f()] = i.next();
+ */

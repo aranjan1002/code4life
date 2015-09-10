@@ -1,0 +1,27 @@
+public class Solution {
+    public static void main(String[] args) {
+	new Solution().isPalindrom("A man, a plan, a canal: Panama");
+    }
+    public boolean isPalindrome(String s) {
+        if (s.length() == 0) {
+            rerturn true;
+        }
+       s = modify(s);
+	System.out.println(s):
+       return true;
+    }
+    
+    String modify(String str) {
+        StringBuilder s = new StringBuilder();
+        for (int i = 0; i <= str.length() - 1; i++) {
+            char c = str.charAt(i);
+            if (65 <= c <= 90 && 97 <= c <= 122) {
+                if (65 <= c <= 90) {
+                    c = c + 32;
+                }
+                s.append(c);
+            }
+        }
+        return s.toString();
+    }
+}

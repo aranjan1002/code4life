@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="2"
+   name=""
+   committed-date="2008-01-24T21:04:32.294612Z"
+   url="file:///cise/homes/sa2/repos/dbi08.test/a1"
+   last-author="sa2"
+   kind="dir"
+   uuid="cbaf03be-5144-0410-a36a-cc373389be47"
+   repos="file:///cise/homes/sa2/repos/dbi08.test/a1"
+   revision="2"/>
+<entry
+   committed-rev="1"
+   name="ParseTree.h"
+   text-time="2008-01-22T16:22:38.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="f60feb130c5709dc0bea9e7bbf871ac8"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:37.000000Z"/>
+<entry
+   committed-rev="1"
+   name="output.log"
+   text-time="2008-01-22T16:22:38.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="7bfbdb01ef3cc14efe7a8e0bde01b21e"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:37.000000Z"/>
+<entry
+   committed-rev="1"
+   name="ComparisonEngine.cc"
+   text-time="2008-01-22T16:22:38.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="9ae25f1237e6508fda8bbbdccfe4c9d0"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:37.000000Z"/>
+<entry
+   committed-rev="1"
+   name="Schema.cc"
+   text-time="2008-01-22T16:22:38.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="b8ff1f391b802843f8ffca4427ce0a90"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:37.000000Z"/>
+<entry
+   committed-rev="1"
+   name="ComparisonEngine.h"
+   text-time="2008-01-22T16:22:38.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="478add48f77d225822395ad1adcfcb16"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:37.000000Z"/>
+<entry
+   committed-rev="1"
+   name="Schema.h"
+   text-time="2008-01-22T16:22:38.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="ae609f690f445623d1f946e42842fbaa"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:37.000000Z"/>
+<entry
+   committed-rev="3"
+   name="README"
+   text-time="2008-01-24T21:07:19.000000Z"
+   committed-date="2008-01-24T21:07:40.167311Z"
+   checksum="9bcdaeef02d77c427ac696709fec0cde"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:37.000000Z"
+   revision="3"/>
+<entry
+   committed-rev="1"
+   name="Comparison.cc"
+   text-time="2008-01-22T16:22:38.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="baa2745a9277e23baa35d6536b6123f1"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="Comparison.h"
+   text-time="2008-01-22T16:22:38.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="3dfb35e54795d18b21e9352d575232c6"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="Record.cc"
+   text-time="2008-01-22T16:22:38.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="1db96a557ba2ae698488927b28a68eac"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="Parser.y"
+   text-time="2008-01-22T16:22:38.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="268fb635748487cfb43ffadeab2ad7b6"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="File.cc"
+   text-time="2008-01-22T16:22:38.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="7b7cd1d16ba395dc6b469037225e0b4d"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="test.cc"
+   text-time="2008-01-22T16:22:38.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="9bd7841db06c9ac82ffad6e9bbf1b6be"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="Record.h"
+   text-time="2008-01-22T16:22:38.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="7e23cf43888a3acd9d00802c14d00b25"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="2"
+   name="File.h"
+   text-time="2008-01-24T21:03:31.000000Z"
+   committed-date="2008-01-24T21:04:32.294612Z"
+   checksum="caaecc3e72be7cfd0fa8faa3f3167c12"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="test.h"
+   text-time="2008-01-22T16:22:39.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="01678d57dbfa17f99d3ebc1588ad2f86"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="Defs.h"
+   text-time="2008-01-22T16:22:39.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="34daf9c93dbc0414a342cbc192638d16"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="main.cc"
+   text-time="2008-01-22T16:22:39.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="4c1e8458db0013b8a47e4511a4aede5c"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="2"
+   name="Lexer.l"
+   text-time="2008-01-24T21:03:03.000000Z"
+   committed-date="2008-01-24T21:04:32.294612Z"
+   checksum="a30d84ed7bba9f6ec3901fc587469079"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="DBFile.cc"
+   text-time="2008-01-22T16:22:39.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="26b120bd23ebccc60f33890f10f9a2e5"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="TwoWayList.cc"
+   text-time="2008-01-22T16:22:39.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="77945850cdb31cc4d8096484fdf1d3df"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="catalog"
+   text-time="2008-01-22T16:22:39.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="dd33b61275b12353d16adf84cdd8d702"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="DBFile.h"
+   text-time="2008-01-22T16:22:39.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="db86079d7cd567f2df77be9ae9b1e219"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="TwoWayList.h"
+   text-time="2008-01-22T16:22:39.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="4531c38ecf35e1737923bb74aa989432"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+<entry
+   committed-rev="1"
+   name="Makefile"
+   text-time="2008-01-22T16:22:39.000000Z"
+   committed-date="2008-01-22T16:19:12.800116Z"
+   checksum="72dd941d908212b07aac3ed2a7bea7fc"
+   last-author="sa2"
+   kind="file"
+   prop-time="2008-01-22T16:22:38.000000Z"/>
+</wc-entries>

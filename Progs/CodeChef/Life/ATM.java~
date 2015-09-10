@@ -1,0 +1,20 @@
+import java.io.*;
+
+public class ATM {
+    public static void main(String[] args) {
+        BufferedReader br =
+            new BufferedReader(
+                               new InputStreamReader(System.in));
+	
+	String input = br.readLine();
+	String[] input_arr = input.split(" ");
+	double withdraw_amt = Double.parseDouble(input_arr[0]);
+	double account_bal = Integer.parseDouble(input_arr[1]);
+
+	if (withdraw_amt > account_bal || withdraw_amt % 5 != 0) {
+	    System.out.println(account_bal);
+	} else {
+	    System.out.println(account_bal - withdraw_amt);
+	}
+    }
+}

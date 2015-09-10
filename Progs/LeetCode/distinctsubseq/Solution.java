@@ -1,0 +1,35 @@
+public class Solution {
+    public static void main(String[] args) {
+	//System.out.println(new Solution().numDistinct("daacaedaceacabbaabdccdaaeaebacddadcaeaacadbceaecddecdeedcebcdacdaebccdeebcbdeaccabcecbeeaadbccbaeccbbdaeadecabbbedceaddcdeabbcdaeadcddedddcececbeeabcbecaeadddeddccbdbcdcbceabcacddbbcedebbcaccac", "ceadbaa"));
+	System.out.println(new Solution().numDistinct("rabbbit", "rabbit"));
+    }
+
+    public int numDistinct(String S, String T) {
+	System.out.println(S + " " + T);
+	if (T.length() == 0) {
+	    return 1;
+	}
+        if (S.length() < T.length() || T.length() == 0) {
+            return 0;
+        }
+        if(S.length() == T.length()) {
+            if (S.equals(T)) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            int i = 0;
+            while (i <= S.length() - 1 && S.charAt(i) != T.charAt(0)) {
+                i++;
+            }
+            if (i > S.length() - 1) {
+                return 0;
+            }
+            String new_S = S.substring(i + 1);
+            String new_T = T.substring(1);
+            return (numDistinct(new_S, new_T) +
+		    numDistinct(new_S, T));
+        }
+    }
+}

@@ -1,0 +1,226 @@
+import java.lang.*;
+import java.util.*;
+import java.io.*;
+
+class CounterCulture {
+    public static void main(String[] args) 
+    throws Exception {
+	new CounterCulture().start(args[0]);
+	//new CounterCulture().test();
+    }
+
+    public void test() {
+	System.out.println(first_half(123));
+	System.out.println(second_half(123));
+	System.out.println(first_half(1234));
+	System.out.println(second_half(1234));
+	System.out.println(first_half(100));
+	System.out.println(second_half(100));
+    }
+
+    public void start(String fileName)
+        throws Exception {
+        InputStreamReader is =
+            new InputStreamReader(
+                                  new FileInputStream(fileName));
+        BufferedReader br = new BufferedReader(is);
+        OutputStreamWriter os =
+            new OutputStreamWriter(
+                                   new FileOutputStream("Output"));
+        BufferedWriter bw = new BufferedWriter(os);
+        String line;
+
+        int test = 1;
+        line = br.readLine();
+        int tot_test = Integer.parseInt(line);
+        while (tot_test >= test) {
+            System.out.println("Case #" + test++ + ": " + calc(br));
+        }
+    }
+
+    String calc(BufferedReader br) throws Exception {
+	int n = Integer.parseInt(br.readLine());
+	int target = 0, counter = 0;
+	int result = 0;
+
+	if (n <= 19) {
+	    return Integer.toString(n);
+	}
+	if (n <= 99) {
+	    target = n;
+	} else {
+	    target = 99;
+	}
+
+	counter = 11;
+	result = 11;
+	
+	while (counter != n) {
+	    //System.out.println(first_half(counter) + " " +
+	    //		       first_half(target));
+	    while (first_half(counter) != first_half(target)) {
+		//System.out.println(target + " " + counter);
+		if (second_half(counter) == first_half(target)) {
+		    counter = reverse(counter);
+		    result++;
+		} else {
+		    counter++;
+		    result++;
+		}
+	    }
+	    
+	    result += (target - counter);
+	    counter = target;
+	    int  temp_target = target * 10 + 9;
+	    if (temp_target > n) {
+		target = n;
+	    } else {
+		target = temp_target;
+	    }
+	    if (counter != n) {
+		counter++;
+		result++;
+	    }
+
+	    //System.out.println(counter);
+	}
+
+	return Integer.toString(result);
+    }
+
+    int first_half(int num) {
+	String str = Integer.toString(num);
+	int len = str.length();
+	String first_half_str = str.substring(0, len / 2);
+	return Integer.parseInt(first_half_str);
+    }
+
+    int second_half(int num) {
+	String str = Integer.toString(num);
+	int len = str.length();
+	int start = len % 2 == 1 ? len / 2 + 1 : len / 2;
+
+	String second_half_str = reverse(str.substring(start, len));
+	return Integer.parseInt(second_half_str);
+    }
+
+    String calc2(BufferedReader br) throws Exception {
+	int n = Integer.parseInt(br.readLine());
+	
+	int counter = 10;
+	int cnt = 10;
+	int target = 99;
+	if (n <= 10) {
+	    return Integer.toString(n);
+	} else {
+	    if (n <= 19) {
+		target = n;
+	    } 
+	}
+	
+	while (counter != n) {
+	    while (counter != target) {
+		System.out.println(counter);
+		// System.out.println(first_half(target) + 
+		// " " + second_half(counter));
+		while (first_half(target) != second_half(counter) || 
+		       isPalindrome(counter) == true) {
+		    System.out.println(target + " " + counter);
+		    System.out.println("First Half: " + 
+				       first_half(target) + " " + 
+				       "Second Half: " + 
+				       second_half(counter));
+		    if (counter == n) {
+			return Integer.toString(cnt);
+		    } else if (counter == target) {
+			break;
+		    }
+		    counter++;
+		    cnt++;
+		}
+		if (counter == n) {
+		    return Integer.toString(cnt);
+		}
+		counter = reverse(counter);
+		cnt++;
+	    }
+	    int temp = counter * 10 + 9;
+	    if (temp < n) {
+		target = temp;
+	    } else {
+		target = n;
+	    }
+	}
+	
+	return Integer.toString(cnt);
+    }
+
+    /*    int first_half(int n) {
+	int digits_cnt = num_of_digits(n);
+	int remove_cnt = digits_cnt / 2;
+	if (digits_cnt % 2 == 1) {
+	    remove_cnt++;
+	}
+	
+	while (remove_cnt > 0) {
+	    n = n / 10;
+	    remove_cnt--;
+	}	
+	return n;
+	}*/
+
+    boolean isPalindrome(int n) {
+	String s = Integer.toString(n);
+	int len = s.length();
+	for (int i = 0; i <= (len - 1) / 2; i++) {
+	    if (s.charAt(i) != s.charAt(len - 1 - i)) {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    /*int second_half(int n) {
+	int digits_cnt = num_of_digits(n);
+        int remove_cnt = digits_cnt / 2;
+	if (digits_cnt % 2 == 1) {
+	    remove_cnt++;
+	}
+	int result = 0;
+
+        while (remove_cnt > 0) {
+	    result = result * 10 + (n % 10);
+            n = n / 10;
+            remove_cnt--;
+        } 
+        return result;
+    }
+
+    int num_of_digits(int n) {
+	int cnt = 0;
+	while (n > 0) {
+	    n = n / 10;
+	    cnt++;
+	}
+
+	return cnt;
+    }
+    */
+    int reverse(int n) {
+	String num_str = Integer.toString(n);
+	num_str = reverse(num_str);
+	return Integer.parseInt(num_str);
+    }
+
+    String reverse(String str) {
+	int len = str.length();
+	String result = new String();
+	//System.out.println(str);
+
+	for (int i = len - 1; i >= 0; i--) {
+	    result += Character.toString(str.charAt(i));
+	}
+
+	return result;
+    }
+}

@@ -1,0 +1,28 @@
+public class Solution {
+    public static void main(String[] args) {
+	int[] gas = {5};
+	int[] cost = {4};
+	System.out.println(new Solution().canCompleteCircuit(gas, cost));
+    }
+
+    public int canCompleteCircuit(int[] gas, int[] cost) {
+        for (int i = 0; i <= gas.length - 1; i++) {
+	    // System.out.println(i);
+            int sum = 0;
+            int j = i;
+            for (j = 0; j <= gas.length - 1; j++) {
+		System.out.println(j);
+                sum += gas[(i + j) % gas.length];
+                if (sum < cost[j]) {
+                    break;
+                }
+            }
+            
+            if (j == i + gas.length) {
+                return i;
+            }
+        }
+        
+        return -1;
+    }
+}

@@ -1,0 +1,21 @@
+Pseudo codes for operations on hmpoint
+Note . Here, I have not explained how the input or output is represented. My only focus is on the algorithms
+1) Deftime: Set of time intervals in which the hmpoint exists
+Output - array of intervals
+
+Return the lifetime of hmpoint
+
+2) Trajectory: Projection of a moving point into a plane yielding a line	
+Output - line
+
+declare result as a line
+for each upoint
+    for each mpoi
+    	result = result union mpoi
+return result
+
+3) At_instance: Returns the position of a moving point at a given historical instant of time
+Input :- time instant	
+Output :- point(s)
+
+declare

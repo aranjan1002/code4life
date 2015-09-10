@@ -1,0 +1,39 @@
+package pa1;
+
+import pa.InputFileReader;
+import pa.TwoIntegers;
+
+import java.util.*;
+import java.lang.*;
+import java.io.*;
+
+public class Pa1_q2 {
+    public static void main(String[] args) throws IOException {
+        ArrayList<TwoIntegers> input = new InputFileReader().
+            readTwoIntegersPerLine(args[0]);
+        Collections.sort(input, new Comparator<TwoIntegers>() {
+                public int compare(TwoIntegers a, TwoIntegers b) {
+		    double a_ratio = a.int1 / (double) a.int2;
+		    double b_ratio = b.int1 / (double) b.int2;
+		    // result is multiplied by -1 so that
+		    // the sorted order is decreasing
+		    System.out.println(b_ratio + " " + a_ratio);
+		    if (b_ratio > a_ratio) {
+			return 1;
+		    } else {
+			return -1;
+		    }
+		}
+	    });
+	int sum = 0;
+	int curr_time = 0;
+	for (TwoIntegers temp : input) {
+	    curr_time += temp.int2;
+	    System.out.println(sum);
+	    //System.out.println(temp.int1 + " " + temp.int2);
+	    sum += (temp.int1 * curr_time);
+	}
+	System.out.println(sum);
+    }
+}
+

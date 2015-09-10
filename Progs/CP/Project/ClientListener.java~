@@ -1,0 +1,25 @@
+package edu.cp.project;
+
+import java.io.*;
+
+public class ClientListener implements Runnable {
+    ClientListener(ClientInfo clientInfo) {
+	inFromClient = clientInfo.inFromClient;
+	clientName = clientInfo.clientName;
+    }
+
+    void run() {
+	while(!inFromClient.ready()) {
+	    String clientMsg = in.readLine();
+	    MoveClientPositionMessage movClientMsg =
+		new MoveClientPositionMessage(clientMsg);
+	    String clientName = movClientMsg.getClientName();
+	    ClientMessageReader.MOVE_DIR moveDIR = 
+		movClientMsg.getMovementDirection();
+	    PacMenServer.moveClientOnBoardAndBroadcast(clientName, moveDIR);
+	}
+    }
+
+    BufferedReader inFromClient = null;
+    String clientName;
+}

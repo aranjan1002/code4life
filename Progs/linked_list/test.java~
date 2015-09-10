@@ -1,0 +1,25 @@
+import java.io.*;
+import java.util.*;
+
+class test {
+    public static void main(String[] args) {
+	new test().start_test();
+    }
+
+    public void start_test() {
+	LinkedList l = new LinkedList();
+	int ch = 0;
+	
+	System.out.println("1. Add 2. Delete 3.Display:");
+	InputStreamReader iStream = new InputStreamReader(System.in);
+	BufferedReader buffReader = new BufferedReader(iStream);
+	try {
+	do {
+	    ch = Integer.parseInt(buffReader.readLine());
+	    System.out.println(ch);
+	}while(ch != 0);
+	} catch(IOException e) {
+	    System.out.println(e.getMessage());
+	}
+    }
+}

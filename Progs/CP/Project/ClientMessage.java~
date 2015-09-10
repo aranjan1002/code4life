@@ -1,0 +1,5 @@
+package edu.cp.project;
+
+public interface ClientMessage {
+    String getClientName();
+}

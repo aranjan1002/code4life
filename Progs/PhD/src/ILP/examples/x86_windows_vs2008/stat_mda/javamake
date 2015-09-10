@@ -1,0 +1,214 @@
+ 
+JAVA  = java  -Djava.library.path=..\..\..\bin\x86_win32 \
+              -classpath "..\..\..\lib\cplex.jar;."
+JAVAC = javac -classpath ..\..\..\lib\cplex.jar
+
+EXDATA = ..\..\data
+EXSRC  = ..\..\src\java
+ 
+#-------------------------------------------------------------------
+#  nmake -f javamake all      : to compile the examples. 
+#  nmake -f javamake execute  : to compile and execute the examples.
+#-------------------------------------------------------------------
+
+
+JAVA_EX = Diet.class Blend.class MixBlend.class CutStock.class \
+	  Facility.class Fixcost1.class Inout1.class Inout3.class \
+	  Rates.class Steel.class Transport.class \
+          Etsp.class FoodManufact.class Warehouse.class \
+	  LPex1.class LPex2.class LPex3.class LPex4.class \
+	  LPex6.class LPex7.class \
+	  MIPex1.class MIPex2.class MIPex3.class MIPex4.class \
+	  QCPex1.class QPex1.class QPex2.class MIQPex1.class \
+          Goalex1.class Goalex2.class Goalex3.class \
+          CplexServer.class AdMIPex1.class AdMIPex2.class \
+          Populate.class TuneSet.class \
+	  AdMIPex3.class AdMIPex4.class AdMIPex5.class AdMIPex6.class
+
+
+all: $(JAVA_EX)
+
+execute: all 
+	nmake -f javamake execute_java
+
+execute_java: $(JAVA_EX)
+	 $(JAVA) Goalex1 $(EXDATA)\mexample.mps
+	 $(JAVA) Goalex2 
+	 $(JAVA) Goalex3 $(EXDATA)\mexample.mps
+	 $(JAVA) LPex1 -r
+	 $(JAVA) LPex2 $(EXDATA)\example.mps p
+	 $(JAVA) LPex3
+	 $(JAVA) LPex4
+	 $(JAVA) LPex6
+	 $(JAVA) LPex7 $(EXDATA)\afiro.mps p
+	 $(JAVA) MIPex1
+	 $(JAVA) MIPex2 $(EXDATA)\mexample.mps
+	 $(JAVA) MIPex3
+	 $(JAVA) MIPex4 $(EXDATA)\p0033.mps l
+	 $(JAVA) MIQPex1
+	 $(JAVA) QCPex1
+	 $(JAVA) QPex1
+	 $(JAVA) QPex2 $(EXDATA)\qpex.lp o
+	 $(JAVA) Blend
+	 $(JAVA) CplexServer
+	 $(JAVA) CutStock
+	 $(JAVA) Diet
+	 $(JAVA) Etsp
+	 $(JAVA) Facility
+	 $(JAVA) FixCost1
+	 $(JAVA) FoodManufact
+	 $(JAVA) InOut1
+	 $(JAVA) InOut3
+	 $(JAVA) MixBlend
+	 $(JAVA) Populate $(EXDATA)\location.lp
+	 $(JAVA) Rates
+	 $(JAVA) Steel
+	 $(JAVA) Transport 1
+	 $(JAVA) TuneSet $(EXDATA)\p0033.mps
+	 $(JAVA) Warehouse
+	 $(JAVA) AdMIPex1 $(EXDATA)\mexample.mps
+	 $(JAVA) AdMIPex2 $(EXDATA)\p0033.mps
+	 $(JAVA) AdMIPex3 $(EXDATA)\sosex3.lp
+	 $(JAVA) AdMIPex4
+	 $(JAVA) AdMIPex5
+	 $(JAVA) AdMIPex6 $(EXDATA)\mexample.mps
+
+# ------------------------------------------------------------
+
+clean :
+	-del *.class 
+	-del *.mps
+	-del *.ord
+	-del *.lp
+	-del *.sav
+
+# ------------------------------------------------------------
+#
+# The examples
+#
+
+Diet.class: $(EXSRC)\Diet.java  $(EXSRC)\InputDataReader.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\Diet.java \
+				 $(EXSRC)\InputDataReader.java
+
+Etsp.class: $(EXSRC)\Etsp.java  $(EXSRC)\InputDataReader.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\Etsp.java \
+				 $(EXSRC)\InputDataReader.java
+
+Blend.class: $(EXSRC)\Blend.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\Blend.java
+ 
+MixBlend.class: $(EXSRC)\MixBlend.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\MixBlend.java
+ 
+CplexServer.class: $(EXSRC)\CplexServer.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\CplexServer.java
+ 
+CutStock.class: $(EXSRC)\CutStock.java $(EXSRC)\InputDataReader.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\InputDataReader.java \
+				 $(EXSRC)\CutStock.java
+ 
+Facility.class: $(EXSRC)\Facility.java $(EXSRC)\InputDataReader.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\InputDataReader.java \
+				 $(EXSRC)\Facility.java
+ 
+FixCost1.class: $(EXSRC)\FixCost1.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\FixCost1.java
+ 
+FoodManufact.class: $(EXSRC)\FoodManufact.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\FoodManufact.java
+ 
+InOut1.class: $(EXSRC)\InOut1.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\InOut1.java
+ 
+InOut3.class: $(EXSRC)\InOut3.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\InOut3.java
+ 
+Populate.class: $(EXSRC)\Populate.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\Populate.java
+
+TuneSet.class: $(EXSRC)\TuneSet.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\TuneSet.java
+
+Rates.class: $(EXSRC)\Rates.java $(EXSRC)\InputDataReader.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\InputDataReader.java \
+				 $(EXSRC)\Rates.java
+ 
+Steel.class: $(EXSRC)\Steel.java $(EXSRC)\InputDataReader.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\InputDataReader.java \
+				 $(EXSRC)\Steel.java
+ 
+Transport.class: $(EXSRC)\Transport.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\Transport.java
+
+Goalex1.class: $(EXSRC)\Goalex1.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\Goalex1.java
+ 
+Goalex2.class: $(EXSRC)\Goalex2.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\Goalex2.java
+ 
+Goalex3.class: $(EXSRC)\Goalex3.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\Goalex3.java
+ 
+Warehouse.class: $(EXSRC)\Warehouse.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\Warehouse.java
+ 
+LPex1.class: $(EXSRC)\LPex1.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\LPex1.java
+ 
+LPex2.class: $(EXSRC)\LPex2.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\LPex2.java
+ 
+LPex3.class: $(EXSRC)\LPex3.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\LPex3.java
+ 
+LPex4.class: $(EXSRC)\LPex4.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\LPex4.java
+
+LPex6.class: $(EXSRC)\LPex6.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\LPex6.java
+ 
+LPex7.class: $(EXSRC)\LPex7.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\LPex7.java
+ 
+MIPex1.class: $(EXSRC)\MIPex1.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\MIPex1.java
+ 
+MIPex2.class: $(EXSRC)\MIPex2.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\MIPex2.java
+ 
+MIPex3.class: $(EXSRC)\MIPex3.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\MIPex3.java
+ 
+MIPex4.class: $(EXSRC)\MIPex4.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\MIPex4.java
+
+MIQPex1.class: $(EXSRC)\MIQPex1.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\MIQPex1.java
+ 
+QCPex1.class: $(EXSRC)\QCPex1.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\QCPex1.java
+ 
+QPex1.class: $(EXSRC)\QPex1.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\QPex1.java
+ 
+QPex2.class: $(EXSRC)\QPex2.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\QPex2.java
+
+AdMIPex1.class: $(EXSRC)\AdMIPex1.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\AdMIPex1.java
+ 
+AdMIPex2.class: $(EXSRC)\AdMIPex2.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\AdMIPex2.java
+ 
+AdMIPex3.class: $(EXSRC)\AdMIPex3.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\AdMIPex3.java
+ 
+AdMIPex4.class: $(EXSRC)\AdMIPex4.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\AdMIPex4.java
+ 
+AdMIPex5.class: $(EXSRC)\AdMIPex5.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\AdMIPex5.java
+ 
+AdMIPex6.class: $(EXSRC)\AdMIPex6.java
+	$(JAVAC) $(JCFLAGS) -d . $(EXSRC)\AdMIPex6.java

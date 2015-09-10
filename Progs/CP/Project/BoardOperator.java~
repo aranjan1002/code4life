@@ -1,0 +1,9 @@
+pakcage edu.cp.project;
+
+public class BoardOperator implements Runnable {
+    BoardOperator(Board brd) {
+	board = brd;
+    }
+
+    void move(String clientName, PacMenServer.
+}

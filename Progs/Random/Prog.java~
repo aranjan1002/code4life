@@ -1,0 +1,53 @@
+import java.io.*;
+import java.lang.*;
+import java.util.*;
+
+public class Prog {
+    
+    class TreeNode {
+	int leftW;
+	int rightW;
+	int[] left;
+	int[] right;
+	int sum = 0; 
+	int leftSol;
+	int rightSol;
+    }
+    public static void main(String[] args) {
+	new Prog().start();
+    }
+
+    int balCount = 0;
+    ArrayList<TreeNode> nodes = new ArrayList<TreeNode>();
+
+
+    public void start() {
+	InputStreamReader ir = new InputStreamReader(System.in);
+        BufferedReader br = new BufferedReader(ir);
+        String[] str;
+	
+	balCount = Integer.parseInt(br.readLine());
+	
+	for(int i=0; i<balCount; i++) {
+	    TreeNode node = new TreeNode();
+	    str = br.readLine().split(" ");
+	    node.leftW = Integer.parseInt(str[0]);
+	    node.left = new int[str.length - 1];
+	    for(int j=1; i<str.length; i++) {
+		node.left[j-1] = Integer.parseInt(str[j]);
+	    }
+	    str = br.readLine().split(" ");
+	    node.rightW = Integer.parseInt(str[0]);
+	    node.right = new int[str.length - 1];
+	    for(int i=1; i<str.length; i++) {
+		node.right[i-1] = Integer.parseInt(str[i]);
+	    }
+	    nodes.add(node);
+	    print(node);
+	}
+    }
+    
+    public void print(TreeNode node) {
+	System.out.pritln(node.leftW + " " + node.rightW + node.left.length + node.right.length);
+    }
+}

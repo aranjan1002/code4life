@@ -1,0 +1,33 @@
+import java.io.*;
+import java.util.*;
+
+class GooglersDance {
+    public static void main(String[] args) {
+	new GooglersDance().start();
+    }
+
+    void start() {
+	InputStreamReader is =
+            new InputStreamReader(
+                                  new FileInputStream("Input"));
+        BufferedReader br = new BufferedReader(is);
+	String line;
+	int[] inputs;
+	int test = 1;
+	line = br.readLine();
+	while ((line = br.readLine()) != null) {
+	    String[] inp = line.split(" ");
+	    inputs = new int[inp.length];
+	    int i = 0;
+	    for (String s :  inp) {
+		inputs[i++] = Integer.parseInt(s);
+	    }
+	    Arrays.sort(inputs, 3, inputs.length);
+	    System.out.print("Case #" + test + ": ");
+	    for (int i = 3; i < inputs.length; i++) {
+		System.out.print(inputs[i] + " ");
+	    }
+	    System.out.println();
+	}
+    }
+}

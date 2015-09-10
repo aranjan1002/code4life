@@ -1,0 +1,71 @@
+public class PathGameDiv2 {
+    int calc(String[] board) {
+	int result, nextBlack;
+	int start = 1;
+	int turn = 0, blackCnt = 0;
+	int s1 = firstBlack(board[0], 0);
+	int s2 = firstBlack(board[1], 0);
+	System.out.println(s1 + " " + s2);
+	if (s1 < s2) {
+	    start = 2;
+	}
+	int currPos = 0;
+	int len = board[0].length();
+	int newPos = 0;
+	while (currPos < len) {
+	    newPos = firstBlack(board[start-1], currPos);
+	    System.out.println(newPos);
+	    blackCnt += countBlack(board[switchX(start) -1], currPos, currPos + newPos );
+	    System.out.println(blackCnt);
+	    currPos += newPos;
+	    if (currPos < len) {
+		turn++;
+	    }
+	    start = switchX(start);
+	    //if (turn == 2) break;
+	}
+	System.out.println(len + " " + turn + " " + blackCnt);
+	System.out.println(len - turn - blackCnt);
+	return (len - turn - blackCnt);
+    }
+
+    int switchX(int x) {
+	if (x == 2) {
+	    return 1;
+	}
+	return 2;
+    }
+        
+    int firstBlack(String x, int pos) {
+	int orgPos = pos;
+	while (pos < x.length() && x.charAt(pos) != '#') {
+	    pos++;
+	}
+	return pos - orgPos;
+    }
+    
+    int countBlack(String x, int pos1, int pos2) {
+	int result = 0;
+	System.out.println("pos2: " + pos2);
+	for (; pos1 < pos2; pos1++) {
+	    if (x.charAt(pos1) == '#') {
+		result++;
+	    }
+	}
+	return result;
+    }
+
+    int firstBlack(String x) {
+	int t = 0;
+	while(t < x.length() && x.charAt(t) != '#') {
+	    t++;
+	}
+	return t;
+    }
+
+    public static void main(String[] args) {
+	String[] board = {"#....", 
+			  "..###"};
+	new PathGameDiv2().calc(board);
+    }
+}

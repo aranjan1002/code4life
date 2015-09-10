@@ -1,0 +1,2 @@
+sed -i 's/\([a-zA-Z0-9]\)\s*$/\1,/' primes
+// replace last character with the last character and a comma

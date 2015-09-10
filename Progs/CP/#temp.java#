@@ -1,0 +1,27 @@
+public static class temp {
+    public static void main(String[] args) {
+	for (int i = 0; i < MAZE_SIZE; i++) { //creating the board layout
+	    for (int j = 0; j < MAZE_SIZE; j++) {
+		if (mazeArray[i][j] == 1) {
+		    g.setColor(Color.blue);
+		    g.fillRect(j * PAC_SIZE, 
+			       i * PAC_SIZE, 
+			       PAC_SIZE,
+			       PAC_SIZE);
+		} else if (mazeArray[i][j] == 2) {
+		    g.setColor(Color.yellow);
+		    g.fillOval(j * PAC_SIZE, 
+			       i * PAC_SIZE, 
+			       PAC_SIZE, 
+			       PAC_SIZE);
+		} else if (mazeArray[i][j] == 3) {
+		    g.setColor(Color.darkGray);
+		    g.fillOval(j * PAC_SIZE, 
+			       i * PAC_SIZE, 
+			       PAC_SIZE, 
+			       PAC_SIZE);
+		}
+	    }
+	} 
+    }
+}

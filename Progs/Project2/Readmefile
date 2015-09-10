@@ -1,0 +1,21 @@
+On my honor, I have neither given nor received unauthorized aid on this assignment
+
+Use the following command for extracting
+tar -xvf Project2.tar
+
+Use the following commands for executing
+cd Project2
+
+make
+OR
+g++ -o MIPSsim MIPSim.cpp
+
+
+Use the following syntax for executing
+
+./MIPSsim -I <inputfilename> -O <outputfilename>
+
+By,
+Anshu Ranjan
+UFID: 65517882
+

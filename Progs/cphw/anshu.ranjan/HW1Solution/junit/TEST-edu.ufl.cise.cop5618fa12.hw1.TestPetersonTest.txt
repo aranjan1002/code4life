@@ -1,0 +1,40 @@
+Testsuite: edu.ufl.cise.cop5618fa12.hw1.TestPetersonTest
+Tests run: 15, Failures: 1, Errors: 4, Time elapsed: 4,001.329 sec
+
+Testcase: testPetersonArrayTestLock1 took 0.262 sec
+Testcase: testPetersonTwoVarTestLock1 took 0.136 sec
+Testcase: testPetersonArrayTestTrylock1 took 0.195 sec
+Testcase: testPetersonTwoVarTestTrylock1 took 0.269 sec
+Testcase: testPetersonArrayTestLockInterruptibly1 took 0.079 sec
+Testcase: testPetersonTwoVarTestLockInterruptibly1 took 0.083 sec
+Testcase: testPetersonArrayTestLock2 took 0.082 sec
+Testcase: testPetersonTwoVarTestLock2 took 0.01 sec
+Testcase: testPetersonArrayTestTrylock2 took 0.016 sec
+Testcase: testPetersonTwoVarTestTrylock2 took 0.005 sec
+Testcase: testPetersonArrayTestLockInterruptibly2 took 1,000.005 sec
+	Caused an ERROR
+test timed out after 1000000 milliseconds
+java.lang.Exception: test timed out after 1000000 milliseconds
+	at edu.ufl.cise.cop5618fa12.hw1.TestPetersonTest.testPetersonArrayTestLockInterruptibly2(TestPetersonTest.java:252)
+
+Testcase: testPetersonTwoVarTestLockInterruptibly2 took 1,000.009 sec
+	Caused an ERROR
+test timed out after 1000000 milliseconds
+java.lang.Exception: test timed out after 1000000 milliseconds
+
+Testcase: testPetersonIncorrectTestLock1 took 0.079 sec
+	FAILED
+Incorrect PetersonTest lock method passed!
+junit.framework.AssertionFailedError: Incorrect PetersonTest lock method passed!
+	at edu.ufl.cise.cop5618fa12.hw1.TestPetersonTest.testPetersonIncorrectTestLock1(TestPetersonTest.java:298)
+
+Testcase: testPetersonIncorrectTestTrylock1 took 1,000.001 sec
+	Caused an ERROR
+test timed out after 1000000 milliseconds
+java.lang.Exception: test timed out after 1000000 milliseconds
+
+Testcase: testPetersonIncorrectTestLockInterruptibly1 took 1,000.006 sec
+	Caused an ERROR
+test timed out after 1000000 milliseconds
+java.lang.Exception: test timed out after 1000000 milliseconds
+

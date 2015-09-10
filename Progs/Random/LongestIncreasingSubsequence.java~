@@ -1,0 +1,45 @@
+public class longestIncreasingSubsequence {
+    public int[] LIS(int[] arr) {
+        int[] dp = new int[arr.length];
+        
+        if (arr.length == 0) {
+            return new int[0];
+        }
+        
+        dp[0] = 1;
+        
+        int maxLength = 1;
+        int maxIdx = 0;
+        for (int i = 1; i <= arr.length - 1; i++) {
+            int prevIdx = findPrev(arr, i) + 1;
+            if (prevIdx >= 0) {
+                dp[i] = dp[findPrev(arr, i)] + 1;
+            } else {
+                dp[i] = 1;
+            }
+            if (dp[i] > maxLength) {
+                maxLength = dp[i];
+                maxIdx = i;
+            }
+        }
+        
+        int[] result = new int[maxLength];
+        for (int i = maxLength - 1; i >= 0; i--) {
+            result[i] = arr[maxIdx];
+            maxIdx = findPrev(arr, maxIdx);
+        }
+        
+        return result;
+    }
+    
+    int findPrev(int[] arr, int idx) {
+        int val = arr[idx];
+        for (int i = idx - 1; i >= 0; i--) {
+            if (arr[i] < val) {
+                return i;
+            }
+        }
+        
+        return -1;
+    }
+}

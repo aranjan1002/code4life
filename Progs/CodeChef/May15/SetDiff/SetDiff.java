@@ -1,0 +1,46 @@
+import java.io.*;
+import java.lang.*; 
+import java.util.*;
+import java.math.*;
+
+class SetDiff {
+    public static void main(String[] args)
+	throws IOException {
+        BufferedReader br =
+            new BufferedReader(
+                               new InputStreamReader(System.in));
+
+        int tests = Integer.parseInt(br.readLine());
+
+        while (tests-- > 0) {
+            String line1 = br.readLine();
+	    String line2 = br.readLine();
+	    System.out.println(new SetDiff().calc(line1, line2));
+        }
+    }
+
+    public String calc(String line1, String line2) {
+	BigInteger two = new BigInteger("2");
+	BigInteger mod_with = new BigInteger("1000000007");
+	int N = Integer.parseInt(line1);
+	String[] l2 = line2.split(" ");
+	int[] arr = new int[N];
+	BigInteger sum = new BigInteger("0");
+	for (int i = 1; i <= N; i++) {
+	    arr[i - 1] = Integer.parseInt(l2[i - 1]);
+	}
+
+	Arrays.sort(arr);
+	for (int i = 0; i <= N - 2; i++) {
+	    for (int j = i + 1; j <= N - 1; j++) {
+		int diff = arr[j] - arr[i];
+		sum = sum.add(two.pow(j - i - 1).
+			multiply(new BigInteger(Integer.toString(diff))));
+		//System.out.println(diff + " " + i + " " + j);
+		//sum = sum.mod(mod_with);
+	    }
+	}
+
+	return (sum.toString());
+    }
+}

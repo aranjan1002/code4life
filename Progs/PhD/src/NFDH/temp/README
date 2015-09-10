@@ -1,0 +1,8 @@
+To compile:
+javac -d ./ *.java
+To run:
+java edu.strippacking.NFDH.Main
+
+Input file name: defined in the file Constants.java
+
+Calculates the height obtained by packing a set of rectangles using three versions of NFDH which are i) preemptive NFDH, ii) non-preemptive NFDH and iii)Mixed NFDH.

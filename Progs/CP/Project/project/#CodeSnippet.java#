@@ -1,0 +1,52 @@
+public final class Server implements Runnable {
+    List<ClientInfo> pacManClients;
+    List<ClientInfo> ghostClients;
+    ServerSocket serverSocket = null;
+	public void run() {
+		try {
+			serverSocket = new ServerSocket(6789);
+			System.out.println("Server socked started");
+
+			BufferedReader in = null;
+			// listen to registration messages from clients 
+			registerWithClients();
+			// create and start a thread for each client
+			// which listens to the client
+			for (ClientInfo clientInfo : pacMenClients) {
+				new Thread(new ClientListener(clientInfo)).start();
+			}
+
+			for (ClientInfo clientInfo : ghostClients) {
+				new Thread(new ClientListener(clientInfo)).start();
+			}
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} finally {
+		    serverSocket.close();
+		}
+	}
+}
+
+try {
+    serverSocket = new ServerSocket(6789);
+    System.out.println("Server socked started");
+
+    BufferedReader in = null;
+    // listen to registration messages from clients
+    registerWithClients();
+    // create and start a thread for each client
+    // which listens to the client
+    for (ClientInfo clientInfo : pacMenClients) {
+	new Thread(new ClientListener(clientInfo)).start();
+    }
+}
+
+for (ClientInfo clientInfo : ghostClients) {
+    new Thread(new ClientListener(clientInfo)).start();
+}
+} catch (IOException e) {
+      e.printStackTrace();
+  } finally {
+      serverSocket.close();
+  }
+}

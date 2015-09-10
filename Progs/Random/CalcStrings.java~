@@ -1,0 +1,19 @@
+class CalcStrings {
+    public List<String> calculate_words(String digits) {
+	List<String> result = new ArrayList<String>();
+
+	if (digits.length() == 0) {
+	    result.add(new String());
+	    return result;
+	}
+
+	if (digits.length() == 1) {
+	    result.add(new String(digits.charAt(0));
+	}
+
+	char c1 = digits.charAt(0);
+	
+	List<String> result1 = calculate_words(digits.substring(1, 
+								digits.length());
+    }
+}

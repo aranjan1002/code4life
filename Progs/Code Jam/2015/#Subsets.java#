@@ -1,0 +1,27 @@
+import java.util.*;
+
+class Subset {
+    List<List<Integer>> getSubsets(List<Integer> index) {
+	List<List<Integer>> result = new ArrayList<List<Integer>>();
+
+	result.add(new ArrayList<Integer>());
+	getSubsets(index, result);
+	return result;
+    }
+
+    void getSubsets(List<Integer> index, List<List<Integer>> result) {
+	for (int i = 0; i <= result.index.length() - 1; i++) {
+	    Integer curr_index = index.get(i);
+	    addToResult(result, curr_index);
+	}
+    }
+
+    void addToResult(List<List<Integer>> result, Integer index) {
+	int length = result.size();
+	for (int i = 0; i <= length - 1; i++) {
+	    List<Integer> toAdd = new ArrayList<Integer>(result.get(i));
+	    toAdd.add(index);
+	    result.add(toAdd);
+	}
+    }
+}

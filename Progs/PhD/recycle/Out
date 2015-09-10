@@ -1,0 +1,358 @@
+GAMS Rev 240  WIN-VS8 24.0.1 x86/MS Windows             01/10/13 11:32:52 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  sets
+   2  I "indices" /1*2/;
+   3  alias(I,J);
+   4   
+   5   
+   6  scalar maxW "maximum width" /3/;
+   7  scalar M "large number" /1000000/
+   8  parameter h(I) "height of ith rectangle"
+   9  /1=2, 2=4/;
+  10  parameter w(I) "width of ith rectangle"
+  11  /1=1, 2=3/;
+  12   
+  13  free variable height "overall height";
+  14  positive variables
+  15  x(I) "bottom left x position of ith rectangle",
+  16  y(I) "bottom left y position of ith rectangle";
+  17  binary variable delta1(I,J), delta2(I,J), delta3(I,J), delta4(I,J);
+  18   
+  19  equations
+  20  widthbound(I) "no rectangle's right boundary goes past the max width"
+  21  rectbelow(I,J) "other rectangle is below current rectangle",
+  22  rectabove(I,J) "other rectangle is above current rectangle",
+  23  rectleft(I,J) "other rectangle is left of current rectangle",
+  24  rectright(I,J) "other rectangle is right of current rectangle",
+  25  doesnotintersect(I,J) "whether rectangle intersects or not",
+  26  objdef "overall height";
+  27   
+  28  widthbound(I)..
+  29  x(I) + w(I) =l= maxW;
+  30   
+  31  rectbelow(I,J)$(ord(I)<ord(J))..
+  32  y(I) =g= (y(J) + h(J) - M*(1-delta1(I,J)));
+  33   
+  34  rectleft(I,J)$(ord(I)<ord(J))..
+  35  x(I) =g= (x(J) + w(J) - M*(1-delta2(I,J)));
+  36   
+  37  rectabove(I,J)$(ord(I)<ord(J))..
+  38  (y(I) + h(I)) =l= (y(J) - M*(1-delta3(I,J)));
+  39   
+  40  rectright(I,J)$(ord(I)<ord(J))..
+  41  (x(I) + w(I)) =l= (x(J) - M*(1-delta4(I,J)));
+  42   
+  43  doesnotintersect(I,J)$(ord(I)<ord(J))..
+  44  delta1(I,J) + delta2(I,J) + delta3(I,J) + delta4(I,J) =g= 1;
+  45   
+  46  objdef..
+  47  height =e= smax(I, y(I) + h(I));
+  48   
+  49  model strip /all/;
+  50  option limrow=10;
+  51  solve strip using minlp minimizing height;
+
+
+COMPILATION TIME     =        0.000 SECONDS      3 Mb  WIN240-240 Dec 18, 2012
+GAMS Rev 240  WIN-VS8 24.0.1 x86/MS Windows             01/10/13 11:32:52 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE strip Using MINLP From line 51
+
+
+---- widthbound  =L=  no rectangle's right boundary goes past the max width
+
+widthbound(1)..  x(1) =L= 2 ; (LHS = 0)
+     
+widthbound(2)..  x(2) =L= 0 ; (LHS = 0)
+     
+
+---- rectbelow  =G=  other rectangle is below current rectangle
+
+rectbelow(1,2)..  y(1) - y(2) - 1000000*delta1(1,2) =G= -999996 ; (LHS = 0)
+     
+
+---- rectabove  =L=  other rectangle is above current rectangle
+
+rectabove(1,2)..  y(1) - y(2) - 1000000*delta3(1,2) =L= -1000002 ;
+     
+      (LHS = 0, INFES = 1000002 ****)
+     
+
+---- rectleft  =G=  other rectangle is left of current rectangle
+
+rectleft(1,2)..  x(1) - x(2) - 1000000*delta2(1,2) =G= -999997 ; (LHS = 0)
+     
+
+---- rectright  =L=  other rectangle is right of current rectangle
+
+rectright(1,2)..  x(1) - x(2) - 1000000*delta4(1,2) =L= -1000001 ;
+     
+      (LHS = 0, INFES = 1000001 ****)
+     
+
+---- doesnotintersect  =G=  whether rectangle intersects or not
+
+doesnotintersect(1,2)..  delta1(1,2) + delta2(1,2) + delta3(1,2) + delta4(1,2)
+      =G= 1 ; (LHS = 0, INFES = 1 ****)
+     
+
+---- objdef  =E=  overall height
+
+objdef..  height + (0)*y(1) - (1)*y(2) =E= 0 ; (LHS = -4, INFES = 4 ****)
+     
+GAMS Rev 240  WIN-VS8 24.0.1 x86/MS Windows             01/10/13 11:32:52 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE strip Using MINLP From line 51
+
+
+---- height  overall height
+
+height
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       objdef
+
+
+---- x  bottom left x position of ith rectangle
+
+x(1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       widthbound(1)
+        1       rectleft(1,2)
+        1       rectright(1,2)
+
+x(2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       widthbound(2)
+       -1       rectleft(1,2)
+       -1       rectright(1,2)
+
+
+---- y  bottom left y position of ith rectangle
+
+y(1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       rectbelow(1,2)
+        1       rectabove(1,2)
+       (0)      objdef
+
+y(2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       rectbelow(1,2)
+       -1       rectabove(1,2)
+      (-1)      objdef
+
+
+---- delta1  
+
+delta1(1,2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -1.000000E+6  rectbelow(1,2)
+        1       doesnotintersect(1,2)
+
+
+---- delta2  
+
+delta2(1,2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -1.000000E+6  rectleft(1,2)
+        1       doesnotintersect(1,2)
+
+
+---- delta3  
+
+delta3(1,2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -1.000000E+6  rectabove(1,2)
+        1       doesnotintersect(1,2)
+
+
+---- delta4  
+
+delta4(1,2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -1.000000E+6  rectright(1,2)
+        1       doesnotintersect(1,2)
+
+GAMS Rev 240  WIN-VS8 24.0.1 x86/MS Windows             01/10/13 11:32:52 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE strip Using MINLP From line 51
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           7     SINGLE EQUATIONS            8
+BLOCKS OF VARIABLES           7     SINGLE VARIABLES            9
+NON ZERO ELEMENTS            21     NON LINEAR N-Z              2
+DERIVATIVE POOL              10     CONSTANT POOL              17
+CODE LENGTH                  11     DISCRETE VARIABLES          4
+
+
+GENERATION TIME      =        0.015 SECONDS      4 Mb  WIN240-240 Dec 18, 2012
+
+
+EXECUTION TIME       =        0.015 SECONDS      4 Mb  WIN240-240 Dec 18, 2012
+GAMS Rev 240  WIN-VS8 24.0.1 x86/MS Windows             01/10/13 11:32:52 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE strip Using MINLP From line 51
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   strip               OBJECTIVE  height
+     TYPE    MINLP               DIRECTION  MINIMIZE
+     SOLVER  DICOPT              FROM LINE  51
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      5 Locally Infeasible        
+**** OBJECTIVE VALUE          1000000.0000
+
+ RESOURCE USAGE, LIMIT          0.016      1000.000
+ ITERATION COUNT, LIMIT         6    2000000000
+ EVALUATION ERRORS              0             0
+
+ ------------------------------------------------------------------
+Dicopt           Dec 18, 2012 24.0.1 WIN 37366.37409 VS8 x86/MS Windows       
+ ------------------------------------------------------------------
+     Aldo Vecchietti and Ignacio E. Grossmann                      
+     Engineering Design Research Center                            
+     Carnegie Mellon University                                    
+     Pittsburgh, Pennsylvania 15213                                
+ ------------------------------------------------------------------
+CONOPT 3         Dec 18, 2012 24.0.1 WIN 37366.37409 VS8 x86/MS Windows       
+ 
+ 
+    C O N O P T 3   version 3.15H
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The model has 9 variables and 8 constraints
+    with 21 Jacobian elements, 2 of which are nonlinear.
+    The Hessian of the Lagrangian has 2 elements on the diagonal,
+    1 elements below the diagonal, and 2 nonlinear variables.
+ 
+ ** Infeasible solution. Reduced gradient less than tolerance.
+ 
+ 
+ CONOPT time Total                            0.014 seconds
+   of which: Function evaluations             0.000 =  0.0%
+             1st Derivative evaluations       0.000 =  0.0%
+ 
+--- DICOPT: Relaxed NLP is infeasible
+
+      The Relaxed NLP was infeasible. Please check your model and
+      make sure it solves correctly as an RMINLP model.
+
+
+---- EQU widthbound  no rectangle's right boundary goes past the max width
+
+     LOWER     LEVEL     UPPER    MARGINAL
+
+1     -INF       .        2.000      .         
+2     -INF       .         .    -1.907E-6      
+
+---- EQU rectbelow  other rectangle is below current rectangle
+
+       LOWER     LEVEL     UPPER    MARGINAL
+
+1.2 -1.000E+6 -1.000E+6     +INF       EPS       
+
+---- EQU rectabove  other rectangle is above current rectangle
+
+       LOWER     LEVEL     UPPER    MARGINAL
+
+1.2     -INF  -1.070E+6 -1.000E+6      EPS       
+
+---- EQU rectleft  other rectangle is left of current rectangle
+
+       LOWER     LEVEL     UPPER    MARGINAL
+
+1.2 -1.000E+6      .        +INF       .         
+
+---- EQU rectright  other rectangle is right of current rectangle
+
+       LOWER     LEVEL     UPPER    MARGINAL
+
+1.2     -INF  -1.000E+6 -1.000E+6 -1.907E-6 INFES
+
+---- EQU doesnotintersect  whether rectangle intersects or not
+
+       LOWER     LEVEL     UPPER    MARGINAL
+
+1.2     1.000     1.070     +INF       .         
+
+                       LOWER     LEVEL     UPPER    MARGINAL
+
+---- EQU objdef          .         .         .         EPS       
+
+  objdef  overall height
+
+                       LOWER     LEVEL     UPPER    MARGINAL
+
+---- VAR height         -INF  1.0000E+6     +INF       .         
+
+  height  overall height
+
+---- VAR x  bottom left x position of ith rectangle
+
+     LOWER     LEVEL     UPPER    MARGINAL
+
+1      .         .        +INF  1.9073E-6      
+2      .         .        +INF       .         
+
+---- VAR y  bottom left y position of ith rectangle
+
+     LOWER     LEVEL     UPPER    MARGINAL
+
+1      .         .        +INF       EPS       
+2      .    1.0000E+6     +INF       EPS       
+
+---- VAR delta1  
+
+       LOWER     LEVEL     UPPER    MARGINAL
+
+1.2      .         .        1.000      EPS       
+
+---- VAR delta2  
+
+       LOWER     LEVEL     UPPER    MARGINAL
+
+1.2      .         .        1.000      EPS       
+
+---- VAR delta3  
+
+       LOWER     LEVEL     UPPER    MARGINAL
+
+1.2      .        0.070     1.000      EPS       
+
+---- VAR delta4  
+
+       LOWER     LEVEL     UPPER    MARGINAL
+
+1.2      .        1.000     1.000    -1.907      
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             1 INFEASIBLE (INFES)
+                    SUM      1.000
+                    MAX      1.000
+                    MEAN     1.000
+                             0  UNBOUNDED
+                             0     ERRORS
+
+
+EXECUTION TIME       =        0.000 SECONDS      2 Mb  WIN240-240 Dec 18, 2012
+
+
+USER: GAMS Development Corporation, Washington, DC   G871201/0000CA-ANY
+      Free Demo,  202-342-0180,  sales@gams.com,  www.gams.com   DC0000
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\adminNext\Documents\gamsdir\projdir\Untitled_1.gms
+Output     C:\Users\adminNext\Documents\gamsdir\projdir\Untitled_1.lst

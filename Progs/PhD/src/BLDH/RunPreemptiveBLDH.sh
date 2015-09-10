@@ -1,0 +1,16 @@
+#!/bin/bash
+#$1- directory path containing all the datasets' directories
+# assumes that the path given as parameter contains only directories
+# calls RunPreemptiveBLDH.sh to execute the PreemptiveBLDH on actual
+# csv files
+#iterate through all the directories in directory $1/
+
+
+for i in $1/*
+do
+    for j in $i/*
+    do
+	echo $j `java edu.strippacking.run.RunPreemptiveBLDH $j`
+    done
+done
+echo

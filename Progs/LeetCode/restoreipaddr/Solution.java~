@@ -1,0 +1,58 @@
+public class Solution {
+    public static void main(String[] args) {
+	new Solution.restoreIpAddresses("0000");
+    }
+
+    public List<String> restoreIpAddresses(String s) {
+        restoreIpAddresses(s, 1, new ArrayList<String>());
+        return result;
+    }
+    
+    public void restoreIpAddresses(String s, int n, List<String> list) {
+        if (n == 4) {
+            if (s.length() > 3) {
+                return;
+            }
+            int a = new Integer(s).intValue();
+            if (a <= 255) {
+                addToResult(list, s);
+            }
+        } else {
+            int l = s.length();
+            if (l <= 1) {
+                return;
+            }
+            List<String> new_list = addToNewList(list, s.substring(0, 1));
+            restoreIpAddresses(s.substring(1, l), n + 1, new_list);
+            if (l >= 3) {
+                List<String> new_list2 = addToNewList(list, s.substring(0, 2));
+                restoreIpAddresses(s.substring(2, l), n + 1, new_list2); 
+            }
+            if (l >= 4) {
+                String possible_value = s.substring(0, 3);
+                if (new Integer(possible_value).intValue() <= 255) {
+                    List<String> new_list3 = addToNewList(list, possible_value);
+                    restoreIpAddresses(s.substring(3, l), n + 1, new_list3);
+                }
+            }
+        }
+    }
+    
+    public List<String> addToNewList(List<String> list, String s) {
+        List<String> new_list = new ArrayList<String>();
+        for (int i = 0; i <= list.size() - 1; i++) {
+            String current_string = new String(list.get(i));
+            new_list.add(current_string + s);
+        }
+        
+        return new_list;
+    }
+    
+    public void addToResult(List<String> list, String s) {
+        for (int i = 0; i <= list.size() - 1; i++) {
+            result.add(list.get(i) + s);
+        }
+    }
+    
+    List<String> result = new ArrayList<String>();
+}

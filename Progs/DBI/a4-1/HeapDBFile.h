@@ -1,0 +1,28 @@
+#ifndef HEAPDBFILE_H
+#define HEAPDBFILE_H
+
+#include "GenericDBFile.h"
+
+using namespace std;
+
+class HeapDBFile : public GenericDBFile {
+ public: 
+  HeapDBFile();
+  void Add(Record&);
+  void Load(Schema&, char*);
+  int Create(char*);
+  int Open(char*);
+  int GetNext(Record&);
+  int GetNext (Record &fetchme, CNF &cnf, Record &literal);
+  void MoveFirst();
+  int Close();
+  ~HeapDBFile();
+
+ private:
+  void AddToReadPage(Record& rec);
+  void CopyWritePageToReadPage();
+  Page* writePage;
+  int writePageNo;
+};
+
+#endif

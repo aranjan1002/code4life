@@ -1,0 +1,17 @@
+#ifndef RUN_H
+#define RUN_H
+
+class Run {
+ public:
+  Run(File& f, int startOffset, int stopOffset);
+  Record* getNext();
+  ~Run();
+
+ private:
+  Page currPage;
+  int currOff;
+  int startOff;
+  int endOff;
+  File& file;
+}
+  

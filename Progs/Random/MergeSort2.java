@@ -1,0 +1,57 @@
+public class MergeSort2 {
+    void mergeSort(int[] arr) {
+        mergeSort(arr, 0, arr.length - 1);
+    }
+    
+    void mergeSort(int[] arr, int l, int h) {
+        if (l < h) {
+            int mid = (l + h) / 2;
+            mergeSort(arr, l, mid);
+            mergeSort(arr, mid + 1, h);
+            merge(arr, l, mid, h);
+        }
+    }
+    
+    void merge(int[] arr, int l, int mid, int h) {
+        int[] temp_arr = new int[h - l + 1];
+        int idx1 = l, idx2 = mid + 1, idx3 = 0;
+        
+        while(true) {
+            if (idx2 > h) {
+                while (idx1 <= mid) {
+                    temp_arr[idx3++] = arr[idx1++];
+                }
+                break;
+            }
+            
+            if (idx1 > mid) {
+                while (idx2 <= h) {
+                    temp_arr[idx3++] = arr[idx2++];
+                }
+                break;
+            }
+        
+            if (arr[idx1] < arr[idx2]) {
+                temp_arr[idx3++] = arr[idx1++];
+            } else if (arr[idx1] > arr[idx2]) {
+                temp_arr[idx3++] = arr[idx2++];
+            } else {
+                temp_arr[idx3++] = arr[idx2++];
+                temp_arr[idx3++] = arr[idx1++];
+            }
+        }
+        
+        for (int i = 0; i <= temp_arr.length - 1; i++) {
+            arr[l++] = temp_arr[i];
+        }
+    }
+
+    public static void main(String[] args) {
+	int[] num = {2, 43, 2, 12, 32, 21};
+
+	new MergeSort2().mergeSort(num);
+	for (int i = 0; i <= num.length - 1; i++) {
+	    System.out.println(num[i]);
+	}
+    }
+}

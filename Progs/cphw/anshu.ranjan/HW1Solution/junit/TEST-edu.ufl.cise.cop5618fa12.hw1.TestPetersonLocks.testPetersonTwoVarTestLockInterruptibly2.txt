@@ -1,0 +1,16 @@
+Testsuite: edu.ufl.cise.cop5618fa12.hw1.TestPetersonLocks.testPetersonTwoVarTestLockInterruptibly2
+Tests run: 1, Failures: 0, Errors: 1, Time elapsed: 0 sec
+
+	Caused an ERROR
+edu.ufl.cise.cop5618fa12.hw1.TestPetersonLocks.testPetersonTwoVarTestLockInterruptibly2
+java.lang.ClassNotFoundException: edu.ufl.cise.cop5618fa12.hw1.TestPetersonLocks.testPetersonTwoVarTestLockInterruptibly2
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:423)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:356)
+	at java.lang.Class.forName0(Native Method)
+	at java.lang.Class.forName(Class.java:186)
+

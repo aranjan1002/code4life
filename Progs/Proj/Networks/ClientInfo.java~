@@ -1,0 +1,11 @@
+package networks.project;
+
+class ClientInfo {
+    public String clientName;
+    public int portNumber;
+
+    public ClientInfo(String clName, int port) {
+	clientName = clName;
+	port = portNumber;
+    }
+}

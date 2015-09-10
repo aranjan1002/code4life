@@ -1,0 +1,36 @@
+Testsuite: edu.ufl.cise.cop5618fa12.hw1.TestPetersonLocks
+Tests run: 12, Failures: 0, Errors: 2, Time elapsed: 221.904 sec
+
+Testcase: testPetersonTwoVarTestLock3 took 0.078 sec
+Testcase: testPetersonArrayTestTrylock3 took 0.028 sec
+Testcase: testPetersonTwoVarTestTrylock3 took 14.598 sec
+Testcase: testPetersonArrayTestLockInterruptibly3 took 3.53 sec
+Testcase: testPetersonTwoVarTestLockInterruptibly3 took 3.529 sec
+Testcase: testSinglePerformance took 100.005 sec
+	Caused an ERROR
+test timed out after 100000 milliseconds
+java.lang.Exception: test timed out after 100000 milliseconds
+	at java.lang.Throwable.printStackTrace(Throwable.java:642)
+	at java.lang.Throwable.printStackTrace(Throwable.java:633)
+	at edu.ufl.cise.cop5618fa12.hw1.PetersonTest.comparePerformanceSingleThread(PetersonTest.java:116)
+	at edu.ufl.cise.cop5618fa12.hw1.TestPetersonLocks.testSinglePerformance(TestPetersonLocks.java:176)
+
+Testcase: testDoublePerformance took 100.002 sec
+	Caused an ERROR
+test timed out after 100000 milliseconds
+java.lang.Exception: test timed out after 100000 milliseconds
+	at java.lang.StackTraceElement.isNativeMethod(StackTraceElement.java:142)
+	at java.lang.StackTraceElement.toString(StackTraceElement.java:172)
+	at java.lang.String.valueOf(String.java:2902)
+	at java.lang.StringBuilder.append(StringBuilder.java:128)
+	at java.lang.Throwable.printStackTrace(Throwable.java:657)
+	at java.lang.Throwable.printStackTrace(Throwable.java:642)
+	at java.lang.Throwable.printStackTrace(Throwable.java:633)
+	at edu.ufl.cise.cop5618fa12.hw1.PetersonTest.comparePerformanceTwoThread(PetersonTest.java:196)
+	at edu.ufl.cise.cop5618fa12.hw1.TestPetersonLocks.testDoublePerformance(TestPetersonLocks.java:188)
+
+Testcase: testPetersonArrayLockInterruptiblyDirectly1 took 0.004 sec
+Testcase: testPetersonTwoVarLockInterruptiblyDirectly1 took 0.002 sec
+Testcase: testPetersonArrayLockInterruptiblyDirectly2 took 0.002 sec
+Testcase: testPetersonTwoVarLockInterruptiblyDirectly2 took 0.003 sec
+Testcase: testPetersonArrayTestLock3 took 0.066 sec

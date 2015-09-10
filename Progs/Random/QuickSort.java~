@@ -1,0 +1,51 @@
+public class QuickSort {
+    public void quickSort(int[] num) {
+        if (num.length == 0) {
+            return;
+        }
+        quickSort(num, 0, num.length - 1, 0);
+    }
+    
+    void quickSort(int[] num, int p1, int p2, int pivot) {
+        if (p1 >= p2) {
+            return;
+        }
+    
+        int val = num[pivot];
+        int largerPtr = -1;
+        for (int i = p1; i <= p2; i++) {
+            if (num[i] < val) {
+                if (largerPtr == -1) {
+                    swap(num, pivot, i);
+                    pivot = i;
+                } else {
+                    swap(num, pivot, i);
+                    swap(num, pivot, largerPtr);
+                    int temp = largerPtr;
+                    largerPtr = pivot;
+                    pivot = temp;
+                }
+            } else if (laregerPtr == -1) {
+                largerPtr = i;
+            }
+        }
+        
+        quickSort(num, p1, pivot - 1, p1);
+        quickSort(num, pivot + 1, p2, pivot + 1);
+    }
+    
+    void swap(int[] num, int a, int b) {
+        int temp = num[a];
+        num[a] = num[b];
+        num[b] = temp;
+    }
+    
+    public static void main(String[] args) {
+        int[] num = {23, 43, 13, 43, 1, 43, 53};
+        new QuickSort().quickSort(num);
+        
+        for (int i = 0; i <= num.length - 1; i++) {
+            System.out.println(num[i]);
+        }
+    }
+}

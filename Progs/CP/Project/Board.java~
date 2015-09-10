@@ -1,0 +1,9 @@
+class PacMenBoard {
+    PacMenBoard(List<ClientInfo> pacMenClients,
+		List<ClientInfo> ghostClients) {
+
+    }
+
+    String move(ClientInfo clInfo, ClientMessageReader.MOV_DIR movDIR) {
+	return null;
+    }

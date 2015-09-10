@@ -1,0 +1,65 @@
+import java.io.*;
+import java.util.*;
+import java.lang.*;
+
+class Mushroom {
+    public static void main(String[] args)
+        throws Exception {
+        new EqualSums().start();
+    }
+
+    public void start()
+        throws Exception {
+        InputStreamReader is =
+            new InputStreamReader(
+                                  new FileInputStream("Input"));
+        BufferedReader br = new BufferedReader(is);
+        OutputStreamWriter os =
+            new OutputStreamWriter(
+                                   new FileOutputStream("Output"));
+        BufferedWriter bw = new BufferedWriter(os);
+        String line;
+
+        int test = 1;
+        line = br.readLine();
+        while ((line = br.readLine()) != null) {
+            System.out.println("Case #" + test++ + ": " + calc(br));
+	}
+    }
+
+    public int calc(BufferedReader line) {
+	String line = br.readLine();
+	int num_of_intervals = Integer.parseInt(line);
+	long[] num = new long[num_of_intervals];
+	String[] mush_at_intevals = br.readLine().split(" ");
+	for (int i = 0; i <= num_of_intervals; i++) {
+	    num[i] = Long.parseLong(must_at_intervals[i]);
+	}
+	
+	int result1 = 0;
+	int max_diff = 0;
+	for (int i = 0; i <= num.length - 2; i++) {
+	    if (num[i + 1] < num[i]) {
+		int diff = num[i + 1] - num[i];
+		result1 = result1 + diff;
+		if (diff > max_diff) {
+		    max_diff = diff;
+		}
+	    }
+	}
+
+	int result2 = 0;
+	for (int i = 0; i <= num.length - 2; i++) {
+	    if (num[i] <= max_diff) {
+		result2 += num[i];
+	    } else {
+		result2 += max_diff;
+	    }
+	}
+
+	String result = Integer.toString(result1) + " " + 
+	    Integer.toString(result2);
+	return result;
+    }
+}
+
