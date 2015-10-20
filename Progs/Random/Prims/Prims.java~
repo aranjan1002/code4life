@@ -1,0 +1,69 @@
+import java.util.PriorityQueue;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
+class Prims {
+    public static List<Edge> getMSTUsingPrims(Node node) {
+	PriorityQueue<Edge> pq = new PriorityQueue<Edge>(1, new EdgeComparator());
+	List<Edge> result = new ArrayList<Edge>();
+	int nodeCount = getNodeCount(node, new HashSet<Node>());
+	Node currNode = node;
+	List<Node> spannedNodes = new ArrayList<Node>();
+	spannedNodes.add(currNode);
+		
+	while (spannedNodes.size() < nodeCount) {
+	    addEdges(pq, currNode);
+	    
+	    while (true) {
+		Edge e = pq.poll();
+		Node newNode = getNewNode(e, spannedNodes);
+		if (newNode != null) {
+		    spannedNodes.add(newNode);
+		    result.add(e);
+		    currNode = newNode;
+		    break;
+		}
+	    }
+	}
+
+	return result;
+    }
+
+    private static Node getNewNode(Edge e, List<Node> spannedNodes) {
+	if (spannedNodes.contains(e.node1) == false) {
+	    return e.node1;
+	} else if (spannedNodes.contains(e.node2) == false) {
+	    return e.node2;
+	} 
+	return null;
+    }
+
+    private static void addEdges(PriorityQueue<Edge> pq, Node node) {
+	for (Edge e : node.edges) {
+	    if (pq.contains(e) == false) {
+		pq.add(e);
+	    }
+	}
+    }
+
+    public static int getNodeCount(Node node, HashSet<Node> visitedNodes) {
+	int count = 0;
+	if (node == null || visitedNodes.contains(node) == true) {
+	    return 0;
+	} else {
+	    visitedNodes.add(node);
+	    count++;
+	    for (Edge e : node.edges) {
+		Node otherNode;
+		if (e.node1.equals(node) == true) {
+		    otherNode = e.node2;
+		} else {
+		    otherNode = e.node1;
+		}
+		count += getNodeCount(otherNode, visitedNodes);
+	    }
+	    return count;
+	}
+    }	
+}
