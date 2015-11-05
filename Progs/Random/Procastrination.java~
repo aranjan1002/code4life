@@ -1,0 +1,20 @@
+class Procrastination {
+    public long findFinalAssignee(long n) {
+	long time = 2;
+	long emp = n;
+	System.out.println(n);
+	while(time <= emp/2) {
+	    if (time % emp == 0) {
+		emp++;
+	    } else if (time % (emp - 1) == 0) {
+		emp--;
+	    }
+	    time++;
+	}
+	return emp;
+    }
+
+    public static void main(String args) {
+	System.out.println(new Procastrination().findFinalAssignee(3));
+    }
+}

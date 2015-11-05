@@ -1,0 +1,41 @@
+class PatternMatch {
+    public static void main (String[] args) {
+	test("g*ks", "geeks"); // Yes
+	test("ge?ks*", "geeksforgeeks"); // Yes
+	test("g*k", "gee"); // No because 'k' is not in second
+	test("*pqrs", "pqrst"); // No because 't' is not in first
+	test("abc*bcd", "abcdhghgbcd"); // Yes
+	test("abc*c?d", "abcd"); // No because second must have 2 instances of 'c'
+	test("*c*d", "abcd"); // Yes
+	test("*?c*d", "abcd"); // Yes
+    }
+
+    public static boolean test(String pattern, String str) {
+	if (pattern == null || str == null) {
+	    return false;
+	}
+	if (pattern.length == 0 && str.length == 0) {
+	    return true;
+	}
+	if (pattern.length == 0) {
+	    return false;
+	}
+	if (pattern.charAt(0) == '*') {
+	    if (str.length == 0) {
+		return test(pattern.substring(1, str));
+	    }
+	    return (test(pattern, str.substring(1)) ||
+		    test(pattern.substring(1), str));
+	}
+    }
+    if (pattern.charAt(0) == '?') {
+	if (str.length == 0) {
+	    return false;
+	}
+	result test(pattern.str.substring(1));
+    }
+    if (str.length == 0 || str.charAt(0) != pattern.charAt(0)) {
+	return false;
+    }
+    return test(pattern.substring(1), str.substring(1));
+}
