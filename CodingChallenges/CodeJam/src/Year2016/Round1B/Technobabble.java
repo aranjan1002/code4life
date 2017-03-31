@@ -1,6 +1,6 @@
 package Year2016.Round1B;
 
-import Utility.FordFulkerson;
+//import Utility.FordFulkerson;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -79,10 +79,10 @@ public class Technobabble {
 //        }
 //        System.out.println();
 
-        FordFulkerson ff = new FordFulkerson();
-        ff.getMaxFlow(adjMat, 0, idx - 1);
-        int[][] newAdjMat;
-        newAdjMat = ff.getAdjMat();
+//        FordFulkerson ff = new FordFulkerson();
+//        ff.getMaxFlow(adjMat, 0, idx - 1);
+        int[][] newAdjMat = new int[0][0];
+//        newAdjMat = ff.getAdjMat();
         boolean[] isSel = new boolean[idx];
         int res = 0;
 
