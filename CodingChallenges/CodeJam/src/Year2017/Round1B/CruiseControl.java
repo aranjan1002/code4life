@@ -1,10 +1,9 @@
-package Year2017.Round2A;
+package Year2017.Round1B;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
-import java.util.HashMap;
 import java.util.Scanner;
 
 /**
