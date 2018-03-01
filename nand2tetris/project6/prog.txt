@@ -1,0 +1,200 @@
+package BuildAComputer.Project6;
+
+import java.io.*;
+import java.util.*;
+
+/**
+ * Created by Anshu on 2/11/2018.
+ */
+public class Assembler {
+    public static void main(String[] args)
+            throws Exception {
+        new Assembler().start("input.in");
+    }
+
+    public void start(String fileName)
+            throws Exception {
+        Scanner sc = new Scanner(new File(fileName));
+        OutputStreamWriter os =
+                new OutputStreamWriter(
+                        new FileOutputStream("Rect.hack"));
+        BufferedWriter bw = new BufferedWriter(os);
+        List<String> instrList = new ArrayList<>();
+        while (sc.hasNextLine()) {
+            // Code to read input
+            String instr = sc.nextLine().replaceAll(" ", "");
+            if (instr.startsWith("/") || "".equals(instr)) continue;
+            if (instr.contains("/")) {
+                int x = indexOf(instr, '/');
+                instr = instr.substring(0, x);
+            }
+            instrList.add(instr);
+        }
+
+        firstPass(instrList);
+        secondPass(instrList, bw);
+        bw.close();
+    }
+
+    String pad(String s) {
+        String out = "0000000000000000";
+        return out.substring(0, out.length() - s.length()) + s;
+    }
+
+    Map<String, Integer> symbolTable = new HashMap<>();
+
+    void firstPass(List<String> instr) {
+        int pc = 0;
+        for (String i : instr) {
+            if (isLabel(i)) {
+                symbolTable.put(i.substring(1, i.length() - 1), pc);
+            } else {
+                pc++;
+            }
+        }
+    }
+
+    void secondPass(List<String> instr, BufferedWriter bw) throws IOException {
+        for (String i : instr) {
+            String r = "";
+            if (cInstr(i)) {
+                r = parseCInstruction(i);
+            } else if (aInstr(i)) {
+                r = parseAInstruction((i));
+            } else continue;
+            System.out.println(r);
+            bw.write(r + "\n");
+        }
+    }
+
+    boolean aInstr(String instr) {
+        return instr.startsWith("@");
+    }
+
+    boolean cInstr(String instr) {
+        return !aInstr(instr) && !instr.startsWith("(");
+    }
+
+    boolean isLabel(String instr) {
+        return instr.startsWith("(");
+    }
+
+    String parseAInstruction(String instr) {
+        instr = instr.substring(1);
+        if (instr.charAt(0) >= '0' && instr.charAt(0) <= '9') {
+            int i = Integer.parseInt(instr);
+            return pad(Integer.toString(i, 2));
+        } else {
+            for (int i = 0; i < preDefSym.length; i++) {
+                if (preDefSym[i].equals(instr)) {
+                    return pad(Integer.toString(preDefSymInts[i], 2));
+                }
+            }
+            if (symbolTable.containsKey(instr))
+                return pad(Integer.toString(symbolTable.get(instr), 2));
+
+            symbolTable.put(instr, varAddr++);
+            return pad(Integer.toString(varAddr - 1, 2));
+        }
+    }
+
+    String parseCInstruction(String instr) {
+        String r = "111";
+        int compSIdx = 0;
+        String dest = "000";
+        if (instr.contains("=")) {
+            // There is a destination
+            compSIdx = indexOf(instr, '=') + 1;
+            String destStr = instr.substring(0, compSIdx - 1);
+            boolean found = false;
+            for (int i = 0; i < destCodes.length; i++) {
+                if (destCodes[i].equals(destStr)) {
+                    dest = binDestCodes[i];
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+                throw new RuntimeException("Could not find dest " + destStr);
+        }
+        int compEIdx = indexOf(instr, ';');
+        String cStr = instr.substring(compSIdx, compEIdx);
+        boolean found = false;
+        for (int i = 0; i < compCodes.length; i++) {
+            if (compCodes[i].equals(cStr)) {
+                found = true;
+                r += binCompCodes[i];
+                break;
+            }
+        }
+        if (!found){
+            throw new RuntimeException("Could not convert cStr: " + cStr);
+        }
+
+        r += dest;
+
+        String jmp = "000";
+
+        if (instr.contains(";")) {
+            int jmpStIdx = indexOf(instr, ';') + 1;
+            String jmpInst = instr.substring(jmpStIdx);
+            boolean found2 = false;
+            for (int i = 0; i < jmpCodes.length; i++) {
+                if (jmpCodes[i].equals(jmpInst)) {
+                    found2 = true;
+                    jmp = binJmpCodes[i];
+                }
+            }
+            if (!found2) throw new RuntimeException("Could not find jmp : " + jmpInst);
+        }
+
+        r += jmp;
+        return r;
+    }
+
+    int indexOf(String s, char c) {
+        int idx = 0;
+        for (char ch : s.toCharArray()) {
+            if (c == ch) return idx;
+            idx++;
+        }
+        return s.length();
+    }
+
+    String[] compCodes = new String[] {"0", "1", "-1", "D", "A", "!D", "!A", "-D", "-A", "M", "!M", "-M",
+                                       "D+1", "A+1", "D-1", "A-1", "D+A", "D-A", "A-D", "D&A", "D|A",
+                                       "M+1", "M-1", "D+M", "D-M", "M-D", "D&M", "D|M"};
+
+    String[] binCompCodes = new String[] {
+            "0101010", "0111111", "0111010", "0001100", "0110000", "0001101", "0110001", "0001111", "0110011",
+            "1110000", "1110001", "1110011",
+            "0011111", "0110111", "0001110", "0110010", "0000010", "0010011", "0000111", "0000000", "0010101",
+            "1110111", "1110010", "1000010", "1010011", "1000111", "1000000", "1010101"};
+
+    String[] destCodes = new String[]{
+            "M", "D", "MD", "A", "AM", "AD", "AMD"
+    };
+
+    String[] binDestCodes = new String[]{
+            "001", "010", "011", "100", "101", "110", "111"
+    };
+
+    String[] jmpCodes = new String[]{
+            "JGT", "JEQ", "JGE", "JLT", "JNE", "JLE", "JMP"
+    };
+
+    String[] binJmpCodes = new String[]{
+            "001", "010", "011", "100", "101", "110", "111"
+    };
+
+    String [] preDefSym = new String[] {
+            "SP", "LCL", "ARG", "THIS", "THAT", "R0", "R1", "R2", "R3", "R4", "R5", "R6",
+            "R7", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15", "SCREEN", "KBD" };
+
+    int[] preDefSymInts = new int[] {
+            0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16384, 24576
+    };
+
+    int varAddr = 16;
+}
